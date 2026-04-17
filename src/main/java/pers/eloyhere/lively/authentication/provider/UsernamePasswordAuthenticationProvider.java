@@ -30,6 +30,7 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
         if(passwordEncoder.matches(password, consumer.getPassword())){
             return UsernamePasswordAuthenticationToken.authenticated(consumer, password, consumer.getAuthorities());
         }
+
         return UsernamePasswordAuthenticationToken.unauthenticated(username, password);
     }
 

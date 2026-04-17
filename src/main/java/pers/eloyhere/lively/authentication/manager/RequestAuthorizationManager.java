@@ -17,13 +17,25 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatchers;
+import org.springframework.util.AntPathMatcher;
 
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.TreeSet;
 import java.util.function.Supplier;
+import java.util.regex.PatternSyntaxException;
 
 public class RequestAuthorizationManager implements AuthorizationManager<RequestAuthorizationContext> {
+
+    protected static ArrayList<RequestMatcher> publicMatchers = new ArrayList<>();
+
+    static {
+        publicMatchers.add(PathPatternRequestMatcher.pathPattern("/"));
+        publicMatchers.add(PathPatternRequestMatcher.pathPattern("/**"));
+        publicMatchers.add(PathPatternRequestMatcher.pathPattern("/**.*"));
+        publicMatchers.add(PathPatternRequestMatcher.pathPattern("/authentication/**"));
+    }
 
     @Override
     public void verify(@NonNull Supplier<? extends @Nullable Authentication> supplier, @NonNull RequestAuthorizationContext object) throws AuthenticationCredentialsNotFoundException, AuthorizationDeniedException {
@@ -39,10 +51,18 @@ public class RequestAuthorizationManager implements AuthorizationManager<Request
     @Override
     public @Nullable AuthorizationResult authorize(@NonNull Supplier<? extends @Nullable Authentication> supplier, RequestAuthorizationContext object) {
         Authentication authentication = supplier.get();
-        if(Objects.isNull(authentication) || !authentication.isAuthenticated()){
+        if(Objects.isNull(object)){
             return new AuthorizationDecision(false);
         }
         HttpServletRequest request = object.getRequest();
+        if(Objects.isNull(authentication) || !authentication.isAuthenticated()){
+            OrRequestMatcher matcher = new OrRequestMatcher(publicMatchers);
+            return new AuthorizationDecision(matcher.matches(request));
+        }
+        OrRequestMatcher publicMatcher = new OrRequestMatcher(publicMatchers);
+        if(publicMatcher.matches(request)){
+            return new AuthorizationDecision(true);
+        }
         boolean permit = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).filter(Objects::nonNull).anyMatch((authority) -> {
             ArrayList<RequestMatcher> matchers = new ArrayList<>();
             matchers.add((r) -> r.getRequestURI().contentEquals(authority));
@@ -50,9 +70,13 @@ public class RequestAuthorizationManager implements AuthorizationManager<Request
             if(authority.startsWith("/")){
                 matchers.add(PathPatternRequestMatcher.pathPattern(authority));
             }
-            matchers.add(RegexRequestMatcher.regexMatcher(authority));
+            try{
+                matchers.add(RegexRequestMatcher.regexMatcher(authority));
+            }catch (PatternSyntaxException ignored){
+
+            }
             OrRequestMatcher matcher = new OrRequestMatcher(matchers);
-            return matcher.matches(request);
+            return matcher.matches(request) && !PathPatternRequestMatcher.pathPattern("/authentication/**").matches(request);
         });
         return new AuthorizationDecision(permit);
     }

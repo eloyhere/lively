@@ -1,40 +1,68 @@
 package pers.eloyhere.lively.configuration;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AnonymousAuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.RememberMeAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import pers.eloyhere.lively.authentication.entry.InvalidateAuthenticationEntryPoint;
 import pers.eloyhere.lively.authentication.filter.LivelyUsernamePasswordAuthenticationFilter;
+import pers.eloyhere.lively.authentication.filter.handler.LivelyAuthenticationFailureHandler;
+import pers.eloyhere.lively.authentication.filter.handler.LivelyAuthenticationSuccessHandler;
 import pers.eloyhere.lively.authentication.manager.RequestAuthorizationManager;
 import pers.eloyhere.lively.authentication.provider.UsernamePasswordAuthenticationProvider;
+import pers.eloyhere.lively.entity.consumer.Consumer;
+import pers.eloyhere.lively.entity.consumer.Token;
+import pers.eloyhere.lively.service.authentication.LivelyPersistentTokenBasedRememberMeServices;
 import pers.eloyhere.lively.service.consumer.ConsumerService;
+import pers.eloyhere.lively.service.consumer.TokenService;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 @Configuration
+@EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration {
 
     @Bean
     public SecurityContextRepository securityContextRepository(){
-        return new HttpSessionSecurityContextRepository();
+        HttpSessionSecurityContextRepository repository = new HttpSessionSecurityContextRepository();
+        repository.setDisableUrlRewriting(true);
+        return repository;
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(ConsumerService consumerService){
+    public ProviderManager providerManager(ConsumerService consumerService){
         return new ProviderManager(
-                new UsernamePasswordAuthenticationProvider(consumerService)
+                new UsernamePasswordAuthenticationProvider(consumerService),
+                new RememberMeAuthenticationProvider("remember"),
+                new AnonymousAuthenticationProvider("anonymous")
         );
     }
 
@@ -70,18 +98,43 @@ public class SecurityConfiguration {
     }
 
     @Bean
+    InvalidateAuthenticationEntryPoint invalidateAuthenticationEntryPoint(){
+        return new InvalidateAuthenticationEntryPoint();
+    }
+
+    @Bean
     public SecurityFilterChain http(
             final HttpSecurity security,
-            AuthenticationManager authenticationManager,
+            ProviderManager providerManager,
+            RememberMeServices rememberMeServices,
+            CorsConfigurationSource corsConfigurationSource,
             SecurityContextRepository securityContextRepository,
             InvalidateAuthenticationEntryPoint invalidateAuthenticationEntryPoint
     ){
-        return security.authorizeHttpRequests((request) ->
-                        request.requestMatchers("/", "/**.*", "/static/**", "/authentication/**").permitAll().anyRequest().permitAll()//.anyRequest().access(new RequestAuthorizationManager())
-                ).addFilterBefore(new LivelyUsernamePasswordAuthenticationFilter(authenticationManager, securityContextRepository), UsernamePasswordAuthenticationFilter.class).exceptionHandling((exception) -> exception.authenticationEntryPoint(invalidateAuthenticationEntryPoint))
+        AuthenticationSuccessHandler authenticationSuccessHandler = new LivelyAuthenticationSuccessHandler(securityContextRepository);
+        AuthenticationFailureHandler authenticationFailureHandler = new LivelyAuthenticationFailureHandler();
+        LivelyUsernamePasswordAuthenticationFilter livelyUsernamePasswordAuthenticationFilter = new LivelyUsernamePasswordAuthenticationFilter(providerManager);
+        livelyUsernamePasswordAuthenticationFilter.setRememberMeServices(rememberMeServices);
+        livelyUsernamePasswordAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
+        livelyUsernamePasswordAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
+        return security.cors((cors) -> cors.configurationSource(corsConfigurationSource)).authorizeHttpRequests((request) ->
+                    request.anyRequest().access(new RequestAuthorizationManager())
+                ).securityContext((context) -> context.requireExplicitSave(true).securityContextRepository(securityContextRepository))
+                .rememberMe((remember) -> remember.rememberMeServices(rememberMeServices))
+                .addFilterAt(livelyUsernamePasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class).exceptionHandling((exception) -> exception.authenticationEntryPoint(invalidateAuthenticationEntryPoint))
+                .formLogin(AbstractHttpConfigurer::disable)
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                .invalidSessionUrl("/authentication/expire")
-                .maximumSessions(4)
-                .expiredUrl("/authentication/expire")).csrf(AbstractHttpConfigurer::disable).build();
+                    .invalidSessionUrl("/")
+                    .maximumSessions(4)
+                    .expiredUrl("/authentication/expire")
+                    .maxSessionsPreventsLogin(false)
+                )
+                .logout((logout) -> logout.logoutUrl("/authentication/logout")
+                    .addLogoutHandler(new SecurityContextLogoutHandler())
+                    .clearAuthentication(true)
+                    .invalidateHttpSession(true)
+                    .deleteCookies("Authentication", "remember", "JSESSIONID")
+                    .permitAll()
+                ).csrf(AbstractHttpConfigurer::disable).build();
     }
 }

@@ -1,23 +1,23 @@
 package pers.eloyhere.lively.service.authentication;
 
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
-import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.stereotype.Service;
 import pers.eloyhere.lively.service.consumer.ConsumerService;
 import pers.eloyhere.lively.service.consumer.TokenService;
 
 import java.util.UUID;
 
-public class FixedPersistentTokenBasedRememberMeServices extends PersistentTokenBasedRememberMeServices {
+@Service("livelyPersistentTokenBasedRememberMeServices")
+public class LivelyPersistentTokenBasedRememberMeServices extends PersistentTokenBasedRememberMeServices {
 
-    public FixedPersistentTokenBasedRememberMeServices(ConsumerService consumerService, TokenService tokenService) {
+    public LivelyPersistentTokenBasedRememberMeServices(ConsumerService consumerService, TokenService tokenService) {
         super(String.valueOf(UUID.randomUUID()), consumerService, tokenService);
         this.setSeriesLength(128);
         this.setAlwaysRemember(true);
         this.setTokenLength(128);
         this.setTokenValiditySeconds(60*60*24*7);
-        this.setParameter("Authorization");
+        this.setParameter("remember");
         this.setUseSecureCookie(true);
-        this.setCookieName("Authorization");
+        this.setCookieName("remember");
     }
 }

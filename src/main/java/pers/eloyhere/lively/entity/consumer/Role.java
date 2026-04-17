@@ -1,10 +1,10 @@
 package pers.eloyhere.lively.entity.consumer;
 
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.GrantedAuthoritiesContainer;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
@@ -15,10 +15,13 @@ import java.util.*;
 @Entity
 @Table(name = "role")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "role")
-public class Role extends BaseEntity implements GrantedAuthoritiesContainer {
+public class Role extends BaseEntity implements GrantedAuthority, GrantedAuthoritiesContainer {
 
     @Column(name = "name", nullable = false, unique = true, length = 100)
     private String name;
+
+    @Column(name = "description")
+    private String description;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -31,6 +34,19 @@ public class Role extends BaseEntity implements GrantedAuthoritiesContainer {
 
     public Role() {
 
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
+    public @Nullable String getAuthority() {
+        return this.name;
     }
 
     public void add(Authority authority){

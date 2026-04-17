@@ -2,8 +2,10 @@ package pers.eloyhere.lively.controller;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -49,9 +51,24 @@ class AuthenticationController {
         return ResponseEntity.ok(authentication);
     }
 
+    @GetMapping("auto")
+    public ResponseEntity<Authentication> auto(){
+        for(Cookie cookie : request.getCookies()){
+            switch (cookie.getName()){
+                case "Authentication":
+                    break;
+                case "remember":
+                    break;
+            }
+        }
+        return ResponseEntity.ok(UsernamePasswordAuthenticationToken.unauthenticated(null, null));
+    }
+
     @GetMapping("failure")
     public ResponseEntity<Authentication> failure(){
-        return ResponseEntity.ok(UsernamePasswordAuthenticationToken.unauthenticated(null, null));
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        return ResponseEntity.ok(authentication);
     }
 
     @GetMapping("identity")
@@ -62,7 +79,7 @@ class AuthenticationController {
     }
 
     @PostMapping(value = "register")
-    public ResponseEntity<Authentication> register(Consumer consumer){
+    public ResponseEntity<Authentication> register(Consumer consumer, String invitation){
         Consumer trust = consumerService.insert(consumer);
         UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.authenticated(consumer, consumer.getPassword(), trust.getAuthorities());
         SecurityContext context = SecurityContextHolder.createEmptyContext();
@@ -76,12 +93,7 @@ class AuthenticationController {
 
     @GetMapping(value = "expire")
     public ResponseEntity<String> expire(){
-        return ResponseEntity.ok(null);
-    }
-
-    @GetMapping(value = "logout")
-    public ResponseEntity<String> logout(){
-        return ResponseEntity.ok(null);
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
     @GetMapping(value = "lock")

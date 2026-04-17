@@ -18,7 +18,6 @@ import tools.jackson.databind.ObjectWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-@Component
 public class InvalidateAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override

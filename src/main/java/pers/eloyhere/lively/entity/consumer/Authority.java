@@ -19,7 +19,18 @@ public class Authority extends BaseEntity implements GrantedAuthority {
     @Column(name = "authority", nullable = false, unique = true)
     private String authority;
 
+    @Column(name = "description")
+    private String description;
+
     public Authority() {
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Authority(String authority) {

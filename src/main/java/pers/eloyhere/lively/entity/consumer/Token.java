@@ -22,7 +22,7 @@ public class Token extends BaseEntity {
     private String series;
 
     @JsonIgnore
-    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REMOVE}, optional = false)
+    @ManyToOne(cascade = {CascadeType.MERGE}, optional = false)
     @JoinColumn(nullable = false)
     private Consumer consumer;
 

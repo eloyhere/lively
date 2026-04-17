@@ -41,10 +41,12 @@ public class DataInitializer implements CommandLineRunner {
 
         Runnable createRoot = () -> {
             Authority allDirectories = authorityRepository.saveAndFlush(new Authority("/**"));
+            allDirectories.setDescription("一级路径通配符：能匹配像 /users、/orders这样最顶层的路径，但不匹配像 /users/123或 /orders/details这种带子路径的。");
             Authority all = authorityRepository.saveAndFlush(new Authority("/**/**"));
+            all.setDescription("多级路径通配符：能匹配任何深度的路径，包括 /users、/users/123、/users/123/profile等等，可以访问系统中的所有页面和接口，无限制。");
 
             Role rawRootRole = new Role();
-            rawRootRole.setName("root");
+            rawRootRole.setName("Administrator");
             rawRootRole.add(allDirectories);
             rawRootRole.add(all);
             Role rootRole = roleRepository.saveAndFlush(rawRootRole);
@@ -52,10 +54,12 @@ public class DataInitializer implements CommandLineRunner {
             Consumer consumer = new Consumer();
             consumer.add(rootRole);
             consumer.setPassword(passwordEncoder.encode("z123."));
-            consumer.setAvatar("123");
+            consumer.setAvatar("http://localhost/smile.jpeg");
             consumer.setNickname("root");
             consumer.setUsername("root");
             consumerRepository.saveAndFlush(consumer);
+
+
         };
         createRoot.run();
     }

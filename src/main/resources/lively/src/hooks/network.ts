@@ -10,7 +10,6 @@ interface UseGet{
     (url: string, parameters: URLSearchParams, headers: Headers): Promise<Response>;
 }
 export const useGet: UseGet = (url: string, parameters?: FormData | URLSearchParams, headers?: Headers): Promise<Response> => {
-    console.log(url);
     let link: URL = new URL(url);
     if(validate(parameters)){
         for (const [k, v] of parameters){
@@ -20,16 +19,14 @@ export const useGet: UseGet = (url: string, parameters?: FormData | URLSearchPar
         }
         return window.fetch(link, {
             method: "GET",
-            headers: headers || new Headers({
-                Cookie: window.document.cookie
-            })
+            credentials: "include",
+            headers: headers || new Headers()
         });
     }
     return window.fetch(link, {
         method: "GET",
-        headers: headers || new Headers({
-            Cookie: window.document.cookie
-        })
+        credentials: "include",
+        headers: headers || new Headers()
     });
 };
 
@@ -49,24 +46,23 @@ export const usePost: UsePost = (url: string, parameters?: FormData | URLSearchP
             return window.fetch(link, {
                 method: "POST",
                 body: parameters,
-                headers: headers || new Headers({
-                    Cookie: window.document.cookie,
-                })
+                credentials: "include",
+                headers: headers || new Headers()
             });
         }
         return window.fetch(link, {
             method: "POST",
             body: parameters,
+            credentials: "include",
             headers: headers || new Headers({
-                Cookie: window.document.cookie,
                 "Content-Type": "application/x-www-form-urlencoded"
             })
         });
     }
     return window.fetch(link, {
         method: "POST",
+        credentials: "include",
         headers: headers || new Headers({
-            Cookie: window.document.cookie,
             "Content-Type": "application/x-www-form-urlencoded"
         })
     });
@@ -91,16 +87,14 @@ export const usePut: UsePut = (url: string, parameters?: FormData | URLSearchPar
         }
         return window.fetch(link, {
             method: "PUT",
-            headers: headers || new Headers({
-                Cookie: window.document.cookie
-            })
+            credentials: "include",
+            headers: headers || new Headers()
         });
     }
     return window.fetch(link, {
         method: "PUT",
-        headers: headers || new Headers({
-            Cookie: window.document.cookie
-        })
+        credentials: "include",
+        headers: headers || new Headers()
     });
 };
 
@@ -123,15 +117,13 @@ export const useDelete: UseGet = (url: string, parameters?: FormData | URLSearch
         }
         return window.fetch(link, {
             method: "DELETE",
-            headers: headers || new Headers({
-                Cookie: window.document.cookie
-            })
+            credentials: "include",
+            headers: headers || new Headers()
         });
     }
     return window.fetch(link, {
         method: "DELETE",
-        headers: headers || new Headers({
-            Cookie: window.document.cookie
-        })
+        credentials: "include",
+        headers: headers || new Headers()
     });
 };

@@ -1,17 +1,16 @@
-import type {BaseEntity} from "@/interaction/entity.ts";
-import {isIterable, useStringify, useToBigInt} from "semantic-typescript";
+import {isIterable, isObject, isPrimitive, useStringify, useToBigInt} from "semantic-typescript";
 
-interface Resolver<E extends BaseEntity>{
-    resolve(text: string): E;
-    stringify(entity: E): string;
+export interface Serializer<E>{
+    deserialize(text: string): E;
+    serialize(entity: E): string;
 }
-export const useEntity: <E extends BaseEntity>(json: string) => Resolver<E> = <E extends BaseEntity>(json: string): Resolver<E> => {
+export const useSerializer: <E>() => Serializer<E> = <E>(): Serializer<E> => {
     return {
-        resolve(text: string): E {
-            let dateTimePropertyKeys: Set<string> = new Set(["lock", "spawn", "edit"]);
+        deserialize(text: string): E {
+            let dateTimePropertyKeys: Set<string> = new Set(["lock", "spawn", "edit", "last"]);
             let bigintPropertyKeys: Set<string> = new Set(["version"]);
-            let setPropertyKeys: Set<string> = new Set(["authorities"])
-            return JSON.parse(json, (key, value): any => {
+            let setPropertyKeys: Set<string> = new Set(["authorities", "roles", "tokens"])
+            return JSON.parse(text, (key, value ): any => {
                 if(dateTimePropertyKeys.has(key)){
                     return new Date(value);
                 }
@@ -27,8 +26,13 @@ export const useEntity: <E extends BaseEntity>(json: string) => Resolver<E> = <E
                 return value;
             });
         },
-        stringify(entity: E): string {
-            return useStringify(entity);
+        serialize(entity: E): string {
+            if(isPrimitive(entity)){
+                return String(entity);
+            }else if(isObject(entity)){
+                return useStringify(entity);
+            }
+            return Object.prototype.toString.call(entity);
         }
     };
 }
