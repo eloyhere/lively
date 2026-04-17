@@ -4,8 +4,10 @@
 
 <script setup lang="ts">
 
-import {ElLoading} from "element-plus";
+import {ElLoading, ElMessage} from "element-plus";
 import {onMounted} from "vue";
+import {useAuthenticationStore} from "@/stores/authentication.ts";
+import {useGet} from "@/hooks/network.ts";
 
 const load = ElLoading.service({
   lock: true,
@@ -14,6 +16,11 @@ const load = ElLoading.service({
 });
 
 onMounted((): void => {
+  useAuthenticationStore().auto();
+  useGet("http://localhost/consumer/countBy")
+      .then((response: Response) => response.json())
+      .then(BigInt)
+      .then(console.log);
   load.close();
 })
 </script>

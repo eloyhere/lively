@@ -1,9 +1,10 @@
-package pers.eloyhere.lively.entity;
+package pers.eloyhere.lively.entity.consumer;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import pers.eloyhere.lively.entity.BaseEntity;
 
 @Entity
 @Table(name = "invitation")

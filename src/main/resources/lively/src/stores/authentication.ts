@@ -2,7 +2,10 @@ import {defineStore, type PiniaPluginContext, type StateTree, type StoreDefiniti
 import type {Authentication, Authority, Consumer, Role, Token} from "@/interaction/entity.ts";
 import {ref, type Ref, watch} from "vue";
 import {invalidate, type MaybeInvalid, Optional, validate} from "semantic-typescript";
-import {useSerializer} from "@/hooks/entity.ts";
+import {type Serializer, useSerializer} from "@/hooks/entity.ts";
+import {useGet} from "@/hooks/network.ts";
+import {ElMessage} from "element-plus";
+import router from "@/router";
 
 const serializer = useSerializer<Authentication>();
 export const useAuthenticationStore = defineStore(
@@ -65,6 +68,26 @@ export const useAuthenticationStore = defineStore(
             },
             hasAuthority(authority: string): boolean {
                 return false;
+            },
+            auto(){
+                useGet("http://localhost/authentication/auto")
+                    .then((response) => {
+                        if(response.status === 200){
+                            let serializer: Serializer<Authentication> = useSerializer<Authentication>();
+                            response.text().then((text) => {
+                                this.setAuthentication(serializer.deserialize(text));
+                            });
+                        }else{
+                            ElMessage({
+                                message: "身份信息失效，请重新登录。",
+                                type: "info"
+                            });
+                            router.replace({
+                                path: "/authentication/account"
+                            });
+                            this.removeAuthentication()
+                        }
+                    });
             }
         },
         persist: {

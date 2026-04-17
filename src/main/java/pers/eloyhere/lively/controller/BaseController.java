@@ -25,9 +25,9 @@ public class BaseController<E extends BaseEntity, R extends BaseRepository<E>, S
         return ResponseEntity.ok(this.service.countBy(entity));
     }
 
-    @DeleteMapping("deleteById")
-    public ResponseEntity<String> deleteById(@Nonnull final UUID uuid){
-        this.service.deleteById(uuid);
+    @DeleteMapping("deleteByIdentifier")
+    public ResponseEntity<String> deleteByIdentifier(@Nonnull final UUID identifier){
+        this.service.deleteById(identifier);
         return ResponseEntity.ok("ok");
     }
 
@@ -48,9 +48,9 @@ public class BaseController<E extends BaseEntity, R extends BaseRepository<E>, S
         return ResponseEntity.ok(this.service.existBy(entity));
     }
 
-    @GetMapping("findById")
+    @GetMapping("findByIdentifier")
     @SuppressWarnings("unchecked")
-    public ResponseEntity<E> findById(@Nonnull final UUID identifier){
+    public ResponseEntity<E> findByIdentifier(@Nonnull final UUID identifier){
         return this.service.findById(identifier).map(ResponseEntity::ok).orElse((ResponseEntity<E>) ResponseEntity.notFound());
     }
 

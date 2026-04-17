@@ -8,16 +8,27 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 import pers.eloyhere.lively.entity.consumer.Consumer;
+import pers.eloyhere.lively.entity.consumer.Token;
+import pers.eloyhere.lively.service.authentication.LivelyPersistentTokenBasedRememberMeServices;
 import pers.eloyhere.lively.service.consumer.ConsumerService;
 import pers.eloyhere.lively.service.consumer.TokenService;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.Date;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("authentication")
@@ -35,13 +46,16 @@ class AuthenticationController {
 
     private final HttpServletResponse response;
 
-    AuthenticationController(SecurityContextRepository repository, ConsumerService consumerService, TokenService tokenService, AuthenticationManager authenticationManager, HttpServletRequest request, HttpServletResponse response) {
+    private final LivelyPersistentTokenBasedRememberMeServices livelyPersistentTokenBasedRememberMeServices;
+
+    AuthenticationController(SecurityContextRepository repository, ConsumerService consumerService, TokenService tokenService, AuthenticationManager authenticationManager, HttpServletRequest request, HttpServletResponse response, LivelyPersistentTokenBasedRememberMeServices livelyPersistentTokenBasedRememberMeServices) {
         this.repository = repository;
         this.consumerService = consumerService;
         this.tokenService = tokenService;
         this.authenticationManager = authenticationManager;
         this.request = request;
         this.response = response;
+        this.livelyPersistentTokenBasedRememberMeServices = livelyPersistentTokenBasedRememberMeServices;
     }
 
     @GetMapping("success")
@@ -53,15 +67,19 @@ class AuthenticationController {
 
     @GetMapping("auto")
     public ResponseEntity<Authentication> auto(){
-        for(Cookie cookie : request.getCookies()){
-            switch (cookie.getName()){
-                case "Authentication":
-                    break;
-                case "remember":
-                    break;
-            }
+        try{
+            Authentication authentication = livelyPersistentTokenBasedRememberMeServices.autoLogin(request, response);
+            SecurityContextHolderStrategy strategy = SecurityContextHolder.getContextHolderStrategy();
+            SecurityContext context = strategy.createEmptyContext();
+            context.setAuthentication(authentication);
+            strategy.setContext(context);
+            repository.saveContext(context, request, response);
+            return ResponseEntity.ok(authentication);
+        }catch (AuthenticationException exception){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }catch (Exception exception){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return ResponseEntity.ok(UsernamePasswordAuthenticationToken.unauthenticated(null, null));
     }
 
     @GetMapping("failure")

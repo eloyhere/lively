@@ -3,6 +3,7 @@ import {isIterable, isObject, isPrimitive, useStringify, useToBigInt} from "sema
 export interface Serializer<E>{
     deserialize(text: string): E;
     serialize(entity: E): string;
+    serialize(entity: Partial<E>): string;
 }
 export const useSerializer: <E>() => Serializer<E> = <E>(): Serializer<E> => {
     return {
@@ -26,7 +27,7 @@ export const useSerializer: <E>() => Serializer<E> = <E>(): Serializer<E> => {
                 return value;
             });
         },
-        serialize(entity: E): string {
+        serialize(entity: E | Partial<E>): string {
             if(isPrimitive(entity)){
                 return String(entity);
             }else if(isObject(entity)){

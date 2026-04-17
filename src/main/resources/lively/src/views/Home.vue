@@ -105,14 +105,7 @@ const handle: Consumer<string> = (command: string): void => {
       break;
   }
 };
-onMounted((): void => {
-  useGet("http://localhost/authentication/identity")
-      .then((response) => response.text())
-      .then((text) => {
-        let serializer: Serializer<Authentication> = useSerializer<Authentication>();
-        useAuthenticationStore().setAuthentication(serializer.deserialize(text));
-      });
-})
+
 </script>
 
 <style scoped>

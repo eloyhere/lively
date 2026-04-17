@@ -32,11 +32,15 @@ export interface Consumer extends BaseEntity{
     roles: Set<Role>;
 }
 
-export interface Authentication{
+export interface Authentication extends BaseEntity{
     authenticated: boolean;
     authorities: Array<Authority>;
     credentials: MaybeInvalid<string>;
     name: string;
     principal: MaybeInvalid<Consumer>;
+}
+
+export interface Invitation extends BaseEntity{
+
 }
 

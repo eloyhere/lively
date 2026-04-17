@@ -137,11 +137,11 @@ public class BaseService <E extends BaseEntity, R extends BaseRepository<E>>{
     }
 
     @Nonnull
-    public Collection<E> findAllByIdentifiers(@Nullable final Collection<UUID> collection){
-        if(Objects.isNull(collection) || collection.isEmpty()){
+    public Collection<E> findAllByIdentifiers(@Nullable final Collection<UUID> identifiers){
+        if(Objects.isNull(identifiers) || identifiers.isEmpty()){
             return List.of();
         }
-        return this.repository.findAllById(collection);
+        return this.repository.findAllById(identifiers);
     }
 
     @Nonnull
