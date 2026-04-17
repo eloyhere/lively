@@ -7,7 +7,7 @@ import pers.eloyhere.lively.entity.consumer.Authority;
 import pers.eloyhere.lively.repository.consumer.AuthorityRepository;
 import pers.eloyhere.lively.service.consumer.AuthorityService;
 
-@RestController
+@RestController("authorityController")
 @RequestMapping("authority")
 class AuthorityController extends BaseController<Authority, AuthorityRepository, AuthorityService> {
 

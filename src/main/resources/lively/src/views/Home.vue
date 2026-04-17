@@ -1,10 +1,8 @@
 <template>
-  <RouterView/>
+
 </template>
 
 <script setup lang="ts">
-
-import {useGet} from "@/hooks/network.ts";
 
 </script>
 
