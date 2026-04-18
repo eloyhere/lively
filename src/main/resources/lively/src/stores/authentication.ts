@@ -37,26 +37,26 @@ export const useAuthenticationStore = defineStore(
                     .flatMap<Consumer>((authentication) => Optional.of(authentication.principal))
                     .map((consumer: Consumer): string => consumer.nickname);
             },
-            roles(): Set<Role> {
+            roles(): Array<Role> {
                 return Optional.of(this.authentication)
                     .flatMap<Consumer>((authentication) => Optional.of(authentication.principal))
-                    .map((consumer: Consumer): Set<Role> => consumer.roles)
-                    .get(new Set<Role>());
+                    .map((consumer: Consumer): Array<Role> => consumer.roles)
+                    .get(new Array<Role>());
             },
-            authorities(): Set<Authority> {
+            authorities(): Array<Authority> {
                 return Optional.of(this.authentication)
                     .flatMap<Consumer>((authentication) => Optional.of(authentication.principal))
-                    .map((consumer: Consumer): Set<Role> => consumer.roles)
-                    .map((roles: Set<Role>) => {
-                        let authorities: Set<Authority> = new Set<Authority>();
+                    .map((consumer: Consumer): Array<Role> => consumer.roles)
+                    .map((roles: Array<Role>) => {
+                        let authorities: Array<Authority> = new Array<Authority>();
                         roles.forEach((role) => {
                             role.authorities.forEach((authority) => {
-                                authorities.add(authority);
+                                authorities.push(authority);
                             });
                         });
                         return authorities;
                     })
-                    .get(new Set<Authority>());
+                    .get(new Array<Authority>());
             }
         },
         actions: {

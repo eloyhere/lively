@@ -5,6 +5,42 @@
     backgroundAttachment: 'fixed',
     backgroundSize: '100% 100%'
   }">
+    <svg width="400" height="200" xmlns="http://www.w3.org/2000/svg" class="cloud" style="z-index: 2; position: absolute">
+      <defs>
+        <linearGradient id="cloudGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#e8f4fc;stop-opacity:1" />
+        </linearGradient>
+        <radialGradient id="cloudHighlight" cx="30%" cy="30%" r="70%">
+          <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.8" />
+          <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+        </radialGradient>
+      </defs>
+
+      <!-- 大云朵主体 -->
+      <g>
+        <!-- 左侧云朵圆 -->
+        <circle cx="40" cy="60" r="35" fill="url(#cloudGradient)" />
+
+        <!-- 中间上方云朵圆 -->
+        <circle cx="85" cy="45" r="40" fill="url(#cloudGradient)" />
+
+        <!-- 中间下方云朵圆 -->
+        <circle cx="100" cy="70" r="45" fill="url(#cloudGradient)" />
+
+        <!-- 右侧云朵圆 -->
+        <circle cx="150" cy="60" r="35" fill="url(#cloudGradient)" />
+
+        <!-- 右侧小云朵圆 -->
+        <circle cx="130" cy="40" r="25" fill="url(#cloudGradient)" />
+
+        <!-- 左侧小云朵圆 -->
+        <circle cx="60" cy="40" r="25" fill="url(#cloudGradient)" />
+
+        <!-- 高光效果 -->
+        <ellipse cx="90" cy="35" rx="25" ry="15" fill="url(#cloudHighlight)" opacity="0.6" />
+      </g>
+    </svg>
     <div>
       <div class="cartoon">
         <div style="grid-area: 1/1;">

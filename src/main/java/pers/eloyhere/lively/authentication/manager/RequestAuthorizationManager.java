@@ -19,10 +19,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatchers;
 import org.springframework.util.AntPathMatcher;
 
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.regex.PatternSyntaxException;
 
@@ -49,8 +46,8 @@ public class RequestAuthorizationManager implements AuthorizationManager<Request
         if(Objects.isNull(authentication) || !authentication.isAuthenticated()){
             return new AuthorizationDecision(false);
         }
+
         boolean permit = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).filter(Objects::nonNull).anyMatch((authority) -> {
-            System.out.println("----------------------url"+request.getRequestURI()+"-"+authority);
             ArrayList<RequestMatcher> matchers = new ArrayList<>();
             matchers.add((r) -> r.getRequestURI().contentEquals(authority));
             matchers.add((r) -> r.getMethod().toLowerCase(Locale.ROOT).contentEquals(authority.toLowerCase(Locale.ROOT)));

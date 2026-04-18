@@ -25,9 +25,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.session.InvalidSessionStrategy;
 import org.springframework.security.web.session.SessionInformationExpiredEvent;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -40,6 +43,7 @@ import pers.eloyhere.lively.authentication.provider.UsernamePasswordAuthenticati
 import pers.eloyhere.lively.service.consumer.ConsumerService;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 @Configuration
@@ -123,15 +127,33 @@ public class SecurityConfiguration {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                     .invalidSessionStrategy((request, response) -> {
-                        SecurityContextHolder.clearContext();
-                        response.setStatus(HttpStatus.NON_AUTHORITATIVE_INFORMATION.value());
+                        ArrayList<RequestMatcher> matchers = new ArrayList<>();
+                        matchers.add(PathPatternRequestMatcher.pathPattern("/"));
+                        matchers.add(PathPatternRequestMatcher.pathPattern("/**"));
+                        matchers.add(PathPatternRequestMatcher.pathPattern("/**.*"));
+                        matchers.add(PathPatternRequestMatcher.pathPattern("/authentication/**"));
+                        OrRequestMatcher matcher = new OrRequestMatcher(matchers);
+                        if(!matcher.matches(request)){
+                            SecurityContextHolder.clearContext();
+                            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                        }
                     })
                     .maximumSessions(4)
                     .maxSessionsPreventsLogin(false)
                     .expiredSessionStrategy(event -> {
                         SecurityContextHolder.clearContext();
+                        HttpServletRequest request = event.getRequest();
                         HttpServletResponse response = event.getResponse();
-                        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                        ArrayList<RequestMatcher> matchers = new ArrayList<>();
+                        matchers.add(PathPatternRequestMatcher.pathPattern("/"));
+                        matchers.add(PathPatternRequestMatcher.pathPattern("/**"));
+                        matchers.add(PathPatternRequestMatcher.pathPattern("/**.*"));
+                        matchers.add(PathPatternRequestMatcher.pathPattern("/authentication/**"));
+                        OrRequestMatcher matcher = new OrRequestMatcher(matchers);
+                        if(!matcher.matches(request)){
+                            SecurityContextHolder.clearContext();
+                            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                        }
                     })
                 )
                 .logout((logout) -> logout.logoutUrl("/authentication/logout")
