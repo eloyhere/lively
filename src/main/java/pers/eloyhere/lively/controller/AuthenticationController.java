@@ -18,6 +18,10 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
+import pers.eloyhere.lively.annotation.Authenticated;
+import pers.eloyhere.lively.annotation.Everyone;
+import pers.eloyhere.lively.annotation.Guest;
+import pers.eloyhere.lively.annotation.Unauthenticated;
 import pers.eloyhere.lively.entity.consumer.Consumer;
 import pers.eloyhere.lively.entity.consumer.Invitation;
 import pers.eloyhere.lively.entity.consumer.Token;
@@ -64,6 +68,7 @@ class AuthenticationController {
         this.livelyPersistentTokenBasedRememberMeServices = livelyPersistentTokenBasedRememberMeServices;
     }
 
+    @Everyone
     @GetMapping("success")
     public ResponseEntity<Authentication> success(){
         SecurityContext context = SecurityContextHolder.getContext();
@@ -71,6 +76,7 @@ class AuthenticationController {
         return ResponseEntity.ok(authentication);
     }
 
+    @Everyone
     @GetMapping("auto")
     public ResponseEntity<Authentication> auto(){
         try{
@@ -95,6 +101,7 @@ class AuthenticationController {
         return ResponseEntity.ok(authentication);
     }
 
+    @Authenticated
     @GetMapping("identity")
     public ResponseEntity<Authentication> identity(){
         SecurityContext context = SecurityContextHolder.getContext();
@@ -102,6 +109,7 @@ class AuthenticationController {
         return ResponseEntity.ok(authentication);
     }
 
+    @Unauthenticated
     @PostMapping(value = "register")
     public ResponseEntity<Authentication> register(Consumer consumer, @RequestParam String invitation){
         Invitation example = new Invitation();
@@ -126,6 +134,7 @@ class AuthenticationController {
         return ResponseEntity.notFound().build();
     }
 
+    @Authenticated
     @GetMapping(value = "expire")
     public ResponseEntity<String> expire(){
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);

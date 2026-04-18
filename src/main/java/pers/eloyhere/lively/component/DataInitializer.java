@@ -41,40 +41,40 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String @NonNull ... args) throws Exception {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        Runnable createAnonymous = () -> {
-            Collection<Authority> authorities = authorityRepository.saveAllAndFlush(Stream.of("/", "/**", "/**.*", "/authentication/**").map(Authority::new).toList());
-            Role anonymousRole = new Role();
-            anonymousRole.setName("anonymous");
-            anonymousRole.setDescription("匿名用户角色。");
-            anonymousRole = roleRepository.saveAndFlush(anonymousRole);
-            Consumer anonymousConsumer = new Consumer();
-            anonymousConsumer.setUsername("anonymouse");
-            anonymousConsumer.setNickname("anonymouse");
-            anonymousConsumer.setAvatar("...");
-            anonymousConsumer.setPassword(passwordEncoder.encode("..."));
-            anonymousConsumer.add(anonymousRole);
-            consumerRepository.saveAndFlush(anonymousConsumer);
-        };
-        createAnonymous.run();
-        Runnable createRoot = () -> {
-            Authority all = authorityRepository.saveAndFlush(new Authority("/**/**"));
-            all.setDescription("多级路径通配符：能匹配任何深度的路径，包括 /users、/users/123、/users/123/profile等等，可以访问系统中的所有页面和接口，无限制。");
 
-            Role rawRootRole = new Role();
-            rawRootRole.setName("Administrator");
-            rawRootRole.add(all);
-            Role rootRole = roleRepository.saveAndFlush(rawRootRole);
+        List<Authority> authorities = authorityRepository.saveAllAndFlush(
+                Stream.of("select", "insert", "update", "delete", "count")
+                .map((a) -> {
+                    Authority authority = new Authority();
+                    authority.setAuthority(a);
+                    authority.setDescription(a);
+                    return authority;
+                }).toList());
+        List<Authority> modules = authorityRepository.saveAllAndFlush(
+                Stream.of("token", "consumer", "book", "chapter", "chat", "message", "authority", "invitation", "role", "announcement")
+                .map((a) -> {
+                    Authority authority = new Authority();
+                    authority.setAuthority(a);
+                    authority.setDescription(a);
+                    return authority;
+                }).toList());
+        List<Role> roles = roleRepository.saveAllAndFlush(Stream.of("administrator", "consumer", "guest").map((name) -> {
+            Role role = new Role();
+            role.setName(name);
+            role.setDescription(name);
+            return role;
+        }).toList());
 
-            Consumer consumer = new Consumer();
-            consumer.add(rootRole);
-            consumer.setPassword(passwordEncoder.encode("z123."));
-            consumer.setAvatar("http://localhost/smile.jpeg");
-            consumer.setNickname("root");
-            consumer.setUsername("root");
-            consumerRepository.saveAndFlush(consumer);
-
-
-        };
-        createRoot.run();
+        Consumer administrator = new Consumer();
+        administrator.setNickname("administrator");
+        administrator.setAvatar("http://localhost/smile.png");
+        administrator.setPassword(passwordEncoder.encode("z123."));
+        administrator.setUsername("administrator");
+        roles.forEach((role) -> {
+            if(role.getName().contentEquals(administrator.getUsername())){
+                administrator.getRoles().add(role);
+            }
+        });
+        consumerRepository.saveAndFlush(administrator);
     }
 }

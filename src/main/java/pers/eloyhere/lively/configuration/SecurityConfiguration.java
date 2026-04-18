@@ -1,13 +1,10 @@
 package pers.eloyhere.lively.configuration;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.jspecify.annotations.NonNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AnonymousAuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.RememberMeAuthenticationProvider;
@@ -17,8 +14,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -28,9 +23,6 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
-import org.springframework.security.web.session.InvalidSessionStrategy;
-import org.springframework.security.web.session.SessionInformationExpiredEvent;
-import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
@@ -40,22 +32,15 @@ import pers.eloyhere.lively.authentication.entry.InvalidateAuthenticationEntryPo
 import pers.eloyhere.lively.authentication.filter.LivelyUsernamePasswordAuthenticationFilter;
 import pers.eloyhere.lively.authentication.filter.handler.LivelyAuthenticationFailureHandler;
 import pers.eloyhere.lively.authentication.filter.handler.LivelyAuthenticationSuccessHandler;
-import pers.eloyhere.lively.authentication.manager.RequestAuthorizationManager;
 import pers.eloyhere.lively.authentication.provider.UsernamePasswordAuthenticationProvider;
-import pers.eloyhere.lively.entity.consumer.Authority;
-import pers.eloyhere.lively.entity.consumer.Consumer;
-import pers.eloyhere.lively.entity.consumer.Role;
 import pers.eloyhere.lively.service.consumer.ConsumerService;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Stream;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity
 public class SecurityConfiguration {
 
     @Bean
@@ -117,8 +102,7 @@ public class SecurityConfiguration {
             RememberMeServices rememberMeServices,
             CorsConfigurationSource corsConfigurationSource,
             SecurityContextRepository securityContextRepository,
-            InvalidateAuthenticationEntryPoint invalidateAuthenticationEntryPoint,
-            ConsumerService consumerService){
+            InvalidateAuthenticationEntryPoint invalidateAuthenticationEntryPoint){
         AuthenticationSuccessHandler authenticationSuccessHandler = new LivelyAuthenticationSuccessHandler(securityContextRepository);
         AuthenticationFailureHandler authenticationFailureHandler = new LivelyAuthenticationFailureHandler();
         LivelyUsernamePasswordAuthenticationFilter livelyUsernamePasswordAuthenticationFilter = new LivelyUsernamePasswordAuthenticationFilter(providerManager);
@@ -126,26 +110,9 @@ public class SecurityConfiguration {
         livelyUsernamePasswordAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
         livelyUsernamePasswordAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
         return security.cors((cors) -> cors.configurationSource(corsConfigurationSource))
-                .authorizeHttpRequests((request) -> request.requestMatchers("/", "/**", "/**.*").permitAll().anyRequest().access(new RequestAuthorizationManager()))
+                .authorizeHttpRequests((request) -> request.anyRequest().permitAll())
                 .anonymous((anonymous) -> {
-                    Consumer example = new Consumer();
-                    example.setUsername("anonymous");
-                    if(consumerService.existBy(example)){
-                        Consumer consumer = consumerService.loadUserByUsername("anonymous");
-                        anonymous.key("anonymous").authorities(List.copyOf(consumer.getAuthorities())).principal(consumer);
-                    }else{
-                        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-                        List<Authority> authorities = Stream.of("/", "/**", "/**.*", "/authentication/**").map(Authority::new).toList();
-                        Role anonymousRole = new Role();
-                        anonymousRole.setName("anonymous");
-                        anonymousRole.setDescription("匿名用户角色。");
-                        Consumer anonymousConsumer = new Consumer();
-                        anonymousConsumer.setUsername("anonymouse");
-                        anonymousConsumer.setNickname("anonymouse");
-                        anonymousConsumer.setAvatar("...");
-                        anonymousConsumer.setPassword(passwordEncoder.encode("..."));
-                        anonymousConsumer.add(anonymousRole);
-                    }
+                    anonymous.key("anonymous").principal("guest").authorities("guest");
                 })
                 .securityContext((context) -> context.requireExplicitSave(true).securityContextRepository(securityContextRepository))
                 .rememberMe((remember) -> remember.rememberMeServices(rememberMeServices))
