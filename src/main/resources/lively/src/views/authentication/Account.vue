@@ -25,7 +25,7 @@
           </transition>
         </div>
       </div>
-      <svg width="400" height="200" xmlns="http://www.w3.org/2000/svg" class="cloud1">
+      <svg width="400" height="200" xmlns="http://www.w3.org/2000/svg" class="cloud">
         <defs>
           <linearGradient id="cloudGradient" x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
@@ -46,91 +46,7 @@
           <ellipse cx="90" cy="35" rx="25" ry="15" fill="url(#cloudHighlight)" opacity="0.6" />
         </g>
       </svg>
-      <svg width="400" height="200" xmlns="http://www.w3.org/2000/svg" class="cloud2">
-        <defs>
-          <linearGradient id="cloudGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
-            <stop offset="100%" style="stop-color:#e8f4fc;stop-opacity:1" />
-          </linearGradient>
-          <radialGradient id="cloudHighlight" cx="30%" cy="30%" r="70%">
-            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.8" />
-            <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
-          </radialGradient>
-        </defs>
-        <g>
-          <circle cx="40" cy="60" r="35" fill="url(#cloudGradient)" />
-          <circle cx="85" cy="45" r="40" fill="url(#cloudGradient)" />
-          <circle cx="100" cy="70" r="45" fill="url(#cloudGradient)" />
-          <circle cx="150" cy="60" r="35" fill="url(#cloudGradient)" />
-          <circle cx="130" cy="40" r="25" fill="url(#cloudGradient)" />
-          <circle cx="60" cy="40" r="25" fill="url(#cloudGradient)" />
-          <ellipse cx="90" cy="35" rx="25" ry="15" fill="url(#cloudHighlight)" opacity="0.6" />
-        </g>
-      </svg>
-      <svg width="400" height="200" xmlns="http://www.w3.org/2000/svg" class="cloud3">
-        <defs>
-          <linearGradient id="cloudGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
-            <stop offset="100%" style="stop-color:#e8f4fc;stop-opacity:1" />
-          </linearGradient>
-          <radialGradient id="cloudHighlight" cx="30%" cy="30%" r="70%">
-            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.8" />
-            <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
-          </radialGradient>
-        </defs>
-        <g>
-          <circle cx="40" cy="60" r="35" fill="url(#cloudGradient)" />
-          <circle cx="85" cy="45" r="40" fill="url(#cloudGradient)" />
-          <circle cx="100" cy="70" r="45" fill="url(#cloudGradient)" />
-          <circle cx="150" cy="60" r="35" fill="url(#cloudGradient)" />
-          <circle cx="130" cy="40" r="25" fill="url(#cloudGradient)" />
-          <circle cx="60" cy="40" r="25" fill="url(#cloudGradient)" />
-          <ellipse cx="90" cy="35" rx="25" ry="15" fill="url(#cloudHighlight)" opacity="0.6" />
-        </g>
-      </svg>
-      <svg width="400" height="200" xmlns="http://www.w3.org/2000/svg" class="cloud4">
-        <defs>
-          <linearGradient id="cloudGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
-            <stop offset="100%" style="stop-color:#e8f4fc;stop-opacity:1" />
-          </linearGradient>
-          <radialGradient id="cloudHighlight" cx="30%" cy="30%" r="70%">
-            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.8" />
-            <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
-          </radialGradient>
-        </defs>
-        <g>
-          <circle cx="40" cy="60" r="35" fill="url(#cloudGradient)" />
-          <circle cx="85" cy="45" r="40" fill="url(#cloudGradient)" />
-          <circle cx="100" cy="70" r="45" fill="url(#cloudGradient)" />
-          <circle cx="150" cy="60" r="35" fill="url(#cloudGradient)" />
-          <circle cx="130" cy="40" r="25" fill="url(#cloudGradient)" />
-          <circle cx="60" cy="40" r="25" fill="url(#cloudGradient)" />
-          <ellipse cx="90" cy="35" rx="25" ry="15" fill="url(#cloudHighlight)" opacity="0.6" />
-        </g>
-      </svg>
-      <svg width="400" height="200" xmlns="http://www.w3.org/2000/svg" class="cloud5">
-        <defs>
-          <linearGradient id="cloudGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
-            <stop offset="100%" style="stop-color:#e8f4fc;stop-opacity:1" />
-          </linearGradient>
-          <radialGradient id="cloudHighlight" cx="30%" cy="30%" r="70%">
-            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.8" />
-            <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
-          </radialGradient>
-        </defs>
-        <g>
-          <circle cx="40" cy="60" r="35" fill="url(#cloudGradient)" />
-          <circle cx="85" cy="45" r="40" fill="url(#cloudGradient)" />
-          <circle cx="100" cy="70" r="45" fill="url(#cloudGradient)" />
-          <circle cx="150" cy="60" r="35" fill="url(#cloudGradient)" />
-          <circle cx="130" cy="40" r="25" fill="url(#cloudGradient)" />
-          <circle cx="60" cy="40" r="25" fill="url(#cloudGradient)" />
-          <ellipse cx="90" cy="35" rx="25" ry="15" fill="url(#cloudHighlight)" opacity="0.6" />
-        </g>
-      </svg>
-      <el-tabs v-model="title" class="panel" style="padding: 16px">
+      <el-tabs v-model="title" class="panel">
         <el-tab-pane label="用户名密码登录" name="UsernameAndPasswordLogin">
           <ElForm ref="usernamePasswordLoginForm" :model="usernamePasswordLoginFormData">
             <ElFormItem label="用户名" prop="username" :rules="[
@@ -176,8 +92,10 @@
               <el-switch v-model="usernamePasswordLoginFormData.remember" />
             </ElFormItem>
             <ElFormItem>
-              <ElButton plain type="primary" icon="checked" @click="performUsernamePasswordLogin()">登录</ElButton>
-              <ElButton plain type="info" icon="refresh" @click="resetUsernamePasswordLoginForm()">重置</ElButton>
+              <div style="height: 100%; width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: center">
+                <ElButton plain type="primary" icon="checked" @click="performUsernamePasswordLogin()">登录</ElButton>
+                <ElButton plain type="info" icon="refresh" @click="resetUsernamePasswordLoginForm()">重置</ElButton>
+              </div>
             </ElFormItem>
           </ElForm>
         </el-tab-pane>
@@ -226,8 +144,10 @@
               <el-switch v-model="checkCodeLoginFormData.remember" />
             </ElFormItem>
             <ElFormItem>
-              <ElButton plain type="primary" icon="checked" @click="performCheckCodeLogin()">登录</ElButton>
-              <ElButton plain type="info" icon="refresh" @click="resetCheckCodeLoginForm()">重置</ElButton>
+              <div style="height: 100%; width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: center">
+                <ElButton plain type="primary" icon="checked" @click="performCheckCodeLogin()">登录</ElButton>
+                <ElButton plain type="info" icon="refresh" @click="resetCheckCodeLoginForm()">重置</ElButton>
+              </div>
             </ElFormItem>
           </ElForm>
         </el-tab-pane>
@@ -314,9 +234,11 @@
             ]">
               <ElInput placeholder="请输入邀请码" clearable v-model="registerFormData.invitation"/>
             </ElFormItem>
-            <ElFormItem>
-              <ElButton plain type="primary" icon="checked" @click="performRegister()">注册</ElButton>
-              <ElButton plain type="info" icon="refresh" @click="resetRegisterForm()">重置</ElButton>
+            <ElFormItem labelPosition="left">
+              <div style="height: 100%; width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: center">
+                <ElButton plain type="primary" icon="checked" @click="performRegister()">注册</ElButton>
+                <ElButton plain type="info" icon="refresh" @click="resetRegisterForm()">重置</ElButton>
+              </div>
             </ElFormItem>
           </ElForm>
         </el-tab-pane>
@@ -542,12 +464,12 @@ const performRegister: () => void = async (): Promise<void> => {
   }
 };
 const resetRegisterForm: Runnable = () => {
-  if(validate(checkCodeLoginForm.value)){
-    checkCodeLoginForm.value.resetFields();
+  if(validate(registerForm.value)){
+    registerForm.value.resetFields();
   }
 };
 onMounted(() => {
-  fetchPicture("http://localhost/smile.jpeg").then((value) => {
+  fetchPicture("http://localhost/smile.png").then((value) => {
     smile.value = value;
     src.value = value;
   });
@@ -561,8 +483,13 @@ onMounted(() => {
 .panel{
   width: 600px;
   height: 360px;
-  background: white;
+  padding: 16px;
+  background: transparent;
   z-index: 10;
+}
+
+.panel * {
+  z-index: inherit;
 }
 
 .container{
@@ -583,43 +510,16 @@ onMounted(() => {
   height: 160px;
   position: absolute;
   margin-top: -160px;
-  z-index: 1;
+  z-index: 6;
   pointer-events: none;
 }
 
-.cloud1{
+.cloud{
   position: absolute;
-  margin-top: -280px;
-  margin-left: -75px;
   z-index: 2;
-  transform: rotate(-40deg);
-  pointer-events: none;
-}
-
-.cloud2{
-  position: absolute;
-  margin-top: -130px;
-  margin-left: 40px;
-  z-index: 2;
-  transform: rotate(45deg);
-  pointer-events: none;
-}
-
-.cloud3{
-  position: absolute;
-  margin-top: -20px;
-  margin-left: -120px;
-  z-index: 2;
-  transform: rotate(40deg);
-  pointer-events: none;
-}
-
-.cloud4{
-  position: absolute;
-  margin-top: -160px;
-  margin-left: 80px;
-  z-index: 2;
-  transform: rotate(-40deg);
+  margin-left: 600px;
+  margin-top: 300px;
+  transform: scale(500%);
   pointer-events: none;
 }
 
