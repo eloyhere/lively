@@ -1,46 +1,5 @@
 <template>
-  <ElContainer class="container" :style="{
-    background: 'url(http://localhost/background.jpeg)',
-    backgroundRepeat: 'no-repeat',
-    backgroundAttachment: 'fixed',
-    backgroundSize: '100% 100%'
-  }">
-    <svg width="400" height="200" xmlns="http://www.w3.org/2000/svg" class="cloud" style="z-index: 2; position: absolute">
-      <defs>
-        <linearGradient id="cloudGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
-          <stop offset="100%" style="stop-color:#e8f4fc;stop-opacity:1" />
-        </linearGradient>
-        <radialGradient id="cloudHighlight" cx="30%" cy="30%" r="70%">
-          <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.8" />
-          <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
-        </radialGradient>
-      </defs>
-
-      <!-- 大云朵主体 -->
-      <g>
-        <!-- 左侧云朵圆 -->
-        <circle cx="40" cy="60" r="35" fill="url(#cloudGradient)" />
-
-        <!-- 中间上方云朵圆 -->
-        <circle cx="85" cy="45" r="40" fill="url(#cloudGradient)" />
-
-        <!-- 中间下方云朵圆 -->
-        <circle cx="100" cy="70" r="45" fill="url(#cloudGradient)" />
-
-        <!-- 右侧云朵圆 -->
-        <circle cx="150" cy="60" r="35" fill="url(#cloudGradient)" />
-
-        <!-- 右侧小云朵圆 -->
-        <circle cx="130" cy="40" r="25" fill="url(#cloudGradient)" />
-
-        <!-- 左侧小云朵圆 -->
-        <circle cx="60" cy="40" r="25" fill="url(#cloudGradient)" />
-
-        <!-- 高光效果 -->
-        <ellipse cx="90" cy="35" rx="25" ry="15" fill="url(#cloudHighlight)" opacity="0.6" />
-      </g>
-    </svg>
+  <ElContainer class="container">
     <div>
       <div class="cartoon">
         <div style="grid-area: 1/1;">
@@ -66,6 +25,111 @@
           </transition>
         </div>
       </div>
+      <svg width="400" height="200" xmlns="http://www.w3.org/2000/svg" class="cloud1">
+        <defs>
+          <linearGradient id="cloudGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#e8f4fc;stop-opacity:1" />
+          </linearGradient>
+          <radialGradient id="cloudHighlight" cx="30%" cy="30%" r="70%">
+            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.8" />
+            <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+          </radialGradient>
+        </defs>
+        <g>
+          <circle cx="40" cy="60" r="35" fill="url(#cloudGradient)" />
+          <circle cx="85" cy="45" r="40" fill="url(#cloudGradient)" />
+          <circle cx="100" cy="70" r="45" fill="url(#cloudGradient)" />
+          <circle cx="150" cy="60" r="35" fill="url(#cloudGradient)" />
+          <circle cx="130" cy="40" r="25" fill="url(#cloudGradient)" />
+          <circle cx="60" cy="40" r="25" fill="url(#cloudGradient)" />
+          <ellipse cx="90" cy="35" rx="25" ry="15" fill="url(#cloudHighlight)" opacity="0.6" />
+        </g>
+      </svg>
+      <svg width="400" height="200" xmlns="http://www.w3.org/2000/svg" class="cloud2">
+        <defs>
+          <linearGradient id="cloudGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#e8f4fc;stop-opacity:1" />
+          </linearGradient>
+          <radialGradient id="cloudHighlight" cx="30%" cy="30%" r="70%">
+            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.8" />
+            <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+          </radialGradient>
+        </defs>
+        <g>
+          <circle cx="40" cy="60" r="35" fill="url(#cloudGradient)" />
+          <circle cx="85" cy="45" r="40" fill="url(#cloudGradient)" />
+          <circle cx="100" cy="70" r="45" fill="url(#cloudGradient)" />
+          <circle cx="150" cy="60" r="35" fill="url(#cloudGradient)" />
+          <circle cx="130" cy="40" r="25" fill="url(#cloudGradient)" />
+          <circle cx="60" cy="40" r="25" fill="url(#cloudGradient)" />
+          <ellipse cx="90" cy="35" rx="25" ry="15" fill="url(#cloudHighlight)" opacity="0.6" />
+        </g>
+      </svg>
+      <svg width="400" height="200" xmlns="http://www.w3.org/2000/svg" class="cloud3">
+        <defs>
+          <linearGradient id="cloudGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#e8f4fc;stop-opacity:1" />
+          </linearGradient>
+          <radialGradient id="cloudHighlight" cx="30%" cy="30%" r="70%">
+            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.8" />
+            <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+          </radialGradient>
+        </defs>
+        <g>
+          <circle cx="40" cy="60" r="35" fill="url(#cloudGradient)" />
+          <circle cx="85" cy="45" r="40" fill="url(#cloudGradient)" />
+          <circle cx="100" cy="70" r="45" fill="url(#cloudGradient)" />
+          <circle cx="150" cy="60" r="35" fill="url(#cloudGradient)" />
+          <circle cx="130" cy="40" r="25" fill="url(#cloudGradient)" />
+          <circle cx="60" cy="40" r="25" fill="url(#cloudGradient)" />
+          <ellipse cx="90" cy="35" rx="25" ry="15" fill="url(#cloudHighlight)" opacity="0.6" />
+        </g>
+      </svg>
+      <svg width="400" height="200" xmlns="http://www.w3.org/2000/svg" class="cloud4">
+        <defs>
+          <linearGradient id="cloudGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#e8f4fc;stop-opacity:1" />
+          </linearGradient>
+          <radialGradient id="cloudHighlight" cx="30%" cy="30%" r="70%">
+            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.8" />
+            <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+          </radialGradient>
+        </defs>
+        <g>
+          <circle cx="40" cy="60" r="35" fill="url(#cloudGradient)" />
+          <circle cx="85" cy="45" r="40" fill="url(#cloudGradient)" />
+          <circle cx="100" cy="70" r="45" fill="url(#cloudGradient)" />
+          <circle cx="150" cy="60" r="35" fill="url(#cloudGradient)" />
+          <circle cx="130" cy="40" r="25" fill="url(#cloudGradient)" />
+          <circle cx="60" cy="40" r="25" fill="url(#cloudGradient)" />
+          <ellipse cx="90" cy="35" rx="25" ry="15" fill="url(#cloudHighlight)" opacity="0.6" />
+        </g>
+      </svg>
+      <svg width="400" height="200" xmlns="http://www.w3.org/2000/svg" class="cloud5">
+        <defs>
+          <linearGradient id="cloudGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#e8f4fc;stop-opacity:1" />
+          </linearGradient>
+          <radialGradient id="cloudHighlight" cx="30%" cy="30%" r="70%">
+            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.8" />
+            <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+          </radialGradient>
+        </defs>
+        <g>
+          <circle cx="40" cy="60" r="35" fill="url(#cloudGradient)" />
+          <circle cx="85" cy="45" r="40" fill="url(#cloudGradient)" />
+          <circle cx="100" cy="70" r="45" fill="url(#cloudGradient)" />
+          <circle cx="150" cy="60" r="35" fill="url(#cloudGradient)" />
+          <circle cx="130" cy="40" r="25" fill="url(#cloudGradient)" />
+          <circle cx="60" cy="40" r="25" fill="url(#cloudGradient)" />
+          <ellipse cx="90" cy="35" rx="25" ry="15" fill="url(#cloudHighlight)" opacity="0.6" />
+        </g>
+      </svg>
       <el-tabs v-model="title" class="panel" style="padding: 16px">
         <el-tab-pane label="用户名密码登录" name="UsernameAndPasswordLogin">
           <ElForm ref="usernamePasswordLoginForm" :model="usernamePasswordLoginFormData">
@@ -497,8 +561,8 @@ onMounted(() => {
 .panel{
   width: 600px;
   height: 360px;
-  position: relative;
   background: white;
+  z-index: 10;
 }
 
 .container{
@@ -508,15 +572,63 @@ onMounted(() => {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+
+  background: url(http://localhost/background.jpeg) no-repeat fixed;
+  background-size: 100% 100%;
 }
 
 .cartoon{
   display: grid;
   width: 200px;
   height: 160px;
-  position: relative;
-  top: 0;
-  left: -20%;
+  position: absolute;
+  margin-top: -160px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.cloud1{
+  position: absolute;
+  margin-top: -280px;
+  margin-left: -75px;
+  z-index: 2;
+  transform: rotate(-40deg);
+  pointer-events: none;
+}
+
+.cloud2{
+  position: absolute;
+  margin-top: -130px;
+  margin-left: 40px;
+  z-index: 2;
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+.cloud3{
+  position: absolute;
+  margin-top: -20px;
+  margin-left: -120px;
+  z-index: 2;
+  transform: rotate(40deg);
+  pointer-events: none;
+}
+
+.cloud4{
+  position: absolute;
+  margin-top: -160px;
+  margin-left: 80px;
+  z-index: 2;
+  transform: rotate(-40deg);
+  pointer-events: none;
+}
+
+.cloud5{
+  position: absolute;
+  margin-top: -250px;
+  margin-left: 30px;
+  z-index: 2;
+  pointer-events: none;
 }
 
 .fade-enter-active,

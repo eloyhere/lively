@@ -19,9 +19,11 @@ import org.springframework.security.web.authentication.rememberme.PersistentReme
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 import pers.eloyhere.lively.entity.consumer.Consumer;
+import pers.eloyhere.lively.entity.consumer.Invitation;
 import pers.eloyhere.lively.entity.consumer.Token;
 import pers.eloyhere.lively.service.authentication.LivelyPersistentTokenBasedRememberMeServices;
 import pers.eloyhere.lively.service.consumer.ConsumerService;
+import pers.eloyhere.lively.service.consumer.InvitationService;
 import pers.eloyhere.lively.service.consumer.TokenService;
 
 import java.time.LocalDateTime;
@@ -29,6 +31,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("authentication")
@@ -40,6 +43,8 @@ class AuthenticationController {
 
     private final TokenService tokenService;
 
+    private final InvitationService invitationService;
+
     private final AuthenticationManager authenticationManager;
 
     private final HttpServletRequest request;
@@ -48,10 +53,11 @@ class AuthenticationController {
 
     private final LivelyPersistentTokenBasedRememberMeServices livelyPersistentTokenBasedRememberMeServices;
 
-    AuthenticationController(SecurityContextRepository repository, ConsumerService consumerService, TokenService tokenService, AuthenticationManager authenticationManager, HttpServletRequest request, HttpServletResponse response, LivelyPersistentTokenBasedRememberMeServices livelyPersistentTokenBasedRememberMeServices) {
+    AuthenticationController(SecurityContextRepository repository, ConsumerService consumerService, TokenService tokenService, InvitationService invitationService, AuthenticationManager authenticationManager, HttpServletRequest request, HttpServletResponse response, LivelyPersistentTokenBasedRememberMeServices livelyPersistentTokenBasedRememberMeServices) {
         this.repository = repository;
         this.consumerService = consumerService;
         this.tokenService = tokenService;
+        this.invitationService = invitationService;
         this.authenticationManager = authenticationManager;
         this.request = request;
         this.response = response;
@@ -96,17 +102,26 @@ class AuthenticationController {
         return ResponseEntity.ok(authentication);
     }
 
+    @SuppressWarnings("unchecked")
     @PostMapping(value = "register")
     public ResponseEntity<Authentication> register(Consumer consumer, String invitation){
-        Consumer trust = consumerService.insert(consumer);
-        UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.authenticated(consumer, consumer.getPassword(), trust.getAuthorities());
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(token);
-        SecurityContextHolder.setContext(context);
-        SecurityContextHolderStrategy strategy = SecurityContextHolder.getContextHolderStrategy();
-        strategy.setContext(context);
-        repository.saveContext(context, request, response);
-        return ResponseEntity.ok(token);
+        Invitation example = new Invitation();
+        example.setCode(invitation);
+        Optional<Invitation> entity = invitationService.findOneBy(example);
+        return entity.map((in) -> {
+            LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Shanghai"));
+            in.setLock(now.plusYears(100));
+            invitationService.update(in);
+            Consumer trust = consumerService.insert(consumer);
+            UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.authenticated(consumer, consumer.getPassword(), trust.getAuthorities());
+            SecurityContext context = SecurityContextHolder.createEmptyContext();
+            context.setAuthentication(token);
+            SecurityContextHolder.setContext(context);
+            SecurityContextHolderStrategy strategy = SecurityContextHolder.getContextHolderStrategy();
+            strategy.setContext(context);
+            repository.saveContext(context, request, response);
+            return (ResponseEntity) ResponseEntity.ok(token);
+        }).orElse((ResponseEntity<UsernamePasswordAuthenticationToken>) ResponseEntity.notFound());
     }
 
     @GetMapping(value = "expire")

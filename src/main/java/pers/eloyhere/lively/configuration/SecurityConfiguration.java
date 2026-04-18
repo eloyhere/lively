@@ -17,6 +17,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -40,11 +42,16 @@ import pers.eloyhere.lively.authentication.filter.handler.LivelyAuthenticationFa
 import pers.eloyhere.lively.authentication.filter.handler.LivelyAuthenticationSuccessHandler;
 import pers.eloyhere.lively.authentication.manager.RequestAuthorizationManager;
 import pers.eloyhere.lively.authentication.provider.UsernamePasswordAuthenticationProvider;
+import pers.eloyhere.lively.entity.consumer.Authority;
+import pers.eloyhere.lively.entity.consumer.Consumer;
+import pers.eloyhere.lively.entity.consumer.Role;
 import pers.eloyhere.lively.service.consumer.ConsumerService;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
 
 @Configuration
 @EnableWebSecurity
@@ -110,38 +117,44 @@ public class SecurityConfiguration {
             RememberMeServices rememberMeServices,
             CorsConfigurationSource corsConfigurationSource,
             SecurityContextRepository securityContextRepository,
-            InvalidateAuthenticationEntryPoint invalidateAuthenticationEntryPoint
-    ){
+            InvalidateAuthenticationEntryPoint invalidateAuthenticationEntryPoint,
+            ConsumerService consumerService){
         AuthenticationSuccessHandler authenticationSuccessHandler = new LivelyAuthenticationSuccessHandler(securityContextRepository);
         AuthenticationFailureHandler authenticationFailureHandler = new LivelyAuthenticationFailureHandler();
         LivelyUsernamePasswordAuthenticationFilter livelyUsernamePasswordAuthenticationFilter = new LivelyUsernamePasswordAuthenticationFilter(providerManager);
         livelyUsernamePasswordAuthenticationFilter.setRememberMeServices(rememberMeServices);
         livelyUsernamePasswordAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
         livelyUsernamePasswordAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
-        return security.cors((cors) -> cors.configurationSource(corsConfigurationSource)).authorizeHttpRequests((request) ->
-                    request.requestMatchers("/", "/**", "/**.*").permitAll().anyRequest().access(new RequestAuthorizationManager())
-                ).anonymous(AbstractHttpConfigurer::disable)
+        return security.cors((cors) -> cors.configurationSource(corsConfigurationSource))
+                .authorizeHttpRequests((request) -> request.requestMatchers("/", "/**", "/**.*").permitAll().anyRequest().access(new RequestAuthorizationManager()))
+                .anonymous((anonymous) -> {
+                    Consumer example = new Consumer();
+                    example.setUsername("anonymous");
+                    if(consumerService.existBy(example)){
+                        Consumer consumer = consumerService.loadUserByUsername("anonymous");
+                        anonymous.key("anonymous").authorities(List.copyOf(consumer.getAuthorities())).principal(consumer);
+                    }else{
+                        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+                        List<Authority> authorities = Stream.of("/", "/**", "/**.*", "/authentication/**").map(Authority::new).toList();
+                        Role anonymousRole = new Role();
+                        anonymousRole.setName("anonymous");
+                        anonymousRole.setDescription("匿名用户角色。");
+                        Consumer anonymousConsumer = new Consumer();
+                        anonymousConsumer.setUsername("anonymouse");
+                        anonymousConsumer.setNickname("anonymouse");
+                        anonymousConsumer.setAvatar("...");
+                        anonymousConsumer.setPassword(passwordEncoder.encode("..."));
+                        anonymousConsumer.add(anonymousRole);
+                    }
+                })
                 .securityContext((context) -> context.requireExplicitSave(true).securityContextRepository(securityContextRepository))
                 .rememberMe((remember) -> remember.rememberMeServices(rememberMeServices))
                 .addFilterAt(livelyUsernamePasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class).exceptionHandling((exception) -> exception.authenticationEntryPoint(invalidateAuthenticationEntryPoint))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                    .invalidSessionStrategy((request, response) -> {
-                        ArrayList<RequestMatcher> matchers = new ArrayList<>();
-                        matchers.add(PathPatternRequestMatcher.pathPattern("/"));
-                        matchers.add(PathPatternRequestMatcher.pathPattern("/**"));
-                        matchers.add(PathPatternRequestMatcher.pathPattern("/**.*"));
-                        matchers.add(PathPatternRequestMatcher.pathPattern("/authentication/**"));
-                        OrRequestMatcher matcher = new OrRequestMatcher(matchers);
-                        if(!matcher.matches(request)){
-                            SecurityContextHolder.clearContext();
-                            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                        }
-                    })
                     .maximumSessions(4)
                     .maxSessionsPreventsLogin(false)
                     .expiredSessionStrategy(event -> {
-                        SecurityContextHolder.clearContext();
                         HttpServletRequest request = event.getRequest();
                         HttpServletResponse response = event.getResponse();
                         ArrayList<RequestMatcher> matchers = new ArrayList<>();
@@ -150,7 +163,9 @@ public class SecurityConfiguration {
                         matchers.add(PathPatternRequestMatcher.pathPattern("/**.*"));
                         matchers.add(PathPatternRequestMatcher.pathPattern("/authentication/**"));
                         OrRequestMatcher matcher = new OrRequestMatcher(matchers);
-                        if(!matcher.matches(request)){
+                        if(matcher.matches(request)){
+                            request.getRequestDispatcher(request.getRequestURI()).forward(request, response);
+                        }else{
                             SecurityContextHolder.clearContext();
                             response.setStatus(HttpStatus.UNAUTHORIZED.value());
                         }

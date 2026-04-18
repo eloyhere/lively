@@ -2,6 +2,7 @@ package pers.eloyhere.lively.component;
 
 import org.jspecify.annotations.NonNull;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -19,7 +20,9 @@ import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+@Order(-42148519)
 @Component
 public class DataInitializer implements CommandLineRunner {
 
@@ -38,16 +41,27 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String @NonNull ... args) throws Exception {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
+        Runnable createAnonymous = () -> {
+            Collection<Authority> authorities = authorityRepository.saveAllAndFlush(Stream.of("/", "/**", "/**.*", "/authentication/**").map(Authority::new).toList());
+            Role anonymousRole = new Role();
+            anonymousRole.setName("anonymous");
+            anonymousRole.setDescription("匿名用户角色。");
+            anonymousRole = roleRepository.saveAndFlush(anonymousRole);
+            Consumer anonymousConsumer = new Consumer();
+            anonymousConsumer.setUsername("anonymouse");
+            anonymousConsumer.setNickname("anonymouse");
+            anonymousConsumer.setAvatar("...");
+            anonymousConsumer.setPassword(passwordEncoder.encode("..."));
+            anonymousConsumer.add(anonymousRole);
+            consumerRepository.saveAndFlush(anonymousConsumer);
+        };
+        createAnonymous.run();
         Runnable createRoot = () -> {
-            Authority allDirectories = authorityRepository.saveAndFlush(new Authority("/**"));
-            allDirectories.setDescription("一级路径通配符：能匹配像 /users、/orders这样最顶层的路径，但不匹配像 /users/123或 /orders/details这种带子路径的。");
             Authority all = authorityRepository.saveAndFlush(new Authority("/**/**"));
             all.setDescription("多级路径通配符：能匹配任何深度的路径，包括 /users、/users/123、/users/123/profile等等，可以访问系统中的所有页面和接口，无限制。");
 
             Role rawRootRole = new Role();
             rawRootRole.setName("Administrator");
-            rawRootRole.add(allDirectories);
             rawRootRole.add(all);
             Role rootRole = roleRepository.saveAndFlush(rawRootRole);
 
