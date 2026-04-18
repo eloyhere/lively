@@ -15,7 +15,7 @@ import java.util.Set;
 public class Chat extends BaseEntity {
 
     @Column(name = "name")
-    private String chatName;
+    private String name;
 
     @Column(name = "description", length = 500)
     private String description;
@@ -65,5 +65,53 @@ public class Chat extends BaseEntity {
             LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Shanghai"));
             message.setLock(now.plusYears(100));
         }
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setChatName(String name) {
+        this.name = name;
+    }
+
+    public Set<Consumer> getAdministrators() {
+        return administrators;
+    }
+
+    public void setAdministrators(Set<Consumer> administrators) {
+        this.administrators = administrators;
+    }
+
+    public Set<Message> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(Set<Message> messages) {
+        this.messages = messages;
+    }
+
+    public Set<Consumer> getMembers() {
+        return members;
+    }
+
+    public void setMembers(Set<Consumer> members) {
+        this.members = members;
+    }
+
+    public Consumer getOwner() {
+        return owner;
+    }
+
+    public void setOwner(Consumer owner) {
+        this.owner = owner;
     }
 }

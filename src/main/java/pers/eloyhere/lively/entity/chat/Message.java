@@ -24,9 +24,9 @@ public class Message extends BaseEntity {
     @JoinColumn(name = "sender_id", nullable = false)
     private Consumer sender;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "message_seen_by",
+            name = "message_seen",
             joinColumns = @JoinColumn(name = "message_id"),
             inverseJoinColumns = @JoinColumn(name = "consumer_id")
     )
