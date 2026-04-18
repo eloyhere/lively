@@ -232,7 +232,7 @@
           </ElForm>
         </el-tab-pane>
         <el-tab-pane label="注册" name="register">
-          <ElForm :model="registerFormData">
+          <ElForm ref="registerForm" :model="registerFormData">
             <ElFormItem label="用户名" prop="username" :rules="[
                 {
                   required: true,
@@ -315,8 +315,8 @@
               <ElInput placeholder="请输入邀请码" clearable v-model="registerFormData.invitation"/>
             </ElFormItem>
             <ElFormItem>
-              <ElButton plain type="primary" icon="checked">注册</ElButton>
-              <ElButton plain type="info" icon="refresh">重置</ElButton>
+              <ElButton plain type="primary" icon="checked" @click="performRegister()">注册</ElButton>
+              <ElButton plain type="info" icon="refresh" @click="resetRegisterForm()">重置</ElButton>
             </ElFormItem>
           </ElForm>
         </el-tab-pane>
@@ -527,7 +527,7 @@ const performRegister: () => void = async (): Promise<void> => {
                 });
               }else{
                 ElMessage({
-                  message: "登录失败",
+                  message: "注册失败",
                   type: "info"
                 });
               }

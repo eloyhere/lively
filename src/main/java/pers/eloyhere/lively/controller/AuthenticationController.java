@@ -102,16 +102,17 @@ class AuthenticationController {
         return ResponseEntity.ok(authentication);
     }
 
-    @SuppressWarnings("unchecked")
     @PostMapping(value = "register")
-    public ResponseEntity<Authentication> register(Consumer consumer, String invitation){
+    public ResponseEntity<Authentication> register(Consumer consumer, @RequestParam String invitation){
         Invitation example = new Invitation();
         example.setCode(invitation);
         Optional<Invitation> entity = invitationService.findOneBy(example);
-        return entity.map((in) -> {
+        if(entity.isPresent()){
             LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Shanghai"));
-            in.setLock(now.plusYears(100));
-            invitationService.update(in);
+            Invitation value = entity.get();
+            value.setLock(now.plusYears(100));
+            invitationService.update(value);
+
             Consumer trust = consumerService.insert(consumer);
             UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.authenticated(consumer, consumer.getPassword(), trust.getAuthorities());
             SecurityContext context = SecurityContextHolder.createEmptyContext();
@@ -120,8 +121,9 @@ class AuthenticationController {
             SecurityContextHolderStrategy strategy = SecurityContextHolder.getContextHolderStrategy();
             strategy.setContext(context);
             repository.saveContext(context, request, response);
-            return (ResponseEntity) ResponseEntity.ok(token);
-        }).orElse((ResponseEntity<UsernamePasswordAuthenticationToken>) ResponseEntity.notFound());
+            return ResponseEntity.ok(token);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping(value = "expire")
