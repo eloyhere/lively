@@ -60,14 +60,7 @@
 import type {Invitation} from "@/interaction/entity.ts";
 import {reactive} from "vue";
 
-const data: Array<Invitation> = reactive<Array<Invitation>>([{
-  edit: new Date(),
-  id: "",
-  lock: new Date(),
-  code: "",
-  spawn: new Date(),
-  version: 5n
-}]);
+const data: Array<Invitation> = reactive<Array<Invitation>>([]);
 
 </script>
 

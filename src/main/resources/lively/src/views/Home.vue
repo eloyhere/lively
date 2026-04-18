@@ -1,8 +1,28 @@
 <template>
-  <ElContainer>
+  <ElContainer :style="{
+    background: 'url(http://localhost/background.jpeg)',
+    backgroundRepeat: 'no-repeat',
+    backgroundAttachment: 'fixed',
+    backgroundSize: '100% 100%',
+    width: '100%',
+    height: '100%'
+  }">
     <ElHeader class="header">
-      <div>1</div>
-      <div>1</div>
+      <div>
+        <ElButton icon="cherry"/>
+      </div>
+      <div>
+        <ElLink type="warning">中医药来咯</ElLink>
+      </div>
+      <div>
+        <ElLink type="primary">易经知识</ElLink>
+      </div>
+      <div>
+        <ElLink type="success">药理知识</ElLink>
+      </div>
+      <div>
+        <ElLink type="info">关于我们</ElLink>
+      </div>
       <div>
         <ElSpace wrap>
           <span>
@@ -51,10 +71,16 @@ import type {Announcement, Authentication} from "@/interaction/entity.ts";
 import {useAuthenticationStore} from "@/stores/authentication.ts";
 import {User} from "@element-plus/icons-vue";
 import {type Router, useRouter} from "vue-router";
-import {ElMessage} from "element-plus";
+import {ElLoading, ElMessage} from "element-plus";
 import {useGet} from "@/hooks/network.ts";
 import {type Serializer, useSerializer} from "@/hooks/entity.ts";
 import {AnnouncementService} from "@/interaction/service.ts";
+
+const load = ElLoading.service({
+  lock: true,
+  text: "加载中...",
+  background: 'rgba(0, 0, 0, 0.7)',
+});
 
 const router:Router = useRouter();
 
@@ -111,13 +137,16 @@ const unread: ComputedRef<Array<Announcement>> = computed<Array<Announcement>>((
   let result: Array<Announcement> = [];
   announcementService.findAll().then((value) => {
     return useAuthenticationStore().principal.ifPresent((consumer) => {
-      value.filter((announcement) => announcement.seen.has(consumer)).forEach((announcement) => {
-        result.push(announcement);
-      });
+
     });
   });
   return result;
 });
+
+
+onMounted((): void => {
+  load.close();
+})
 </script>
 
 <style scoped>
