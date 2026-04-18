@@ -17,7 +17,7 @@
                 path: route.path
               });
             }"
-                   @close="()=>{
+            @close="()=>{
               if(current === route.path){
                 if(history.size > 1){
                   let temp = Array.from(history);
@@ -109,6 +109,20 @@
                 <span>邀请管理</span>
               </ElMenuItem>
             </ElMenuItemGroup>
+            <ElMenuItemGroup title="人文">
+              <ElMenuItem index="/management/book">
+                <ElIcon>
+                  <Book/>
+                </ElIcon>
+                <span>书籍管理</span>
+              </ElMenuItem>
+              <ElMenuItem index="/management/chat">
+                <ElIcon>
+                  <Book/>
+                </ElIcon>
+                <span>聊天管理</span>
+              </ElMenuItem>
+            </ElMenuItemGroup>
             <ElMenuItemGroup title="日志">
               <ElMenuItem index="/management/operation">
                 <ElIcon>
@@ -169,6 +183,7 @@ import type {Authentication} from "@/interaction/entity.ts";
 import {useAuthenticationStore} from "@/stores/authentication.ts";
 import {useGet} from "@/hooks/network.ts";
 import {ElMessage} from "element-plus";
+import Book from "@/views/management/book/Book.vue";
 
 const router: Router = useRouter();
 const current: ComputedRef<string> = computed<string>((): string => {

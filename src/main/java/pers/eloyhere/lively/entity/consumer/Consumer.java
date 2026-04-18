@@ -45,8 +45,34 @@ public class Consumer extends BaseEntity implements UserDetails {
     @Fetch(FetchMode.JOIN)
     private Set<Token> tokens = new LinkedHashSet<>();
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "consumer_blocks",
+            joinColumns = @JoinColumn(name = "consumer_id"),
+            inverseJoinColumns = @JoinColumn(name = "block_id")
+    )
+    @JsonIgnore
+    private Set<Consumer> block = new LinkedHashSet<>();
+
     public Consumer() {
 
+    }
+
+    public void block(Consumer consumer){
+        this.block.add(consumer);
+    }
+
+    public void unblock(Consumer consumer){
+        this.block.remove(consumer);
+    }
+
+    public void add(Token token){
+        this.tokens.add(token);
+    }
+
+    public void remove(Token token){
+        this.tokens.remove(token);
+        token.setConsumer(null);
     }
 
     public void add(Role role){

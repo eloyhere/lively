@@ -32,70 +32,138 @@
       </div>
       <el-tabs v-model="title" class="panel" style="padding: 16px">
         <el-tab-pane label="用户名密码登录" name="UsernameAndPasswordLogin">
-          <ElForm v-model="loginFormData">
-            <ElFormItem label="用户名">
+          <ElForm ref="usernamePasswordLoginForm" :model="usernamePasswordLoginFormData">
+            <ElFormItem label="用户名" prop="username" :rules="[
+                {
+                  required: true,
+                  message: '请输入用户名',
+                  trigger: 'blur'
+                },
+                {
+                  min: 3,
+                  max: 20,
+                  message: '3-20个字符',
+                  trigger: 'blur'
+                },
+            ]">
               <ElInput
                   placeholder="请输入用户名"
                   clearable
-                  v-model="loginFormData.username"></ElInput>
+                  v-model="usernamePasswordLoginFormData.username"></ElInput>
             </ElFormItem>
-          </ElForm>
-          <ElForm>
-            <ElFormItem label="密码">
+            <ElFormItem label="密码" prop="password" :rules="[
+                {
+                  required: true,
+                  message: '请输入密码',
+                  trigger: 'blur'
+                },
+                {
+                  min: 5,
+                  max: 20,
+                  message: '5-20个字符',
+                  trigger: 'blur'
+                },
+            ]">
               <ElInput
                   placeholder="请输入密码"
                   clearable show-password
                   @focus="toCloseEyes()"
                   @blur="toSmile()"
-                  v-model="loginFormData.password"
+                  v-model="usernamePasswordLoginFormData.password"
               ></ElInput>
             </ElFormItem>
-            <ElFormItem label="记住我">
-              <el-switch v-model="loginFormData.remember" />
+            <ElFormItem label="记住我" prop="remember">
+              <el-switch v-model="usernamePasswordLoginFormData.remember" />
             </ElFormItem>
             <ElFormItem>
-              <ElButton plain type="primary" icon="checked" @click="performLogin()">登录</ElButton>
-              <ElButton plain type="info" icon="refresh">重置</ElButton>
+              <ElButton plain type="primary" icon="checked" @click="performUsernamePasswordLogin()">登录</ElButton>
+              <ElButton plain type="info" icon="refresh" @click="resetUsernamePasswordLoginForm()">重置</ElButton>
             </ElFormItem>
           </ElForm>
         </el-tab-pane>
         <el-tab-pane label="认证码登录" name="CheckCodeLogin">
-          <ElForm v-model="loginFormData">
-            <ElFormItem label="用户名">
+          <ElForm ref="checkCodeLoginForm" :model="checkCodeLoginFormData">
+            <ElFormItem label="用户名" prop="username" :rules="[
+                {
+                  required: true,
+                  message: '请输入用户名',
+                  trigger: 'blur'
+                },
+                {
+                  min: 3,
+                  max: 20,
+                  message: '3-20个字符',
+                  trigger: 'blur'
+                },
+            ]">
               <ElInput
                   placeholder="请输入用户名"
                   clearable
-                  v-model="loginFormData.username"></ElInput>
+                  v-model="checkCodeLoginFormData.username"></ElInput>
             </ElFormItem>
-          </ElForm>
-          <ElForm>
-            <ElFormItem label="认证码">
+            <ElFormItem label="认证码" prop="code" :rules="[
+                {
+                  required: true,
+                  message: '请输入认证码',
+                  trigger: 'blur'
+                },
+                {
+                  min: 5,
+                  max: 20,
+                  message: '5-20个字符',
+                  trigger: 'blur'
+                },
+            ]">
               <ElInput
                   placeholder="请输入认证码"
                   clearable show-password
                   @focus="toCloseEyes()"
                   @blur="toSmile()"
-                  v-model="loginFormData.password"
+                  v-model="checkCodeLoginFormData.code"
               ></ElInput>
             </ElFormItem>
-            <ElFormItem label="记住我">
-              <el-switch v-model="loginFormData.remember" />
+            <ElFormItem label="记住我" prop="remember">
+              <el-switch v-model="checkCodeLoginFormData.remember" />
             </ElFormItem>
             <ElFormItem>
-              <ElButton plain type="primary" icon="checked">登录</ElButton>
-              <ElButton plain type="info" icon="refresh">重置</ElButton>
+              <ElButton plain type="primary" icon="checked" @click="performCheckCodeLogin()">登录</ElButton>
+              <ElButton plain type="info" icon="refresh" @click="resetCheckCodeLoginForm()">重置</ElButton>
             </ElFormItem>
           </ElForm>
         </el-tab-pane>
         <el-tab-pane label="注册" name="register">
-          <ElForm v-model="registerFormData">
-            <ElFormItem label="用户名">
+          <ElForm :model="registerFormData">
+            <ElFormItem label="用户名" prop="username" :rules="[
+                {
+                  required: true,
+                  message: '请输入用户名',
+                  trigger: 'blur'
+                },
+                {
+                  min: 3,
+                  max: 20,
+                  message: '3-20个字符',
+                  trigger: 'blur'
+                },
+            ]">
               <ElInput
                   placeholder="请输入用户名"
                   clearable
                   v-model="registerFormData.username"></ElInput>
             </ElFormItem>
-            <ElFormItem label="密码">
+            <ElFormItem label="密码" prop="password" :rules="[
+                {
+                  required: true,
+                  message: '请输入密码',
+                  trigger: 'blur'
+                },
+                {
+                  min: 3,
+                  max: 20,
+                  message: '3-20个字符',
+                  trigger: 'blur'
+                },
+            ]">
               <ElInput
                   placeholder="请输入密码"
                   clearable show-password
@@ -104,15 +172,51 @@
                   v-model="registerFormData.password"
               ></ElInput>
             </ElFormItem>
-            <ElFormItem label="昵称">
+            <ElFormItem label="昵称" prop="nickname" :rules="[
+                {
+                  required: true,
+                  message: '请输入昵称',
+                  trigger: 'blur'
+                },
+                {
+                  min: 5,
+                  max: 20,
+                  message: '5-20个字符',
+                  trigger: 'blur'
+                },
+            ]">
               <ElInput
                   placeholder="请输入昵称"
                   clearable
                   v-model="registerFormData.nickname"></ElInput>
             </ElFormItem>
-            <ElFormItem label="头像">
+            <ElFormItem label="头像" prop="avatar" :rules="[
+                {
+                  required: true,
+                  message: '请选择头像',
+                  trigger: 'blur'
+                }
+            ]">
               <input type="file" id="filePicker" @change="pick()" hidden="hidden"/>
-              <ElAvatar :src="registerFormData.avatar" @click="prepareToPick()" style="cursor: pointer"/>
+              <ElAvatar :src="registerFormData.avatar" @click="pick()" style="cursor: pointer">
+                <template #default>
+                  <ElIcon>
+                    <Picture/>
+                  </ElIcon>
+                </template>
+              </ElAvatar>
+            </ElFormItem>
+            <ElFormItem label="邀请码" prop="invitation" :rules="[
+                {
+                  required: true,
+                  message: '请输入邀请码'
+                }
+            ]">
+              <ElInput placeholder="请输入邀请码" clearable v-model="registerFormData.invitation"/>
+            </ElFormItem>
+            <ElFormItem>
+              <ElButton plain type="primary" icon="checked">注册</ElButton>
+              <ElButton plain type="info" icon="refresh">重置</ElButton>
             </ElFormItem>
           </ElForm>
         </el-tab-pane>
@@ -126,12 +230,12 @@ import {onMounted, reactive, ref, type Ref} from "vue";
 import { Picture } from "@element-plus/icons-vue";
 import { fetchPicture } from "@/hooks/picture.ts";
 import {useGet, usePost} from "@/hooks/network.ts";
-import {ElMessage} from "element-plus";
+import {ElMessage, type FormInstance} from "element-plus";
 import {useAuthenticationStore} from "@/stores/authentication.ts";
 import {useSerializer} from "@/hooks/entity.ts";
 import type {Authentication, Consumer} from "@/interaction/entity.ts";
 import {type Router, useRouter} from "vue-router";
-import type {MaybeInvalid, Runnable,} from "semantic-typescript";
+import {type MaybeInvalid, type Runnable, validate,} from "semantic-typescript";
 import {Optional} from "semantic-typescript";
 import {useDataUrl} from "@/hooks/url.ts";
 
@@ -152,75 +256,196 @@ const toCloseEyes: () => void = (): void => {
   src.value = closeEyes.value;
 };
 
+const usernamePasswordLoginForm: Ref<MaybeInvalid<FormInstance>> = ref();
 interface LoginFormData extends Record<string, string | number | boolean>{
   username: string;
   password: string;
   remember: boolean;
 }
-const loginFormData: LoginFormData = reactive<LoginFormData>({
+const usernamePasswordLoginFormData: LoginFormData = reactive<LoginFormData>({
   username: "",
   password: "",
   remember: false
 });
-const performLogin: () => void = (): void => {
-  let parameters: URLSearchParams = new URLSearchParams();
-  parameters.append("username", loginFormData.username);
-  parameters.append("password", loginFormData.password);
-  parameters.append("remember", String(loginFormData.remember));
-  usePost("http://localhost/authentication/login", parameters)
-      .then((response: Response): void => {
-        if(response.status === 200){
-          response.text().then((text) => {
-            let resolver = useSerializer<Authentication>();
-            let cookie: string = response.headers.get("Set-Cookie") || "";
-            console.log(cookie);
-            window.document.cookie += cookie;
-            useAuthenticationStore().setAuthentication(resolver.deserialize(text));
-          }).then(() => {
-            useGet("http://localhost/authentication/identity").then((response) => response.text()).then(console.log);
-          });
-          ElMessage({
-            message: "登录成功",
-            type: "success"
-          });
-          router.push({
-            path: "/",
-            replace: true
-          });
-        }else{
-          ElMessage({
-            message: "登录失败",
-            type: "info"
-          });
-        }
-      });
+const performUsernamePasswordLogin: () => void = async (): Promise<void> => {
+  if(validate(usernamePasswordLoginForm.value)){
+    await usernamePasswordLoginForm.value.validate((valid: boolean) => {
+      if(valid){
+        let parameters: URLSearchParams = new URLSearchParams();
+        parameters.append("username", usernamePasswordLoginFormData.username);
+        parameters.append("password", usernamePasswordLoginFormData.password);
+        parameters.append("remember", String(usernamePasswordLoginFormData.remember));
+        usePost("http://localhost/authentication/login", parameters)
+            .then((response: Response): void => {
+              if(response.status === 200){
+                response.text().then((text) => {
+                  let resolver = useSerializer<Authentication>();
+                  useAuthenticationStore().setAuthentication(resolver.deserialize(text));
+                });
+                ElMessage({
+                  message: "登录成功",
+                  type: "success"
+                });
+                router.push({
+                  path: "/",
+                  replace: true
+                });
+              }else{
+                ElMessage({
+                  message: "登录失败",
+                  type: "info"
+                });
+              }
+            });
+      }else{
+        ElMessage({
+          message: "请完善信息",
+          type: "info"
+        });
+      }
+    });
+  }
+};
+const resetUsernamePasswordLoginForm: Runnable = () => {
+  if(validate(usernamePasswordLoginForm.value)){
+    usernamePasswordLoginForm.value.resetFields();
+  }
 };
 
+const checkCodeLoginForm: Ref<MaybeInvalid<FormInstance>> = ref();
+interface CheckCodeLoginFormData extends Record<string, string | number | boolean>{
+  username: string;
+  code: string;
+  remember: boolean;
+}
+const checkCodeLoginFormData: CheckCodeLoginFormData = reactive<CheckCodeLoginFormData>({
+  username: "",
+  code: "",
+  remember: false
+});
+const performCheckCodeLogin: () => void = async (): Promise<void> => {
+  if(validate(checkCodeLoginForm.value)){
+    await checkCodeLoginForm.value.validate((valid: boolean) => {
+      if(valid){
+        let parameters: URLSearchParams = new URLSearchParams();
+        parameters.append("username", checkCodeLoginFormData.username);
+        parameters.append("code", checkCodeLoginFormData.code);
+        parameters.append("remember", String(checkCodeLoginFormData.remember));
+        usePost("http://localhost/authentication/code", parameters)
+            .then((response: Response): void => {
+              if(response.status === 200){
+                response.text().then((text) => {
+                  let resolver = useSerializer<Authentication>();
+                  useAuthenticationStore().setAuthentication(resolver.deserialize(text));
+                });
+                ElMessage({
+                  message: "登录成功",
+                  type: "success"
+                });
+                router.push({
+                  path: "/",
+                  replace: true
+                });
+              }else{
+                ElMessage({
+                  message: "登录失败",
+                  type: "info"
+                });
+              }
+            });
+      }else{
+        ElMessage({
+          message: "请完善信息",
+          type: "info"
+        });
+      }
+    });
+  }
+};
+const resetCheckCodeLoginForm: Runnable = () => {
+  if(validate(checkCodeLoginForm.value)){
+    checkCodeLoginForm.value.resetFields();
+  }
+};
+
+const registerForm: Ref<MaybeInvalid<FormInstance>> = ref();
 interface RegisterFormData extends Record<string, string | number | boolean>{
   username: string;
   password: string;
   nickname: string;
   avatar: string;
+  invitation: string;
 }
 const registerFormData: RegisterFormData = reactive<RegisterFormData>({
   username: "",
   password: "",
   nickname: "",
-  avatar: ""
+  avatar: "",
+  invitation: ""
 });
-const prepareToPick: Runnable = ()=> {
-  window.document.getElementById("filePicker")!.click();
-}
 const pick: Runnable = () => {
   let filePicker: Optional<HTMLInputElement> = Optional.of<HTMLInputElement>(document.getElementById("filePicker") as HTMLInputElement);
   filePicker.ifPresent((picker) => {
-    let files: FileList = picker.files!;
-    let file: File = files.item(0)!;
-    useDataUrl(file).then((data) => {
-      registerFormData.avatar = data;
+    picker.addEventListener("change", ()=> {
+      if(validate(picker.files)){
+        let files: FileList = picker.files;
+        if(files.length > 0){
+          let file: File = files.item(0) as File;
+          useDataUrl(file).then((data) => {
+            registerFormData.avatar = data;
+          });
+        }
+      }
     });
+    picker.click();
   })
-}
+};
+const performRegister: () => void = async (): Promise<void> => {
+  if(validate(registerForm.value)){
+    await registerForm.value.validate((valid: boolean) => {
+      if(valid){
+        let parameters: URLSearchParams = new URLSearchParams();
+        parameters.append("username", registerFormData.username);
+        parameters.append("password", registerFormData.password);
+        parameters.append("nickname", registerFormData.nickname);
+        parameters.append("invitation", registerFormData.invitation);
+        parameters.append("avatar", registerFormData.avatar);
+        usePost("http://localhost/authentication/register", parameters)
+            .then((response: Response): void => {
+              if(response.status === 200){
+                response.text().then((text) => {
+                  let resolver = useSerializer<Authentication>();
+                  useAuthenticationStore().setAuthentication(resolver.deserialize(text));
+                });
+                ElMessage({
+                  message: "注册成功",
+                  type: "success"
+                });
+                router.push({
+                  path: "/",
+                  replace: true
+                });
+              }else{
+                ElMessage({
+                  message: "登录失败",
+                  type: "info"
+                });
+              }
+            });
+      }else{
+        ElMessage({
+          message: "请完善信息",
+          type: "info"
+        });
+      }
+    });
+  }
+};
+const resetRegisterForm: Runnable = () => {
+  if(validate(checkCodeLoginForm.value)){
+    checkCodeLoginForm.value.resetFields();
+  }
+};
 onMounted(() => {
   fetchPicture("http://localhost/smile.jpeg").then((value) => {
     smile.value = value;
@@ -234,8 +459,8 @@ onMounted(() => {
 
 <style scoped>
 .panel{
-  width: 500px;
-  height: 300px;
+  width: 600px;
+  height: 360px;
   position: relative;
   background: white;
 }

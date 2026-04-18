@@ -23,7 +23,7 @@
                 管理
               </ElDropdownItem>
               <ElDropdownItem command="/notification">
-                <ElBadge :value="105" :max="99">
+                <ElBadge :value="unread.length" :hidden="unread.length === 0" :max="99">
                   通知
                 </ElBadge>
               </ElDropdownItem>
@@ -47,13 +47,14 @@
 <script setup lang="ts">
 import {computed, type ComputedRef, onMounted} from "vue";
 import {type Consumer, type MaybeInvalid, type Supplier, validate} from "semantic-typescript";
-import type {Authentication} from "@/interaction/entity.ts";
+import type {Announcement, Authentication} from "@/interaction/entity.ts";
 import {useAuthenticationStore} from "@/stores/authentication.ts";
 import {User} from "@element-plus/icons-vue";
 import {type Router, useRouter} from "vue-router";
 import {ElMessage} from "element-plus";
 import {useGet} from "@/hooks/network.ts";
 import {type Serializer, useSerializer} from "@/hooks/entity.ts";
+import {AnnouncementService} from "@/interaction/service.ts";
 
 const router:Router = useRouter();
 
@@ -105,7 +106,18 @@ const handle: Consumer<string> = (command: string): void => {
       break;
   }
 };
-
+const announcementService: AnnouncementService = new AnnouncementService();
+const unread: ComputedRef<Array<Announcement>> = computed<Array<Announcement>>((): Array<Announcement> => {
+  let result: Array<Announcement> = [];
+  announcementService.findAll().then((value) => {
+    return useAuthenticationStore().principal.ifPresent((consumer) => {
+      value.filter((announcement) => announcement.seen.has(consumer)).forEach((announcement) => {
+        result.push(announcement);
+      });
+    });
+  });
+  return result;
+});
 </script>
 
 <style scoped>

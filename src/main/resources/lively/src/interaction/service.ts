@@ -1,4 +1,4 @@
-import type {Authority, BaseEntity, Consumer, Role, Invitation, Token} from "@/interaction/entity.ts";
+import type {Authority, BaseEntity, Consumer, Role, Invitation, Token, Announcement} from "@/interaction/entity.ts";
 import {useDelete, useGet} from "@/hooks/network.ts";
 import {isBoolean, isNumber, isPrimitive, isString} from "semantic-typescript";
 import {type Serializer, useSerializer} from "@/hooks/entity.ts";
@@ -233,5 +233,12 @@ export class TokenService extends BaseService<Token>{
 
     public constructor() {
         super("token");
+    }
+}
+
+export class AnnouncementService extends BaseService<Announcement>{
+
+    public constructor() {
+        super("announcement");
     }
 }

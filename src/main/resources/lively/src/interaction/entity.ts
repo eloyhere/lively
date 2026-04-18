@@ -28,8 +28,8 @@ export interface Consumer extends BaseEntity{
     nickname: string;
     password?: string;
     avatar: string;
-    tokens: Set<Token>;
-    roles: Set<Role>;
+    tokens: Array<Token>;
+    roles: Array<Role>;
 }
 
 export interface Authentication extends BaseEntity{
@@ -42,5 +42,25 @@ export interface Authentication extends BaseEntity{
 
 export interface Invitation extends BaseEntity{
     code: string;
+}
+
+export interface Announcement extends BaseEntity{
+    title: string;
+    content: string;
+    seen: Array<Consumer>
+}
+
+export interface Chapter extends BaseEntity{
+    title: string;
+    content: string;
+    index: number;
+    summary: number;
+}
+
+export interface Book extends BaseEntity{
+    name: string;
+    author: string;
+    publisher: string;
+    chapters: Array<Chapter>;
 }
 
