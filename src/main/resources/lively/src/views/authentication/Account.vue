@@ -1,6 +1,9 @@
 <template>
   <ElContainer class="container" :style="{
-    background: 'url(http://localhost/background.jpeg)'
+    background: 'url(http://localhost/background.jpeg)',
+    backgroundRepeat: 'no-repeat',
+    backgroundAttachment: 'fixed',
+    backgroundSize: '100% 100%'
   }">
     <div>
       <div class="cartoon">
@@ -90,7 +93,7 @@
               <ElInput
                   placeholder="请输入用户名"
                   clearable
-                  v-model="loginFormData.username"></ElInput>
+                  v-model="registerFormData.username"></ElInput>
             </ElFormItem>
             <ElFormItem label="密码">
               <ElInput
@@ -98,7 +101,7 @@
                   clearable show-password
                   @focus="toCloseEyes()"
                   @blur="toSmile()"
-                  v-model="loginFormData.password"
+                  v-model="registerFormData.password"
               ></ElInput>
             </ElFormItem>
             <ElFormItem label="昵称">

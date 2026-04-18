@@ -88,10 +88,10 @@ const handle: Consumer<string> = (command: string): void => {
       break;
     case "/authentication/logout":
       useGet("http://localhost/authentication/logout").then((response) => {
-        if(response.status === 200){
+        if(response.status === 203){
           window.document.cookie = "";
           ElMessage({
-            message: "操作成功，正在返回首页。",
+            message: "注销成功。",
             type: "success"
           });
           useAuthenticationStore().removeAuthentication();

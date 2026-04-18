@@ -84,10 +84,10 @@ const router: Router = createRouter({
 })
 
 router.beforeEach((to, from) => {
-  let white = new Set(["/", "/authentication/account"]);
-  useAuthenticationStore().auto();
+  let white = new Set(["/","/authentication/account"]);
   if(useAuthenticationStore().authenticated){
-    if(white.has(to.path)){
+    useAuthenticationStore().auto();
+    if(to.path === "/authentication/account"){
       return "/";
     }
     return true;

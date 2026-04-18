@@ -70,7 +70,7 @@ class AuthenticationController {
         try{
             Authentication authentication = livelyPersistentTokenBasedRememberMeServices.autoLogin(request, response);
             SecurityContextHolderStrategy strategy = SecurityContextHolder.getContextHolderStrategy();
-            SecurityContext context = strategy.createEmptyContext();
+            SecurityContext context = strategy.getContext();
             context.setAuthentication(authentication);
             strategy.setContext(context);
             repository.saveContext(context, request, response);
