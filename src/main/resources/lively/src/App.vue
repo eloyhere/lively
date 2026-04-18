@@ -6,6 +6,7 @@
 
 import {ElLoading, ElMessage} from "element-plus";
 import {onMounted} from "vue";
+import {useAuthenticationStore} from "@/stores/authentication.ts";
 
 const load = ElLoading.service({
   lock: true,
@@ -14,6 +15,9 @@ const load = ElLoading.service({
 });
 
 onMounted((): void => {
+  window.addEventListener("load", () => {
+    useAuthenticationStore().auto();
+  })
   load.close();
 })
 </script>

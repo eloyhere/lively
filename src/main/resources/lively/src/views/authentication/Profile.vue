@@ -21,7 +21,9 @@
 import {useAuthenticationStore} from "@/stores/authentication.ts";
 import {computed, type ComputedRef} from "vue";
 import {isPrimitive, type Primitive} from "semantic-typescript";
-import type {Consumer} from "@/interaction/entity.ts";
+import type {Authentication, Consumer} from "@/interaction/entity.ts";
+import {useGet} from "@/hooks/network.ts";
+import {useSerializer} from "@/hooks/entity.ts";
 
 const profile: ComputedRef<Map<keyof Consumer, Primitive>> = computed(() => {
   let result: Map<keyof Consumer, Primitive> = new Map<keyof Consumer, Primitive>();
@@ -35,7 +37,7 @@ const profile: ComputedRef<Map<keyof Consumer, Primitive>> = computed(() => {
     }
   })
   return result;
-})
+});
 </script>
 
 <style scoped>
