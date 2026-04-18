@@ -79,11 +79,8 @@ export const useAuthenticationStore = defineStore(
                             });
                         }else{
                             ElMessage({
-                                message: "身份信息失效，请重新登录。",
+                                message: "身份信息过期，请重新登录。",
                                 type: "info"
-                            });
-                            router.replace({
-                                path: "/authentication/account"
                             });
                             this.removeAuthentication()
                         }

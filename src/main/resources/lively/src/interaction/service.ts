@@ -1,5 +1,5 @@
 import type {Authority, BaseEntity, Consumer, Role, Invitation, Token} from "@/interaction/entity.ts";
-import {useGet} from "@/hooks/network.ts";
+import {useDelete, useGet} from "@/hooks/network.ts";
 import {isBoolean, isNumber, isPrimitive, isString} from "semantic-typescript";
 import {type Serializer, useSerializer} from "@/hooks/entity.ts";
 
@@ -59,7 +59,7 @@ export class BaseService<E extends BaseEntity>{
         parameters.append("payload", this.serializer.serialize(entity));
         return new Promise<void>((resolve, reject) => {
             try{
-                useGet(url, parameters)
+                useDelete(url, parameters)
                     .then((response: Response) => {
                         if(response.status === 200){
                             resolve();
@@ -79,7 +79,7 @@ export class BaseService<E extends BaseEntity>{
         parameters.append("payload", JSON.stringify(identifiers));
         return new Promise<void>((resolve, reject) => {
             try{
-                useGet(url, parameters)
+                useDelete(url, parameters)
                     .then((response: Response) => {
                         if(response.status === 200){
                             resolve();
@@ -174,6 +174,26 @@ export class BaseService<E extends BaseEntity>{
                             reject(response.statusText);
                         }
                     })
+            }catch (e) {
+                reject(e);
+            }
+        });
+    }
+
+    public findAll(): Promise<Array<E>>{
+        let url: string = `http://localhost/${this.module}/findAll`;
+        return new Promise((resolve, reject) => {
+            try {
+                let serializer: Serializer<Array<E>> = useSerializer();
+                useGet(url).then((response: Response) => {
+                    if(response.status === 200){
+                        response.text()
+                            .then(serializer.deserialize)
+                            .then(resolve);
+                    }else{
+                        reject(response.statusText);
+                    }
+                })
             }catch (e) {
                 reject(e);
             }

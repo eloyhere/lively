@@ -1,32 +1,33 @@
 package pers.eloyhere.lively.configuration;
 
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AnonymousAuthenticationProvider;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.RememberMeAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.security.web.session.InvalidSessionStrategy;
+import org.springframework.security.web.session.SessionInformationExpiredEvent;
+import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -36,14 +37,10 @@ import pers.eloyhere.lively.authentication.filter.handler.LivelyAuthenticationFa
 import pers.eloyhere.lively.authentication.filter.handler.LivelyAuthenticationSuccessHandler;
 import pers.eloyhere.lively.authentication.manager.RequestAuthorizationManager;
 import pers.eloyhere.lively.authentication.provider.UsernamePasswordAuthenticationProvider;
-import pers.eloyhere.lively.entity.consumer.Consumer;
-import pers.eloyhere.lively.entity.consumer.Token;
-import pers.eloyhere.lively.service.authentication.LivelyPersistentTokenBasedRememberMeServices;
 import pers.eloyhere.lively.service.consumer.ConsumerService;
-import pers.eloyhere.lively.service.consumer.TokenService;
 
+import java.io.IOException;
 import java.util.Arrays;
-import java.util.Objects;
 
 @Configuration
 @EnableWebSecurity
@@ -118,16 +115,24 @@ public class SecurityConfiguration {
         livelyUsernamePasswordAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
         livelyUsernamePasswordAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
         return security.cors((cors) -> cors.configurationSource(corsConfigurationSource)).authorizeHttpRequests((request) ->
-                    request.anyRequest().access(new RequestAuthorizationManager())
-                ).securityContext((context) -> context.requireExplicitSave(true).securityContextRepository(securityContextRepository))
+                    request.requestMatchers("/", "/**", "/**.*").permitAll().anyRequest().access(new RequestAuthorizationManager())
+                ).anonymous(AbstractHttpConfigurer::disable)
+                .securityContext((context) -> context.requireExplicitSave(true).securityContextRepository(securityContextRepository))
                 .rememberMe((remember) -> remember.rememberMeServices(rememberMeServices))
                 .addFilterAt(livelyUsernamePasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class).exceptionHandling((exception) -> exception.authenticationEntryPoint(invalidateAuthenticationEntryPoint))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                    .invalidSessionUrl("/")
+                    .invalidSessionStrategy((request, response) -> {
+                        SecurityContextHolder.clearContext();
+                        response.setStatus(HttpStatus.NON_AUTHORITATIVE_INFORMATION.value());
+                    })
                     .maximumSessions(4)
-                    .expiredUrl("/authentication/expire")
                     .maxSessionsPreventsLogin(false)
+                    .expiredSessionStrategy(event -> {
+                        SecurityContextHolder.clearContext();
+                        HttpServletResponse response = event.getResponse();
+                        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                    })
                 )
                 .logout((logout) -> logout.logoutUrl("/authentication/logout")
                     .addLogoutHandler(new SecurityContextLogoutHandler())

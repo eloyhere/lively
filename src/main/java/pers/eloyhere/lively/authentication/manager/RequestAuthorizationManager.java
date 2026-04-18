@@ -28,15 +28,6 @@ import java.util.regex.PatternSyntaxException;
 
 public class RequestAuthorizationManager implements AuthorizationManager<RequestAuthorizationContext> {
 
-    protected static ArrayList<RequestMatcher> publicMatchers = new ArrayList<>();
-
-    static {
-        publicMatchers.add(PathPatternRequestMatcher.pathPattern("/"));
-        publicMatchers.add(PathPatternRequestMatcher.pathPattern("/**"));
-        publicMatchers.add(PathPatternRequestMatcher.pathPattern("/**.*"));
-        publicMatchers.add(PathPatternRequestMatcher.pathPattern("/authentication/**"));
-    }
-
     @Override
     public void verify(@NonNull Supplier<? extends @Nullable Authentication> supplier, @NonNull RequestAuthorizationContext object) throws AuthenticationCredentialsNotFoundException, AuthorizationDeniedException {
         AuthorizationResult authorizationResult = this.authorize(supplier, object);
@@ -56,14 +47,10 @@ public class RequestAuthorizationManager implements AuthorizationManager<Request
         }
         HttpServletRequest request = object.getRequest();
         if(Objects.isNull(authentication) || !authentication.isAuthenticated()){
-            OrRequestMatcher matcher = new OrRequestMatcher(publicMatchers);
-            return new AuthorizationDecision(matcher.matches(request));
-        }
-        OrRequestMatcher publicMatcher = new OrRequestMatcher(publicMatchers);
-        if(publicMatcher.matches(request)){
-            return new AuthorizationDecision(true);
+            return new AuthorizationDecision(false);
         }
         boolean permit = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).filter(Objects::nonNull).anyMatch((authority) -> {
+            System.out.println("----------------------url"+request.getRequestURI()+"-"+authority);
             ArrayList<RequestMatcher> matchers = new ArrayList<>();
             matchers.add((r) -> r.getRequestURI().contentEquals(authority));
             matchers.add((r) -> r.getMethod().toLowerCase(Locale.ROOT).contentEquals(authority.toLowerCase(Locale.ROOT)));
