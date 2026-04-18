@@ -41,6 +41,6 @@ export interface Authentication extends BaseEntity{
 }
 
 export interface Invitation extends BaseEntity{
-
+    code: string;
 }
 
