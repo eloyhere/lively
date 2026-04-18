@@ -94,6 +94,7 @@ class AuthenticationController {
         }
     }
 
+    @Everyone
     @GetMapping("failure")
     public ResponseEntity<Authentication> failure(){
         SecurityContext context = SecurityContextHolder.getContext();
