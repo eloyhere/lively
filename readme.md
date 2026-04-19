@@ -21,12 +21,159 @@ The system follows a monolithic application structure with clear separation betw
 ### Project Structure
 ```
 lively/
-├── backend/ (Java Spring Boot)
-│   ├── src/main/resources/
-│   │   ├── static/ (compiled frontend assets)
-│   │   └── vue-project/ (source Vue 3 project)
-└── database/
-    └── lively.sql
+├── logs/
+├── src/
+│   ├── main/java/pers/eloyhere/lively
+│   │   ├── annotation/
+│   │   │   ├── Administrator.java
+│   │   │   ├── Authenticated.java
+│   │   │   ├── Everyone.java
+│   │   │   ├── Guest.java
+│   │   │   └── Unauthenticated.java
+│   │   ├── authentication/
+│   │   │   ├── entry/
+│   │   │   │   └── InvalidateAuthenticationEntryPoint.java
+│   │   │   ├── filter/
+│   │   │   │   ├── handler/
+│   │   │   │   │   ├── LivelyAuthenticationFailureHandler.java
+│   │   │   │   │   └── LivelyAuthenticationSuccessHandler.java
+│   │   │   │   ├── LivelyAuthenticationDetailsSource.java
+│   │   │   │   └── LivelyUsernamePasswordAuthenticationFilter.java
+│   │   │   ├── granter/
+│   │   │   │   └── Granter.java
+│   │   │   ├── provider/
+│   │   │   │   └── UsernamePasswordAuthenticationProvider.java
+│   │   │   └── strategy/
+│   │   │       └── InvalidateSessionStrategy.java
+│   │   ├── component/
+│   │   │   └── DataInitializer.java
+│   │   ├── configuration/
+│   │   │   ├── CrossOriginConfiguration.java
+│   │   │   ├── ResolverConfiguration.java
+│   │   │   ├── ResourcesConfiguration.java
+│   │   │   ├── SecurityConfiguration.java
+│   │   │   └── Vue3Configuration.java
+│   │   ├── controller/
+│   │   │   ├── book/
+│   │   │   ├── chat/
+│   │   │   ├── consumer/
+│   │   │   ├── AnnouncementController.java
+│   │   │   ├── AuthenticationController.java
+│   │   │   └── BaseController.java
+│   │   ├── converter/
+│   │   │   └── StringBlobConverter.java
+│   │   ├── entity/
+│   │   │   ├── book/
+│   │   │   ├── chat/
+│   │   │   ├── consumer/
+│   │   │   ├── Announcement.java
+│   │   │   └── BaseEntity.java
+│   │   ├── projection/
+│   │   │   └── BaseProjection.java
+│   │   ├── repository/
+│   │   │   ├── book/
+│   │   │   │   ├── BookRepository.java
+│   │   │   │   └── ChapterRepository.java
+│   │   │   ├── chat/
+│   │   │   │   ├── ChatRepository.java
+│   │   │   │   └── MessageRepository.java
+│   │   │   ├── consumer/
+│   │   │   │   ├── AuthorityRepository.java
+│   │   │   │   ├── ConsumerRepository.java
+│   │   │   │   ├── InvitationRepository.java
+│   │   │   │   ├── RoleRepository.java
+│   │   │   │   └── TokenRepository.java
+│   │   │   ├── AnnouncementRepository.java
+│   │   │   └── BaseRepository.java
+│   │   ├── resolver/
+│   │   │   ├── EntityArgumentResolver.java
+│   │   │   └── UUIDArgumentResolver.java
+│   │   ├── service/
+│   │   │   ├── authentication/
+│   │   │   │   └── LivelyPersistentTokenBasedRememberMeServices.java
+│   │   │   ├── book/
+│   │   │   │   ├── BookService.java
+│   │   │   │   └── ChapterService.java
+│   │   │   ├── chat/
+│   │   │   │   ├── ChatService.java
+│   │   │   │   └── MessageService.java
+│   │   │   ├── consumer/
+│   │   │   │   ├── AuthorityService.java
+│   │   │   │   ├── ConsumerService.java
+│   │   │   │   ├── InvitationService.java
+│   │   │   │   ├── RoleService.java
+│   │   │   │   └── TokenService.java
+│   │   │   ├── AnnouncementService.java
+│   │   │   └── BaseRepository.java
+│   │   └── LivelyApplication.java
+│   ├── resources/
+│   │   ├── lively/
+│   │   │   ├── public
+│   │   │   ├── src/
+│   │   │   │   ├── hooks/
+│   │   │   │   │   ├── entity.ts
+│   │   │   │   │   ├── network.ts
+│   │   │   │   │   ├── picture.ts
+│   │   │   │   │   └── url.ts
+│   │   │   │   ├── interaction/
+│   │   │   │   │   ├── entity.ts
+│   │   │   │   │   └── service.ts
+│   │   │   │   ├── plugins/
+│   │   │   │   │   └── element.ts
+│   │   │   │   ├── router/
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── stores/
+│   │   │   │   │   ├── authentication.ts
+│   │   │   │   │   └── counter.ts
+│   │   │   │   ├── views/
+│   │   │   │   │   ├── authentication/
+│   │   │   │   │   │   ├── Account.vue
+│   │   │   │   │   │   └── Profile.vue
+│   │   │   │   │   ├── management/
+│   │   │   │   │   │   ├── book/
+│   │   │   │   │   │   │   ├── Book.vue
+│   │   │   │   │   │   │   └── Chapter.vue
+│   │   │   │   │   │   ├── chat/
+│   │   │   │   │   │   │   ├── Chat.vue
+│   │   │   │   │   │   │   └── Message.vue
+│   │   │   │   │   │   └── consumer/
+│   │   │   │   │   │   │   ├── Authority.vue
+│   │   │   │   │   │   │   ├── Consumer.vue
+│   │   │   │   │   │   │   ├── Invitation.vue
+│   │   │   │   │   │   │   ├── Role.vue
+│   │   │   │   │   │   │   └── Token.vue
+│   │   │   │   │   ├── Authentication.vue
+│   │   │   │   │   ├── Home.vue
+│   │   │   │   │   └── Management.vue
+│   │   │   │   ├── App.vue
+│   │   │   │   ├── main.ts
+│   │   │   │   └── style.css
+│   │   │   ├── .gitignore
+│   │   │   ├── env.d.ts
+│   │   │   ├── index.html
+│   │   │   ├── package.json
+│   │   │   ├── package-lock.json
+│   │   │   ├── README.md
+│   │   │   ├── tsconfig.app.json
+│   │   │   ├── tsconfig.json
+│   │   │   ├── tsconfig.node.json
+│   │   │   └── vite.config.ts
+│   │   ├── static/
+│   │   │   ├── assets/
+│   │   │   ├── background.jpeg
+│   │   │   ├── Close Eyes.png
+│   │   │   ├── favicon.ico
+│   │   │   ├── index.html
+│   │   │   └── smile.png
+│   │   └── application.properties
+│   └── test/java/pers/eloyhere/lively/
+│       └── LivelyApplicationTests.java
+├── .gitattributes
+├── .gitignore
+├── mvnw
+├── mvnw.cmd
+├── pom.xml
+└── readme.md
 ```
 
 ## Core Features
