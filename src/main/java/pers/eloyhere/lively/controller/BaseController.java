@@ -1,6 +1,8 @@
 package pers.eloyhere.lively.controller;
 
 import jakarta.annotation.Nonnull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pers.eloyhere.lively.annotation.Administrator;
@@ -12,6 +14,7 @@ import pers.eloyhere.lively.service.BaseService;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 
@@ -27,6 +30,13 @@ public class BaseController<E extends BaseEntity, R extends BaseRepository<E>, S
     @GetMapping("countBy")
     public ResponseEntity<Long> countBy(@Nonnull final E entity){
         return ResponseEntity.ok(this.service.countBy(entity));
+    }
+
+    @Administrator
+    @GetMapping("deleteAll")
+    public ResponseEntity<String> deleteAll(){
+        this.service.deleteAll();
+        return ResponseEntity.ok("ok");
     }
 
     @Administrator
@@ -76,7 +86,6 @@ public class BaseController<E extends BaseEntity, R extends BaseRepository<E>, S
         return ResponseEntity.ok(this.service.findAllByIdentifiers(identifiers));
     }
 
-    @Administrator
     @GetMapping("findAll")
     public ResponseEntity<Collection<E>> findAll(){
         return ResponseEntity.ok(this.service.findAll());
@@ -86,5 +95,25 @@ public class BaseController<E extends BaseEntity, R extends BaseRepository<E>, S
     @GetMapping("findAllBy")
     public ResponseEntity<Collection<E>> findAllBy(@Nonnull final E entity){
         return ResponseEntity.ok(this.service.findAllBy(entity));
+    }
+
+    @GetMapping("findAllPagedBy")
+    public ResponseEntity<Page<E>> findAllPagedBy(@Nonnull @ModelAttribute final E entity, @Nonnull @RequestParam final Integer page, @Nonnull @RequestParam Integer size, Sort.Direction direction, Collection<String> properties){
+        if(Objects.isNull(direction) || Objects.isNull(properties)){
+            return ResponseEntity.ok(this.service.findAllPagedBy(entity, page, size, direction, properties));
+        }
+        return ResponseEntity.ok(this.service.findAllPagedBy(entity, page, size));
+    }
+
+    @Administrator
+    @GetMapping("insert")
+    public ResponseEntity<E> insert(@Nonnull final E entity){
+        return ResponseEntity.ok(this.service.insert(entity));
+    }
+
+    @Administrator
+    @GetMapping("update")
+    public ResponseEntity<E> update(@Nonnull final E entity){
+        return ResponseEntity.ok(this.service.update(entity));
     }
 }

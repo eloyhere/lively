@@ -8,7 +8,7 @@ import pers.eloyhere.lively.entity.consumer.Role;
 import pers.eloyhere.lively.repository.consumer.RoleRepository;
 import pers.eloyhere.lively.service.consumer.RoleService;
 
-@RestController
+@RestController("roleController")
 @RequestMapping("/role")
 class RoleController extends BaseController<Role, RoleRepository, RoleService> {
 

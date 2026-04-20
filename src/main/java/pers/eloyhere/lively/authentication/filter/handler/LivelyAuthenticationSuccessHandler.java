@@ -35,15 +35,15 @@ public class LivelyAuthenticationSuccessHandler implements AuthenticationSuccess
         SecurityContext context = strategy.createEmptyContext();
         context.setAuthentication(authentication);
         strategy.setContext(context);
+        SecurityContextHolder.setContext(context);
 
         response.setContentType("application/json;charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpStatus.OK.value());
-        response.setHeader("Access-Control-Allow-Origin", "http://localhost:8080");
+        response.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "*");
         response.setHeader("Access-Control-Allow-Credentials", "true");
-
         ObjectMapper mapper = new ObjectMapper();
         ObjectWriter writer = mapper.writerFor(Authentication.class);
         response.getWriter().write(writer.writeValueAsString(authentication));

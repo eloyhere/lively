@@ -7,7 +7,7 @@ import pers.eloyhere.lively.entity.consumer.Token;
 import pers.eloyhere.lively.repository.consumer.TokenRepository;
 import pers.eloyhere.lively.service.consumer.TokenService;
 
-@RestController("tkenController")
+@RestController("tokenController")
 @RequestMapping("/token")
 class TokenController extends BaseController<Token, TokenRepository, TokenService> {
 

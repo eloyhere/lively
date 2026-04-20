@@ -113,12 +113,12 @@ lively/
 │   │   │   ├── public/                      # 未经 Vite 处理的静态资源
 │   │   │   ├── src/
 │   │   │   │   ├── hooks/                   # Vue 3 组合式函数
-│   │   │   │   │   ├── entity.ts            # 实体交互工具
+│   │   │   │   │   ├── serialization.ts            # 实体交互工具
 │   │   │   │   │   ├── network.ts           # HTTP 客户端抽象
 │   │   │   │   │   ├── picture.ts           # 图片处理工具
 │   │   │   │   │   └── url.ts               # URL 构造和操作
 │   │   │   │   ├── interaction/             # 前端数据交互层
-│   │   │   │   │   ├── entity.ts            # TypeScript 实体定义
+│   │   │   │   │   ├── serialization.ts            # TypeScript 实体定义
 │   │   │   │   │   └── service.ts           # 前端服务抽象
 │   │   │   │   ├── plugins/                 # Vue 插件集成
 │   │   │   │   │   └── element.ts           # Element Plus 组件库

@@ -6,7 +6,7 @@ import vueDevTools from "vite-plugin-vue-devtools"
 
 export default defineConfig({
   server: {
-    port: 8080
+    port: 5173
   },
   plugins: [
     vue(),

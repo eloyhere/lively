@@ -63,8 +63,8 @@ public class SecurityConfiguration {
     public CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:8080",
-                "http://127.0.0.1:8080"
+                "http://localhost:5173",
+                "http://127.0.0.1:5173"
         ));
         configuration.setAllowedMethods(Arrays.asList(
                 "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
@@ -122,20 +122,7 @@ public class SecurityConfiguration {
                     .maximumSessions(4)
                     .maxSessionsPreventsLogin(false)
                     .expiredSessionStrategy(event -> {
-                        HttpServletRequest request = event.getRequest();
-                        HttpServletResponse response = event.getResponse();
-                        ArrayList<RequestMatcher> matchers = new ArrayList<>();
-                        matchers.add(PathPatternRequestMatcher.pathPattern("/"));
-                        matchers.add(PathPatternRequestMatcher.pathPattern("/**"));
-                        matchers.add(PathPatternRequestMatcher.pathPattern("/**.*"));
-                        matchers.add(PathPatternRequestMatcher.pathPattern("/authentication/**"));
-                        OrRequestMatcher matcher = new OrRequestMatcher(matchers);
-                        if(matcher.matches(request)){
-                            request.getRequestDispatcher(request.getRequestURI()).forward(request, response);
-                        }else{
-                            SecurityContextHolder.clearContext();
-                            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                        }
+                        SecurityContextHolder.clearContext();
                     })
                 )
                 .logout((logout) -> logout.logoutUrl("/authentication/logout")

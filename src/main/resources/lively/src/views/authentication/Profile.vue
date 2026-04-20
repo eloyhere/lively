@@ -23,7 +23,7 @@ import {computed, type ComputedRef} from "vue";
 import {isPrimitive, type Primitive} from "semantic-typescript";
 import type {Authentication, Consumer} from "@/interaction/entity.ts";
 import {useGet} from "@/hooks/network.ts";
-import {useSerializer} from "@/hooks/entity.ts";
+import {useSerialization} from "@/hooks/serialization.ts";
 
 const profile: ComputedRef<Map<keyof Consumer, Primitive>> = computed(() => {
   let result: Map<keyof Consumer, Primitive> = new Map<keyof Consumer, Primitive>();

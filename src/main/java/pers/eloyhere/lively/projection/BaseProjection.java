@@ -1,8 +1,13 @@
 package pers.eloyhere.lively.projection;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public interface BaseProjection {
+
+    UUID getId();
+
+    LocalDateTime getLock();
 
     LocalDateTime getSpawn();
 
@@ -11,6 +16,4 @@ public interface BaseProjection {
     Long getVersion();
 
     LocalDateTime getBan();
-
-
 }

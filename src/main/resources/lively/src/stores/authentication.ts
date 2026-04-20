@@ -1,18 +1,17 @@
-import {defineStore, type PiniaPluginContext, type StateTree, type StoreDefinition} from "pinia";
-import type {Authentication, Authority, Consumer, Role, Token} from "@/interaction/entity.ts";
-import {ref, type Ref, watch} from "vue";
-import {invalidate, type MaybeInvalid, Optional, validate} from "semantic-typescript";
-import {type Serializer, useSerializer} from "@/hooks/entity.ts";
-import {useGet} from "@/hooks/network.ts";
+import {defineStore, type PiniaPluginContext, type StateTree} from "pinia";
+import type {Authentication, Authority, Consumer, Role} from "@/interaction/entity.ts";
+import {type Ref, ref} from "vue";
+import {isString, type MaybeInvalid, Optional, validate} from "semantic-typescript";
+import {type Serializer, useSerialization} from "@/hooks/serialization.ts";
+import {useGet, usePost} from "@/hooks/network.ts";
 import {ElMessage} from "element-plus";
-import router from "@/router";
 
-const serializer = useSerializer<Authentication>();
+const serializer = useSerialization<Authentication>();
 export const useAuthenticationStore = defineStore(
     "authentication",
     {
         state: () => ({
-            authentication: ref<MaybeInvalid<Authentication>>()
+            authentication: ref<MaybeInvalid<Authentication>>() as Ref<MaybeInvalid<Authentication>>
         }),
         getters: {
             authenticated(): boolean {
@@ -69,29 +68,53 @@ export const useAuthenticationStore = defineStore(
             hasAuthority(authority: string): boolean {
                 return false;
             },
-            auto(){
-                useGet("http://localhost/authentication/auto")
-                    .then((response) => {
-                        if(response.status === 200){
-                            let serializer: Serializer<Authentication> = useSerializer<Authentication>();
-                            response.text().then((text) => {
-                                this.setAuthentication(serializer.deserialize(text));
+            auto(): Promise<boolean>{
+                let serializer: Serializer<Authentication> = useSerialization();
+                return new Promise<boolean>((resolve, reject) => {
+                    useGet("http://localhost:8080/authentication/auto")
+                        .then((response: Response): Promise<string> => response.text())
+                        .then((text: string): Optional<Authentication> => {
+                            if(isString(text) && text.length > 0){
+                                return Optional.of(serializer.deserialize(text));
+                            }
+                            return Optional.empty();
+                        })
+                        .then((optional: Optional<Authentication>) => {
+                            optional.ifPresent((authentication: Authentication) => {
+                                resolve(authentication.name !== "guest");
                             });
-                        }else{
-                            ElMessage({
-                                message: "身份信息过期，请重新登录。",
-                                type: "info"
-                            });
-                            this.removeAuthentication()
-                        }
-                    });
+                        })
+                        .catch(reject);
+                });
+            },
+            usernameAndPasswordLogin(username: string, password: string, remember: boolean): Promise<void> {
+                let serializer: Serializer<Authentication> = useSerialization();
+                return new Promise<void>((resolve, reject) => {
+                    let parameters: URLSearchParams = new URLSearchParams();
+                    parameters.append("username", username);
+                    parameters.append("password", password);
+                    parameters.append("remember", String(remember));
+                    usePost("http://localhost:8080/authentication/login", parameters)
+                        .then((response: Response): void => {
+                            if(response.status === 200){
+                                response.text().then((text) => {
+                                    useAuthenticationStore().setAuthentication(serializer.deserialize(text));
+                                    resolve();
+                                });
+                            }else{
+                                reject(response);
+                            }
+                        }, reject);
+                });
             }
         },
         persist: {
             key: "authentication",
             storage: localStorage,
+            pick: ["authentication"],
             serializer: {
                 serialize: (data: StateTree) => {
+                    console.log(data)
                     return serializer.serialize(data as unknown as Authentication);
                 },
                 deserialize: (data: string): Authentication => {
@@ -99,10 +122,10 @@ export const useAuthenticationStore = defineStore(
                 }
             },
             beforeHydrate(context: PiniaPluginContext) {
-
+                console.log("before", context, localStorage.getItem(context.store.$id) === serializer.serialize(context.store as unknown as Authentication))
             },
             afterHydrate(context: PiniaPluginContext) {
-
+                console.log("after", context, localStorage.getItem(context.store.$id))
             },
         }
     }

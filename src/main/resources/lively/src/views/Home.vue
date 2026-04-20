@@ -1,12 +1,5 @@
 <template>
-  <ElContainer :style="{
-    background: 'url(http://localhost/background.jpeg)',
-    backgroundRepeat: 'no-repeat',
-    backgroundAttachment: 'fixed',
-    backgroundSize: '100% 100%',
-    width: '100%',
-    height: '100%'
-  }">
+  <ElContainer class="container">
     <ElHeader class="header">
       <div>
         <ElButton icon="cherry"/>
@@ -73,14 +66,8 @@ import {User} from "@element-plus/icons-vue";
 import {type Router, useRouter} from "vue-router";
 import {ElLoading, ElMessage} from "element-plus";
 import {useGet} from "@/hooks/network.ts";
-import {type Serializer, useSerializer} from "@/hooks/entity.ts";
+import {type Serializer, useSerialization} from "@/hooks/serialization.ts";
 import {AnnouncementService} from "@/interaction/service.ts";
-
-const load = ElLoading.service({
-  lock: true,
-  text: "加载中...",
-  background: 'rgba(0, 0, 0, 0.7)',
-});
 
 const router:Router = useRouter();
 
@@ -114,7 +101,7 @@ const handle: Consumer<string> = (command: string): void => {
       });
       break;
     case "/authentication/logout":
-      useGet("http://localhost/authentication/logout").then((response) => {
+      useGet("http://localhost:8080/authentication/logout").then((response) => {
         if(response.status === 203){
           window.document.cookie = "";
           ElMessage({
@@ -134,23 +121,22 @@ const handle: Consumer<string> = (command: string): void => {
 };
 const announcementService: AnnouncementService = new AnnouncementService();
 const unread: ComputedRef<Array<Announcement>> = computed<Array<Announcement>>((): Array<Announcement> => {
-  let result: Array<Announcement> = [];
-  announcementService.findAll().then((value) => {
-    return useAuthenticationStore().principal.ifPresent((consumer) => {
-
-    });
-  });
-  return result;
+  return [];
 });
 
 
 onMounted((): void => {
-  load.close();
 })
 </script>
 
 <style scoped>
 
+.container{
+  background: url("http://localhost:8080/background.jpeg") no-repeat fixed;
+  background-size: 100% 100%;
+  width: 100%;
+  height: 100%
+}
 .header{
   display: flex;
   flex-direction: row;

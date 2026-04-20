@@ -113,12 +113,12 @@ lively/
 │   │   │   ├── public/                      # Static assets not processed by Vite
 │   │   │   ├── src/
 │   │   │   │   ├── hooks/                   # Vue 3 composition functions
-│   │   │   │   │   ├── entity.ts            # Entity interaction utilities
+│   │   │   │   │   ├── serialization.ts            # Entity interaction utilities
 │   │   │   │   │   ├── network.ts           # HTTP client abstraction
 │   │   │   │   │   ├── picture.ts           # Image processing utilities
 │   │   │   │   │   └── url.ts               # URL construction and manipulation
 │   │   │   │   ├── interaction/             # Frontend data interaction layer
-│   │   │   │   │   ├── entity.ts            # TypeScript entity definitions
+│   │   │   │   │   ├── serialization.ts            # TypeScript entity definitions
 │   │   │   │   │   └── service.ts           # Frontend service abstractions
 │   │   │   │   ├── plugins/                 # Vue plugin integrations
 │   │   │   │   │   └── element.ts           # Element Plus component library

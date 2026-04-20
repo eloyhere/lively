@@ -110,38 +110,38 @@ public class AnnouncementService extends BaseService<Announcement, AnnouncementR
     }
 
     @Override
-    public @NonNull Page<Announcement> findAllBy(@Nullable Announcement entity, @Nullable Integer page, @Nullable Integer size) {
-        Page<Announcement> p = super.findAllBy(entity, page, size);
+    public @NonNull Page<Announcement> findAllPagedBy(@Nullable Announcement entity, @Nullable Integer page, @Nullable Integer size) {
+        Page<Announcement> p = super.findAllPagedBy(entity, page, size);
         return p.map(this.repository::saveAndFlush);
     }
 
     @Override
-    public @NonNull Page<Announcement> findAllBy(@Nullable Specification<Announcement> specification, @Nullable Integer page, @Nullable Integer size) {
-        Page<Announcement> p = super.findAllBy(specification, page, size);
+    public @NonNull Page<Announcement> findAllPagedBy(@Nullable Specification<Announcement> specification, @Nullable Integer page, @Nullable Integer size) {
+        Page<Announcement> p = super.findAllPagedBy(specification, page, size);
         return p.map(this.repository::saveAndFlush);
     }
 
     @Override
-    public @NonNull Page<Announcement> findAllBy(@Nullable Announcement entity, Integer page, @Nullable Integer size, @Nullable Sort sort) {
-        Page<Announcement> p = super.findAllBy(entity, page, size, sort);
+    public @NonNull Page<Announcement> findAllPagedBy(@Nullable Announcement entity, Integer page, @Nullable Integer size, @Nullable Sort sort) {
+        Page<Announcement> p = super.findAllPagedBy(entity, page, size, sort);
         return p.map(this.repository::saveAndFlush);
     }
 
     @Override
-    public @NonNull Page<Announcement> findAllBy(@Nullable Specification<Announcement> specification, Integer page, @Nullable Integer size, @Nullable Sort sort) {
-        Page<Announcement> p = super.findAllBy(specification, page, size, sort);
+    public @NonNull Page<Announcement> findAllPagedBy(@Nullable Specification<Announcement> specification, Integer page, @Nullable Integer size, @Nullable Sort sort) {
+        Page<Announcement> p = super.findAllPagedBy(specification, page, size, sort);
         return p.map(this.repository::saveAndFlush);
     }
 
     @Override
-    public @NonNull Page<Announcement> findAllBy(@Nullable Announcement entity, Integer page, @Nullable Integer size, Sort.@Nullable Direction direction, String... properties) {
-        Page<Announcement> p = super.findAllBy(entity, page, size, direction, properties);
+    public @NonNull Page<Announcement> findAllPagedBy(@Nullable Announcement entity, Integer page, @Nullable Integer size, Sort.@Nullable Direction direction, Collection<String> properties) {
+        Page<Announcement> p = super.findAllPagedBy(entity, page, size, direction, properties);
         return p.map(this.repository::saveAndFlush);
     }
 
     @Override
-    public @NonNull Page<Announcement> findAllBy(@Nullable Specification<Announcement> specification, Integer page, @Nullable Integer size, Sort.@Nullable Direction direction, String... properties) {
-        Page<Announcement> p = super.findAllBy(specification, page, size, direction, properties);
+    public @NonNull Page<Announcement> findAllPagedBy(@Nullable Specification<Announcement> specification, Integer page, @Nullable Integer size, Sort.@Nullable Direction direction, Collection<String> properties) {
+        Page<Announcement> p = super.findAllPagedBy(specification, page, size, direction, properties);
         return p.map(this.repository::saveAndFlush);
     }
 

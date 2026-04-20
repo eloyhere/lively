@@ -1,23 +1,45 @@
 import type {Authority, BaseEntity, Consumer, Role, Invitation, Token, Announcement} from "@/interaction/entity.ts";
-import {useDelete, useGet} from "@/hooks/network.ts";
-import {isBoolean, isNumber, isPrimitive, isString} from "semantic-typescript";
-import {type Serializer, useSerializer} from "@/hooks/entity.ts";
+import {useDelete, useGet, usePut} from "@/hooks/network.ts";
+import {type Serializer, useSerialization} from "@/hooks/serialization.ts";
+import {type Consumer as FConsumer} from "semantic-typescript";
+
+interface Sort{
+    empty: boolean;
+    sorted: boolean;
+    unsorted: boolean;
+}
+
+interface Page<E extends BaseEntity> {
+    content: Array<E>;
+    empty: boolean;
+    first: boolean;
+    last: boolean;
+    number: number;
+    numberOfElements: number;
+    size: number;
+    totalElements: number;
+    totalPages: number;
+}
 
 export class BaseService<E extends BaseEntity>{
 
+    private readonly prefix: string = "http://localhost:8080";
+
     private readonly module: string;
 
-    private readonly serializer: Serializer<E> = useSerializer<E>();
+    private readonly serializer: Serializer<E> = useSerialization<E>();
 
     public constructor(module: string) {
         this.module = module;
     }
 
-    public countBy(entity: Partial<E>): Promise<bigint> {
-        let url: string = `http://localhost/${this.module}/countBy`;
+    public async countBy(entity: E): Promise<bigint>;
+    public async countBy(entity: Partial<E>): Promise<bigint>;
+    public async countBy(entity: E | Partial<E>): Promise<bigint> {
+        let url: string = `${this.prefix}/${this.module}/countBy`;
         let parameters: URLSearchParams = new URLSearchParams();
         parameters.append("payload", this.serializer.serialize(entity));
-        return new Promise<bigint>((resolve, reject) => {
+        return new Promise<bigint>((resolve: FConsumer<bigint>, reject: FConsumer<unknown>) => {
             try{
                 useGet(url, parameters)
                     .then((response: Response) => {
@@ -33,31 +55,29 @@ export class BaseService<E extends BaseEntity>{
         });
     }
 
-    public deleteByIdentifier(identifier: string): Promise<void> {
-        let url: string = `http://localhost/${this.module}/deleteByIdentifier`;
+    public async deleteAll(): Promise<void> {
+        let url: string = `${this.prefix}/${this.module}/deleteAll`;
+        return new Promise<void>((resolve: FConsumer<void>, reject: FConsumer<unknown>) => {
+            try{
+                useDelete(url)
+                    .then((response: Response) => {
+                        if(response.status === 200){
+                            resolve();
+                        }else{
+                            reject(response.statusText);
+                        }
+                    });
+            }catch (e) {
+                reject(e);
+            }
+        });
+    }
+
+    public async deleteByIdentifier(identifier: string): Promise<void> {
+        let url: string = `${this.prefix}/${this.module}/deleteByIdentifier`;
         let parameters: URLSearchParams = new URLSearchParams();
         parameters.append("identifier", identifier);
-        return new Promise<void>((resolve, reject) => {
-            try{
-                useGet(url, parameters)
-                    .then((response: Response) => {
-                        if(response.status === 200){
-                            resolve();
-                        }else{
-                            reject(response.statusText);
-                        }
-                    });
-            }catch (e) {
-                reject(e);
-            }
-        });
-    }
-
-    public deleteBy(entity: Partial<E>): Promise<void> {
-        let url: string = `http://localhost/${this.module}/deleteBy`;
-        let parameters: URLSearchParams = new URLSearchParams();
-        parameters.append("payload", this.serializer.serialize(entity));
-        return new Promise<void>((resolve, reject) => {
+        return new Promise<void>((resolve: FConsumer<void>, reject: FConsumer<unknown>) => {
             try{
                 useDelete(url, parameters)
                     .then((response: Response) => {
@@ -73,11 +93,33 @@ export class BaseService<E extends BaseEntity>{
         });
     }
 
-    public deleteAllByIdentifiers(identifiers: Iterable<string>): Promise<void> {
-        let url: string = `http://localhost/${this.module}/deleteAllByIdentifiers`;
+    public async deleteBy(entity: E): Promise<void>;
+    public async deleteBy(entity: Partial<E>): Promise<void>;
+    public async deleteBy(entity: E | Partial<E>): Promise<void> {
+        let url: string = `${this.prefix}/${this.module}/deleteBy`;
+        let parameters: URLSearchParams = new URLSearchParams();
+        parameters.append("payload", this.serializer.serialize(entity));
+        return new Promise<void>((resolve: FConsumer<void>, reject: FConsumer<unknown>) => {
+            try{
+                useDelete(url, parameters)
+                    .then((response: Response) => {
+                        if(response.status === 200){
+                            resolve();
+                        }else{
+                            reject(response.statusText);
+                        }
+                    });
+            }catch (e) {
+                reject(e);
+            }
+        });
+    }
+
+    public async deleteAllByIdentifiers(identifiers: Iterable<string>): Promise<void> {
+        let url: string = `${this.prefix}/${this.module}/deleteAllByIdentifiers`;
         let parameters: URLSearchParams = new URLSearchParams();
         parameters.append("payload", JSON.stringify(identifiers));
-        return new Promise<void>((resolve, reject) => {
+        return new Promise<void>((resolve: FConsumer<void>, reject: FConsumer<unknown>) => {
             try{
                 useDelete(url, parameters)
                     .then((response: Response) => {
@@ -93,11 +135,13 @@ export class BaseService<E extends BaseEntity>{
         });
     }
 
-    public existsBy(entity: Partial<E>): Promise<boolean> {
-        let url: string = `http://localhost/${this.module}/existsBy`;
+    public async existsBy(entity: E): Promise<boolean>;
+    public async existsBy(entity: Partial<E>): Promise<boolean>;
+    public async existsBy(entity: E | Partial<E>): Promise<boolean> {
+        let url: string = `${this.prefix}/${this.module}/existsBy`;
         let parameters: URLSearchParams = new URLSearchParams();
         parameters.append("payload", this.serializer.serialize(entity));
-        return new Promise<boolean>((resolve, reject) => {
+        return new Promise<boolean>((resolve: FConsumer<boolean>, reject: FConsumer<unknown>) => {
             try{
                 useGet(url, parameters)
                     .then((response: Response) => {
@@ -113,11 +157,11 @@ export class BaseService<E extends BaseEntity>{
         });
     }
 
-    public findByIdentifier(identifier: string): Promise<E> {
-        let url: string = `http://localhost/${this.module}/findByIdentifier`;
+    public async findByIdentifier(identifier: string): Promise<E> {
+        let url: string = `${this.prefix}/${this.module}/findByIdentifier`;
         let parameters: URLSearchParams = new URLSearchParams();
         parameters.append("identifier", identifier);
-        return new Promise<E>((resolve, reject) => {
+        return new Promise<E>((resolve: FConsumer<E>, reject: FConsumer<unknown>) => {
             try{
                 useGet(url, parameters)
                     .then((response: Response) => {
@@ -135,11 +179,13 @@ export class BaseService<E extends BaseEntity>{
         });
     }
 
-    public findOneBy(entity: Partial<E>): Promise<E> {
-        let url: string = `http://localhost/${this.module}/findOneBy`;
+    public async findOneBy(entity: E): Promise<E>;
+    public async findOneBy(entity: Partial<E>): Promise<E>;
+    public async findOneBy(entity: E | Partial<E>): Promise<E> {
+        let url: string = `${this.prefix}/${this.module}/findOneBy`;
         let parameters: URLSearchParams = new URLSearchParams();
         parameters.append("payload", this.serializer.serialize(entity));
-        return new Promise<E>((resolve, reject) => {
+        return new Promise<E>((resolve: FConsumer<E>, reject: FConsumer<unknown>) => {
             try{
                 useGet(url, parameters)
                     .then((response: Response) => {
@@ -157,12 +203,12 @@ export class BaseService<E extends BaseEntity>{
         });
     }
 
-    public findAllByIdentifiers(identifiers: Iterable<string>): Promise<Array<E>> {
-        let url: string = `http://localhost/${this.module}/findByIdentifier`;
+    public async findAllByIdentifiers(identifiers: Iterable<string>): Promise<Array<E>> {
+        let url: string = `${this.prefix}/${this.module}/findByIdentifier`;
         let parameters: URLSearchParams = new URLSearchParams();
         parameters.append("identifiers", JSON.stringify(identifiers));
-        let serializer: Serializer<Array<E>> = useSerializer();
-        return new Promise<Array<E>>((resolve, reject) => {
+        let serializer: Serializer<Array<E>> = useSerialization();
+        return new Promise<Array<E>>((resolve: FConsumer<Array<E>>, reject: FConsumer<unknown>) => {
             try{
                 useGet(url, parameters)
                     .then((response: Response) => {
@@ -180,12 +226,110 @@ export class BaseService<E extends BaseEntity>{
         });
     }
 
-    public findAll(): Promise<Array<E>>{
-        let url: string = `http://localhost/${this.module}/findAll`;
-        return new Promise((resolve, reject) => {
+    public async findAll(): Promise<Array<E>>{
+        let url: string = `${this.prefix}/${this.module}/findAll`;
+        return new Promise<Array<E>>((resolve: FConsumer<Array<E>>, reject: FConsumer<unknown>) => {
             try {
-                let serializer: Serializer<Array<E>> = useSerializer();
+                let serializer: Serializer<Array<E>> = useSerialization();
                 useGet(url).then((response: Response) => {
+                    if(response.status === 200){
+                        response.text()
+                            .then(serializer.deserialize)
+                            .then(resolve);
+                    }else{
+                        reject(response.statusText);
+                    }
+                })
+            }catch (e) {
+                console.log("11111", e);
+                reject(e);
+            }
+        });
+    }
+
+    public async findAllBy(entity: E): Promise<Array<E>>;
+    public async findAllBy(entity: Partial<E>): Promise<Array<E>>
+    public async findAllBy(entity: E | Partial<E>): Promise<Array<E>>{
+        let url: string = `${this.prefix}/${this.module}/findAllBy`;
+        return new Promise<Array<E>>((resolve: FConsumer<Array<E>>, reject: FConsumer<unknown>) => {
+            try {
+                let serializer: Serializer<Array<E>> = useSerialization();
+                useGet(url).then((response: Response) => {
+                    if(response.status === 200){
+                        response.text()
+                            .then(serializer.deserialize)
+                            .then(resolve);
+                    }else{
+                        reject(response.statusText);
+                    }
+                })
+            }catch (e) {
+                reject(e);
+            }
+        });
+    }
+
+    public async findAllPagedBy(entity: E, page: number, size: number): Promise<Array<E>>;
+    public async findAllPagedBy(entity: Partial<E>, page: number, size: number): Promise<Array<E>>
+    public async findAllPagedBy(entity: E | Partial<E>, page: number, size: number): Promise<Array<E>>{
+        let url: string = `${this.prefix}/${this.module}/findAllPagedBy`;
+        let serializer: Serializer<E> = useSerialization();
+        let parameters: URLSearchParams = new URLSearchParams();
+        parameters.append("payload", serializer.serialize(entity));
+        parameters.append("size", String(size));
+        parameters.append("page", String(page));
+        return new Promise<Array<E>>((resolve: FConsumer<Array<E>>, reject: FConsumer<unknown>) => {
+            try {
+                let serializer: Serializer<Array<E>> = useSerialization();
+                useGet(url, parameters).then((response: Response) => {
+                    if(response.status === 200){
+                        response.text()
+                            .then(serializer.deserialize)
+                            .then(resolve);
+                    }else{
+                        reject(response.statusText);
+                    }
+                })
+            }catch (e) {
+                reject(e);
+            }
+        });
+    }
+
+    public async insert(entity: E): Promise<E>;
+    public async insert(entity: Partial<E>): Promise<E>;
+    public async insert(entity: E | Partial<E>): Promise<E>{
+        let url: string = `${this.prefix}/${this.module}/insert`;
+        let serializer: Serializer<E> = useSerialization();
+        let parameters: URLSearchParams = new URLSearchParams();
+        parameters.append("payload", serializer.serialize(entity));
+        return new Promise<E>((resolve: FConsumer<E>, reject: FConsumer<unknown>) => {
+            try {
+                usePut(url, parameters).then((response: Response) => {
+                    if(response.status === 200){
+                        response.text()
+                            .then(serializer.deserialize)
+                            .then(resolve);
+                    }else{
+                        reject(response.statusText);
+                    }
+                })
+            }catch (e) {
+                reject(e);
+            }
+        });
+    }
+
+    public async update(entity: E): Promise<E>;
+    public async update(entity: Partial<E>): Promise<E>;
+    public async update(entity: E | Partial<E>): Promise<E>{
+        let url: string = `${this.prefix}/${this.module}/update`;
+        let serializer: Serializer<E> = useSerialization();
+        let parameters: URLSearchParams = new URLSearchParams();
+        parameters.append("payload", serializer.serialize(entity));
+        return new Promise<E>((resolve: FConsumer<E>, reject: FConsumer<unknown>) => {
+            try {
+                usePut(url, parameters).then((response: Response) => {
                     if(response.status === 200){
                         response.text()
                             .then(serializer.deserialize)

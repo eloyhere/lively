@@ -81,12 +81,12 @@ public class ConsumerService extends BaseService<Consumer, ConsumerRepository> i
         return false;
     }
 
-    @Override
     @Nonnull
+    @Override
     public Consumer loadUserByUsername(@Nullable final String username) throws UsernameNotFoundException {
         if(Objects.nonNull(username)){
             return this.repository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
         }
-        throw new UsernameNotFoundException("Null");
+        throw new UsernameNotFoundException("Null.");
     }
 }

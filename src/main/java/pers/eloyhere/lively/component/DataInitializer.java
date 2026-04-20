@@ -67,7 +67,7 @@ public class DataInitializer implements CommandLineRunner {
 
         Consumer administrator = new Consumer();
         administrator.setNickname("administrator");
-        administrator.setAvatar("http://localhost/smile.png");
+        administrator.setAvatar("http://localhost:8080/smile.png");
         administrator.setPassword(passwordEncoder.encode("z123."));
         administrator.setUsername("administrator");
         roles.forEach((role) -> {

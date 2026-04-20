@@ -254,7 +254,7 @@ import { fetchPicture } from "@/hooks/picture.ts";
 import {useGet, usePost} from "@/hooks/network.ts";
 import {ElMessage, type FormInstance} from "element-plus";
 import {useAuthenticationStore} from "@/stores/authentication.ts";
-import {useSerializer} from "@/hooks/entity.ts";
+import {useSerialization} from "@/hooks/serialization.ts";
 import type {Authentication, Consumer} from "@/interaction/entity.ts";
 import {type Router, useRouter} from "vue-router";
 import {type MaybeInvalid, type Runnable, validate,} from "semantic-typescript";
@@ -289,36 +289,29 @@ const usernamePasswordLoginFormData: LoginFormData = reactive<LoginFormData>({
   password: "",
   remember: false
 });
+let count = 0n;
 const performUsernamePasswordLogin: () => void = async (): Promise<void> => {
   if(validate(usernamePasswordLoginForm.value)){
     await usernamePasswordLoginForm.value.validate((valid: boolean) => {
       if(valid){
-        let parameters: URLSearchParams = new URLSearchParams();
-        parameters.append("username", usernamePasswordLoginFormData.username);
-        parameters.append("password", usernamePasswordLoginFormData.password);
-        parameters.append("remember", String(usernamePasswordLoginFormData.remember));
-        usePost("http://localhost/authentication/login", parameters)
-            .then((response: Response): void => {
-              if(response.status === 200){
-                response.text().then((text) => {
-                  let resolver = useSerializer<Authentication>();
-                  useAuthenticationStore().setAuthentication(resolver.deserialize(text));
-                });
-                ElMessage({
-                  message: "登录成功",
-                  type: "success"
-                });
-                router.push({
-                  path: "/",
-                  replace: true
-                });
-              }else{
-                ElMessage({
-                  message: "登录失败",
-                  type: "info"
-                });
-              }
-            });
+        useAuthenticationStore().usernameAndPasswordLogin(
+            usernamePasswordLoginFormData.username,
+            usernamePasswordLoginFormData.password,
+            usernamePasswordLoginFormData.remember
+        ).then(() => {
+          ElMessage({
+            message: "登录成功",
+            type: "success"
+          });
+          router.replace({
+            path: "/"
+          });
+        }, (reason) => {
+          ElMessage({
+            message: "登录失败",
+            type: "info"
+          });
+        });
       }else{
         ElMessage({
           message: "请完善信息",
@@ -353,11 +346,11 @@ const performCheckCodeLogin: () => void = async (): Promise<void> => {
         parameters.append("username", checkCodeLoginFormData.username);
         parameters.append("code", checkCodeLoginFormData.code);
         parameters.append("remember", String(checkCodeLoginFormData.remember));
-        usePost("http://localhost/authentication/code", parameters)
+        usePost("http://localhost:8080/authentication/code", parameters)
             .then((response: Response): void => {
               if(response.status === 200){
                 response.text().then((text) => {
-                  let resolver = useSerializer<Authentication>();
+                  let resolver = useSerialization<Authentication>();
                   useAuthenticationStore().setAuthentication(resolver.deserialize(text));
                 });
                 ElMessage({
@@ -432,11 +425,11 @@ const performRegister: () => void = async (): Promise<void> => {
         parameters.append("nickname", registerFormData.nickname);
         parameters.append("invitation", registerFormData.invitation);
         parameters.append("avatar", registerFormData.avatar);
-        usePost("http://localhost/authentication/register", parameters)
+        usePost("http://localhost:8080/authentication/register", parameters)
             .then((response: Response): void => {
               if(response.status === 200){
                 response.text().then((text) => {
-                  let resolver = useSerializer<Authentication>();
+                  let resolver = useSerialization<Authentication>();
                   useAuthenticationStore().setAuthentication(resolver.deserialize(text));
                 });
                 ElMessage({
@@ -469,11 +462,11 @@ const resetRegisterForm: Runnable = () => {
   }
 };
 onMounted(() => {
-  fetchPicture("http://localhost/smile.png").then((value) => {
+  fetchPicture("http://localhost:8080/smile.png").then((value) => {
     smile.value = value;
     src.value = value;
   });
-  fetchPicture("http://localhost/Close Eyes.png").then((value) => {
+  fetchPicture("http://localhost:8080/Close Eyes.png").then((value) => {
     closeEyes.value = value;
   })
 });
@@ -500,7 +493,7 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
 
-  background: url(http://localhost/background.jpeg) no-repeat fixed;
+  background: url(http://localhost:8080/background.jpeg) no-repeat fixed;
   background-size: 100% 100%;
 }
 
