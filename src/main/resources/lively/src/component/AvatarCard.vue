@@ -44,6 +44,7 @@ import {useAuthenticationStore} from "@/stores/authentication.ts";
 import {useGet, usePost} from "@/hooks/network.ts";
 import {ElMessage, ElMessageBox, ElNotification} from "element-plus";
 import {AnnouncementService} from "@/interaction/service.ts";
+import {useOrigin} from "@/hooks/url.ts";
 
 const router:Router = useRouter();
 
@@ -83,7 +84,7 @@ const handle: Consumer<string> = (command: string): void => {
         confirmButtonText: "确定",
         cancelButtonText: "取消"
       }).then((): void => {
-        usePost("http://localhost:8080/authentication/logout").then((response) => {
+        usePost(`${useOrigin()}/authentication/logout`).then((response) => {
           if(response.status === 200){
             window.document.cookie = "";
             router.replace({

@@ -123,12 +123,9 @@ import {
   UserFilled,
     Notebook
 } from "@element-plus/icons-vue";
-import Book from "@/views/management/book/Book.vue";
-import TagToolbar from "@/component/TagToolbar.vue";
 import type {Link, Tag} from "@/declaration/component.ts";
 import Toolbar from "@/component/Toolbar.vue";
 import type {Consumer} from "semantic-typescript";
-import Chat from "@/views/management/chat/Chat.vue";
 
 const router: Router = useRouter();
 const current: WritableComputedRef<RouteLocationNormalizedLoadedGeneric> = computed<RouteLocationNormalizedLoadedGeneric, RouteLocationNormalizedLoadedGeneric>({

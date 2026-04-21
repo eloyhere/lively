@@ -14,12 +14,13 @@ import {type Serializer} from "@/declaration/serialization";
 import {type Consumer as FConsumer} from "semantic-typescript";
 import {useSerialization} from "@/hooks/serialization";
 import Chat from "@/views/management/chat/Chat.vue";
+import {useOrigin} from "@/hooks/url.ts";
 
 
 
 export class BaseService<E extends BaseEntity>{
 
-    private readonly prefix: string = "http://localhost:8080";
+    private readonly prefix: string = useOrigin();
 
     private readonly module: string;
 

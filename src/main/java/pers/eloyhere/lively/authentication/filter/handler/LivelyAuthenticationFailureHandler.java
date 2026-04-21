@@ -22,7 +22,9 @@ public class LivelyAuthenticationFailureHandler implements AuthenticationFailure
         response.setContentType("application/json;charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+        response.addHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+        response.addHeader("Access-Control-Allow-Origin", "http://localhost:8080");
+        response.addHeader("Access-Control-Allow-Origin", "http://localhost:80");
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "*");
         response.setHeader("Access-Control-Allow-Credentials", "true");

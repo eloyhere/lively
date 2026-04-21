@@ -21,6 +21,7 @@ import * as echarts from "echarts";
 import {ElMessage} from "element-plus";
 import {onMounted, onUnmounted, reactive, ref, type Ref} from "vue";
 import {invalidate, type MaybeInvalid, validate} from "semantic-typescript";
+import {useOrigin} from "@/hooks/url.ts";
 interface Structure extends Record<string, number>{
   freeMemory: number;
   maxMemory: number;
@@ -40,7 +41,8 @@ const totalMemoryChart: Ref<MaybeInvalid<echarts.ECharts>> = ref<MaybeInvalid<ec
 const processors: Ref<number> = ref<number>(0);
 const structures: Array<Structure> = reactive<Array<Structure>>([]);
 const interval: Ref<MaybeInvalid<number>> = ref<MaybeInvalid<number>>();
-const websocket: Ref<WebSocket> = ref<WebSocket>(new WebSocket("ws://localhost:8080/websocket/monitor"));
+
+const websocket: Ref<WebSocket> = ref<WebSocket>(new WebSocket(`${useOrigin("ws")}/websocket/monitor`));
 websocket.value.addEventListener("open", (event): void => {
   websocket.value.send("Created.");
   if(invalidate(interval.value)){

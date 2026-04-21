@@ -6,6 +6,7 @@ import {useGet, usePost} from "@/hooks/network.ts";
 import {ElMessage} from "element-plus";
 import type {Authentication, Authority, Consumer, Role} from "@/declaration/entity.ts";
 import type {Serializer} from "@/declaration/serialization.ts";
+import {useOrigin} from "@/hooks/url.ts";
 
 const serializer = useSerialization<Authentication>();
 export const useAuthenticationStore = defineStore(
@@ -101,7 +102,7 @@ export const useAuthenticationStore = defineStore(
                 let serializer: Serializer<Authentication> = useSerialization();
                 return new Promise<boolean>((resolve, reject) => {
                     window.document.cookie = "";
-                    useGet("http://localhost:8080/authentication/auto")
+                    useGet(`${useOrigin()}/authentication/auto`)
                         .then((response: Response): Promise<string> => response.text())
                         .then((text: string): Optional<Authentication> => {
                             if(isString(text) && text.length > 0){
@@ -127,7 +128,7 @@ export const useAuthenticationStore = defineStore(
                     parameters.append("username", username);
                     parameters.append("password", password);
                     parameters.append("remember", String(remember));
-                    usePost("http://localhost:8080/authentication/login", parameters)
+                    usePost(`${useOrigin()}/authentication/login`, parameters)
                         .then((response: Response): void => {
                             if(response.status === 200){
                                 response.text().then((text) => {

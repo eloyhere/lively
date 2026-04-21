@@ -250,18 +250,23 @@
 <script setup lang="ts">
 import {onMounted, reactive, ref, type Ref} from "vue";
 import { Picture } from "@element-plus/icons-vue";
-import { fetchPicture } from "@/hooks/picture.ts";
-import {useGet, usePost} from "@/hooks/network.ts";
-import {ElMessage, type FormInstance} from "element-plus";
-import {useAuthenticationStore} from "@/stores/authentication.ts";
-import {useSerialization} from "@/hooks/serialization.ts";
-import type {Authentication, Consumer} from "@/interaction/entity.ts";
+import { fetchPicture } from "@/hooks/picture";
+import {useGet, usePost} from "@/hooks/network";
+import {ElLoading, ElMessage, type FormInstance} from "element-plus";
+import {useAuthenticationStore} from "@/stores/authentication";
+import {useSerialization} from "@/hooks/serialization";
+import type {Authentication, Consumer} from "@/declaration/entity";
 import {type Router, useRouter} from "vue-router";
 import {type MaybeInvalid, type Runnable, validate,} from "semantic-typescript";
 import {Optional} from "semantic-typescript";
-import {useDataUrl} from "@/hooks/url.ts";
+import {useDataUrl, useOrigin} from "@/hooks/url";
 
 const router: Router = useRouter();
+const load = ElLoading.service({
+  lock: true,
+  text: "加载中...",
+  background: "rgba(0, 0, 0, 0.7)",
+});
 
 type Title = "UsernameAndPasswordLogin" | "CheckCodeLogin" | "QRLogin" | "register";
 const title: Ref<Title> = ref("UsernameAndPasswordLogin");
@@ -346,7 +351,7 @@ const performCheckCodeLogin: () => void = async (): Promise<void> => {
         parameters.append("username", checkCodeLoginFormData.username);
         parameters.append("code", checkCodeLoginFormData.code);
         parameters.append("remember", String(checkCodeLoginFormData.remember));
-        usePost("http://localhost:8080/authentication/code", parameters)
+        usePost(`${useOrigin()}/authentication/code`, parameters)
             .then((response: Response): void => {
               if(response.status === 200){
                 response.text().then((text) => {
@@ -425,7 +430,7 @@ const performRegister: () => void = async (): Promise<void> => {
         parameters.append("nickname", registerFormData.nickname);
         parameters.append("invitation", registerFormData.invitation);
         parameters.append("avatar", registerFormData.avatar);
-        usePost("http://localhost:8080/authentication/register", parameters)
+        usePost(`${useOrigin()}/authentication/register`, parameters)
             .then((response: Response): void => {
               if(response.status === 200){
                 response.text().then((text) => {
@@ -462,13 +467,14 @@ const resetRegisterForm: Runnable = () => {
   }
 };
 onMounted(() => {
-  fetchPicture("http://localhost:8080/smile.png").then((value) => {
+  fetchPicture(`${useOrigin()}/smile.png`).then((value) => {
     smile.value = value;
     src.value = value;
   });
-  fetchPicture("http://localhost:8080/Close Eyes.png").then((value) => {
+  fetchPicture(`${useOrigin()}/Close Eyes.png`).then((value) => {
     closeEyes.value = value;
-  })
+  });
+  load.close();
 });
 </script>
 
@@ -493,7 +499,7 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
 
-  background: url(http://localhost:8080/background.jpeg) no-repeat fixed;
+  background: url(/background.jpeg) no-repeat fixed;
   background-size: 100% 100%;
 }
 

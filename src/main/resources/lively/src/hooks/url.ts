@@ -1,4 +1,4 @@
-import {isString, validate} from "semantic-typescript";
+import {isString, type Supplier, validate} from "semantic-typescript";
 
 export interface UseDataUrl{
     (file: File): Promise<string>;
@@ -16,4 +16,15 @@ export const useDataUrl: UseDataUrl = (parameter: Blob | File): Promise<string> 
             }
         });
     })
+};
+
+export interface UseOrigin{
+    (): string;
+    (protocol: string): string;
+}
+export const useOrigin: UseOrigin = (protocol?: string): string => {
+    if(isString(protocol)){
+        return protocol + "://" + window.location.host;
+    }
+    return window.location.origin;
 };

@@ -40,10 +40,12 @@ public class LivelyAuthenticationSuccessHandler implements AuthenticationSuccess
         response.setContentType("application/json;charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpStatus.OK.value());
-        response.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
-        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "*");
-        response.setHeader("Access-Control-Allow-Credentials", "true");
+        response.addHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+        response.addHeader("Access-Control-Allow-Origin", "http://localhost:8080");
+        response.addHeader("Access-Control-Allow-Origin", "http://localhost:80");
+        response.addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        response.addHeader("Access-Control-Allow-Headers", "*");
+        response.addHeader("Access-Control-Allow-Credentials", "true");
         ObjectMapper mapper = new ObjectMapper();
         ObjectWriter writer = mapper.writerFor(Authentication.class);
         response.getWriter().write(writer.writeValueAsString(authentication));
