@@ -14,13 +14,15 @@ const load = ElLoading.service({
   text: "加载中...",
   background: "rgba(0, 0, 0, 0.7)",
 });
-
-const consumerService: ConsumerService = new ConsumerService();
 onMounted((): void => {
   window.addEventListener("load", () => {
-    useAuthenticationStore().auto();
-  })
-  load.close();
+    useAuthenticationStore().auto().then((value) => {
+      load.close();
+    }, () => {
+      load.close();
+    });
+  });
+  setTimeout(load.close, 3000);
 })
 </script>
 

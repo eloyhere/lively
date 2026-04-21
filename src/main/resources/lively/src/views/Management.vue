@@ -1,76 +1,12 @@
 <template>
   <ElContainer>
     <ElHeader class="header">
-      <div>
-        <ElButton icon="Cherry" @click="() => router.push({
-           path: '/'
-        })"></ElButton>
-      </div>
-      <div>
-        <ElScrollbar always style="width: 100%">
-          <ElSpace wrap>
-            <ElTag v-for="(route, index) in history"
-                   :type="current === route.path ? 'primary' : 'info'"
-                   style="cursor: pointer"
-                   @click="() => {
-              router.replace({
-                path: route.path
-              });
-            }"
-            @close="()=>{
-              if(current === route.path){
-                if(history.size > 1){
-                  let temp = Array.from(history);
-                  let previous: RouteLocationNormalizedLoadedGeneric = temp[temp.length - 1] as unknown as RouteLocationNormalizedLoadedGeneric;
-                  router.replace({
-                    path: previous.path
-                  });
-                  history.delete(previous);
-                }
-              }else{
-                history.delete(route);
-              }
-            }"
-                   closable>
-              {{route.meta.title}}
-            </ElTag>
-          </ElSpace>
-        </ElScrollbar>
-      </div>
-      <div>
-        <span>
-          你好，{{nickname}}
-        </span>
-        <ElTooltip content="通知" placement="bottom" effect="light">
-          <ElButton icon="Bell" circle/>
-        </ElTooltip>
-        <ElDropdown @command="handle">
-          <ElAvatar :src="avatar">
-            <ElIcon>
-              <User/>
-            </ElIcon>
-          </ElAvatar>
-          <template #dropdown>
-            <ElDropdownItem v-if="isAuthenticated" command="/authentication/profile">
-              个人资料
-            </ElDropdownItem>
-            <ElDropdownItem command="/management">
-              管理
-            </ElDropdownItem>
-            <ElDropdownItem v-if="isAuthenticated" command="/authentication/logout">
-              注销
-            </ElDropdownItem>
-            <ElDropdownItem v-if="!isAuthenticated" command="/authentication/account">
-              登录/注册
-            </ElDropdownItem>
-          </template>
-        </ElDropdown>
-      </div>
+      <Toolbar v-model="links"/>
     </ElHeader>
-    <ElContainer>
+    <ElContainer style="height: calc(100vh - 60px); width: 100vw">
       <ElAside width="180px" style="height: calc(100vh - 60px)">
         <ElScrollbar height="100%">
-          <ElMenu :default-active="current" router style="user-select: none">
+          <ElMenu :default-active="current.path" router style="user-select: none; height: calc(100vh - 60px)">
             <ElMenuItem index="/management">
               <ElIcon>
                 <House/>
@@ -154,8 +90,16 @@
           </ElMenu>
         </ElScrollbar>
       </ElAside>
-      <ElMain>
-        <RouterView/>
+      <ElMain style="height: calc(100vh - 60px); width: calc(100vw - 180px) ">
+        <ElTabs type="card" v-model="active" closable @tab-remove="removeTab" style="height: calc(100vh - 60px); width: calc(100vw - 180px)">
+          <ElTabPane
+              v-for="route in history"
+              :name="route.path"
+              :key="route.path"
+              :label="route.meta.title">
+            <RouterView/>
+          </ElTabPane>
+        </ElTabs>
       </ElMain>
     </ElContainer>
   </ElContainer>
@@ -164,7 +108,7 @@
 <script setup lang="ts">
 
 import {type RouteLocationNormalizedLoadedGeneric, type Router, useRouter} from "vue-router";
-import {computed, type ComputedRef, onMounted, reactive, watch} from "vue";
+import {computed, type ComputedRef, onMounted, reactive, ref, type Ref, watch} from "vue";
 import {
   Cherry,
   Coffee,
@@ -178,74 +122,55 @@ import {
   User,
   UserFilled
 } from "@element-plus/icons-vue";
-import {type Consumer, type MaybeInvalid, validate} from "semantic-typescript";
-import type {Authentication} from "@/interaction/entity.ts";
-import {useAuthenticationStore} from "@/stores/authentication.ts";
-import {useGet} from "@/hooks/network.ts";
-import {ElMessage} from "element-plus";
 import Book from "@/views/management/book/Book.vue";
+import TagToolbar from "@/component/TagToolbar.vue";
+import type {Link, Tag} from "@/declaration/component.ts";
+import Toolbar from "@/component/Toolbar.vue";
+import type {Consumer} from "semantic-typescript";
 
 const router: Router = useRouter();
-const current: ComputedRef<string> = computed<string>((): string => {
-  return router.currentRoute.value.path;
+const current: ComputedRef<RouteLocationNormalizedLoadedGeneric> = computed<RouteLocationNormalizedLoadedGeneric>((): RouteLocationNormalizedLoadedGeneric => {
+  return router.currentRoute.value;
 });
-const history: Set<RouteLocationNormalizedLoadedGeneric> = reactive<Set<RouteLocationNormalizedLoadedGeneric>>(new Set<RouteLocationNormalizedLoadedGeneric>());
-const authentication: ComputedRef<MaybeInvalid<Authentication>> = computed<MaybeInvalid<Authentication>>((): MaybeInvalid<Authentication> => {
-  return useAuthenticationStore().authentication;
-});
-const nickname: ComputedRef<string> = computed<string>((): string => {
-  return useAuthenticationStore().nickname.get("游客");
+const path: ComputedRef<string> = computed<string>((): string => {
+  return current.value.path;
 })
-const isAuthenticated: ComputedRef<boolean> = computed<boolean>((): boolean => {
-  return useAuthenticationStore().authenticated;
-});
-const avatar: ComputedRef<string> = computed<string>((): string => {
-  if(validate(authentication.value)){
-    if(validate(authentication.value.principal)){
-      return authentication.value.principal.avatar;
-    }
-  }
-  return "";
-});
-const handle: Consumer<string> = (command: string): void => {
-  switch (command){
-    case "/authentication/profile":
-      router.push({
-        path: command
-      });
-      break;
-    case "/authentication/account":
-      router.push({
-        path: command
-      });
-      break;
-    case "/authentication/logout":
-      useGet("http://localhost:8080/authentication/logout").then((response) => {
-        if(response.status === 200){
-          ElMessage({
-            message: "操作成功，正在返回首页。",
-            type: "success"
-          });
-          useAuthenticationStore().removeAuthentication();
-        }
-      });
-      break;
-    case "/management":
-      router.push({
-        path: "/management"
-      });
-      break;
+const links: Array<Link> = reactive<Array<Link>>([
+  { text: '首页', icon: 'house', href: '/' },
+  { text: '中医药知识', icon: 'cherry', href: '/knowledge' },
+  { text: '方剂查询', icon: 'document', href: '/prescription' },
+  { text: '在线咨询', icon: 'chat-dot-round', href: '/consultation' },
+  { text: '关于我们', icon: 'info-filled', href: '/about' }
+]);
+const active: Ref<string> = ref<string>(path.value);
+const history: Array<RouteLocationNormalizedLoadedGeneric> = reactive<Array<RouteLocationNormalizedLoadedGeneric>>([]);
+const removeTab: Consumer<string> = (name: string): void => {
+  if(history.length === 1){
+    router.replace({
+      path: "/management"
+    });
+    history.length = 0;
+  }else{
+    let temporary: Array<RouteLocationNormalizedLoadedGeneric> = [...history.filter((route) => route.path !== name)];
+    history.length = 0;
+    history.push(...temporary);
   }
 };
-onMounted(() => {
-  history.add(router.currentRoute.value);
-  watch(router.currentRoute, (n, o) => {
-    let temp = Array.from(history);
-    if(!temp.some((route): boolean => route.path === n.path)){
-      history.add(n);
+onMounted(():void => {
+  watch(current, (n) => {
+    if(n.path !== "/management"){
+      if(!history.some((route) => route.path === n.path)){
+        history.push(n);
+      }
     }
+    active.value = n.path;
   });
-})
+  watch(active, (n) => {
+    router.replace({
+      path: n
+    });
+  });
+});
 </script>
 
 <style scoped>
@@ -274,5 +199,10 @@ onMounted(() => {
   justify-content: flex-end;
   align-items: center;
   gap: 10px;
+}
+
+:deep(.el-main) {
+  --el-main-padding: 0;
+  padding: var(--el-main-padding);
 }
 </style>

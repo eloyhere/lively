@@ -1,0 +1,110 @@
+<template>
+  <div>
+    <ElSpace wrap>
+          <span>
+          你好，{{nickname}}
+        </span>
+
+      <ElDropdown @command="handle">
+        <ElAvatar :src="avatar">
+          <ElIcon>
+            <User/>
+          </ElIcon>
+        </ElAvatar>
+        <template #dropdown>
+          <ElDropdownItem v-if="isAuthenticated" command="/authentication/profile">
+            个人资料
+          </ElDropdownItem>
+          <ElDropdownItem command="/management">
+            管理
+          </ElDropdownItem>
+          <ElDropdownItem command="/notification">
+            <ElBadge :value="unread.length" :hidden="unread.length === 0" :max="99">
+              通知
+            </ElBadge>
+          </ElDropdownItem>
+          <ElDropdownItem v-if="isAuthenticated" command="/authentication/logout">
+            注销
+          </ElDropdownItem>
+          <ElDropdownItem v-if="!isAuthenticated" command="/authentication/account">
+            登录/注册
+          </ElDropdownItem>
+        </template>
+      </ElDropdown>
+    </ElSpace>
+  </div>
+</template>
+<script setup lang="ts">
+
+import {User} from "@element-plus/icons-vue";
+import {type Router, useRouter} from "vue-router";
+import {computed, type ComputedRef} from "vue";
+import {type Consumer, type MaybeInvalid, validate} from "semantic-typescript";
+import type {Announcement, Authentication} from "@/interaction/entity.ts";
+import {useAuthenticationStore} from "@/stores/authentication.ts";
+import {useGet} from "@/hooks/network.ts";
+import {ElMessage} from "element-plus";
+import {AnnouncementService} from "@/interaction/service.ts";
+
+const router:Router = useRouter();
+
+const authentication: ComputedRef<MaybeInvalid<Authentication>> = computed<MaybeInvalid<Authentication>>((): MaybeInvalid<Authentication> => {
+  return useAuthenticationStore().authentication;
+});
+const nickname: ComputedRef<string> = computed<string>((): string => {
+  return useAuthenticationStore().nickname.get("游客");
+})
+const isAuthenticated: ComputedRef<boolean> = computed<boolean>((): boolean => {
+  return useAuthenticationStore().authenticated;
+});
+const avatar: ComputedRef<string> = computed<string>((): string => {
+  let authentication = useAuthenticationStore().authentication;
+  if(validate(authentication)){
+    if(validate(authentication.principal)){
+      return authentication.principal.avatar;
+    }
+  }
+  return "";
+});
+const handle: Consumer<string> = (command: string): void => {
+  switch (command){
+    case "/authentication/profile":
+      router.push({
+        path: command
+      });
+      break;
+    case "/authentication/account":
+      router.push({
+        path: command
+      });
+      break;
+    case "/authentication/logout":
+      useGet("http://localhost:8080/authentication/logout").then((response) => {
+        if(response.status === 203){
+          window.document.cookie = "";
+          ElMessage({
+            message: "注销成功。",
+            type: "success"
+          });
+          useAuthenticationStore().removeAuthentication();
+        }
+      });
+      break;
+    case "/management":
+      router.push({
+        path: "/management"
+      });
+      break;
+  }
+};
+const announcementService: AnnouncementService = new AnnouncementService();
+const unread: ComputedRef<Array<Announcement>> = computed<Array<Announcement>>((): Array<Announcement> => {
+  return [];
+});
+</script>
+
+
+
+<style scoped>
+
+</style>

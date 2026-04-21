@@ -81,7 +81,10 @@ export const useAuthenticationStore = defineStore(
                         })
                         .then((optional: Optional<Authentication>) => {
                             optional.ifPresent((authentication: Authentication) => {
-                                resolve(authentication.name !== "guest");
+                                if(authentication.name !== "guest"){
+                                    this.setAuthentication(authentication);
+                                    resolve(true);
+                                }
                             });
                         })
                         .catch(reject);
@@ -114,19 +117,15 @@ export const useAuthenticationStore = defineStore(
             pick: ["authentication"],
             serializer: {
                 serialize: (data: StateTree) => {
-                    console.log(data)
                     return serializer.serialize(data as unknown as Authentication);
                 },
                 deserialize: (data: string): Authentication => {
-                    return serializer.deserialize(data);
+                    return serializer.deserialize(data.replaceAll("\\\\", "\\"));
                 }
             },
-            beforeHydrate(context: PiniaPluginContext) {
-                console.log("before", context, localStorage.getItem(context.store.$id) === serializer.serialize(context.store as unknown as Authentication))
-            },
-            afterHydrate(context: PiniaPluginContext) {
-                console.log("after", context, localStorage.getItem(context.store.$id))
-            },
+            beforeHydrate(conext: PiniaPluginContext){
+
+            }
         }
     }
 )

@@ -51,6 +51,7 @@ public class TokenService extends BaseService<Token, TokenRepository> implements
     public void removeUserTokens(@NonNull String username) {
         Consumer consumer = consumerRepository.findByUsername(username).orElseThrow(()-> new NoSuchElementException("Consumer not found"));
         consumer.getTokens().forEach(this::deleteBy);
+        consumer.getTokens().clear();
         consumerRepository.saveAndFlush(consumer);
     }
 }

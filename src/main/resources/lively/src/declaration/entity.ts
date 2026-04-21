@@ -1,11 +1,38 @@
 import type {MaybeInvalid} from "semantic-typescript";
-
+import type {Serializer} from "@/declaration/serialization.ts";
+import {useSerialization} from "@/hooks/serialization.ts";
+import type {Reactive, Ref} from "vue";
 export interface BaseEntity{
     id: string;
     lock: Date;
     spawn: Date;
     edit: Date;
     version: bigint
+}
+
+export interface Sort{
+    empty: boolean;
+    sorted: boolean;
+    unsorted: boolean;
+}
+
+export interface Page<E extends BaseEntity> {
+    content: Array<E>;
+    empty: boolean;
+    first: boolean;
+    last: boolean;
+    number: number;
+    numberOfElements: number;
+    size: number;
+    totalElements: number;
+    totalPages: number;
+}
+
+export interface Query<E extends BaseEntity> {
+    page: number;
+    size: number;
+    total: number;
+    target: E | Partial<E>;
 }
 
 export interface Authority extends BaseEntity{

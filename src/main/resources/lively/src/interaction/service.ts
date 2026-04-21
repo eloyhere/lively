@@ -1,25 +1,20 @@
-import type {Authority, BaseEntity, Consumer, Role, Invitation, Token, Announcement} from "@/interaction/entity.ts";
-import {useDelete, useGet, usePut} from "@/hooks/network.ts";
-import {type Serializer, useSerialization} from "@/hooks/serialization.ts";
+import type {
+    Authority,
+    BaseEntity,
+    Consumer,
+    Role,
+    Invitation,
+    Token,
+    Announcement,
+    Query,
+    Page
+} from "@/declaration/entity";
+import {useDelete, useGet, usePut} from "@/hooks/network";
+import {type Serializer} from "@/declaration/serialization";
 import {type Consumer as FConsumer} from "semantic-typescript";
+import {useSerialization} from "@/hooks/serialization";
 
-interface Sort{
-    empty: boolean;
-    sorted: boolean;
-    unsorted: boolean;
-}
 
-interface Page<E extends BaseEntity> {
-    content: Array<E>;
-    empty: boolean;
-    first: boolean;
-    last: boolean;
-    number: number;
-    numberOfElements: number;
-    size: number;
-    totalElements: number;
-    totalPages: number;
-}
 
 export class BaseService<E extends BaseEntity>{
 
@@ -269,18 +264,16 @@ export class BaseService<E extends BaseEntity>{
         });
     }
 
-    public async findAllPagedBy(entity: E, page: number, size: number): Promise<Array<E>>;
-    public async findAllPagedBy(entity: Partial<E>, page: number, size: number): Promise<Array<E>>
-    public async findAllPagedBy(entity: E | Partial<E>, page: number, size: number): Promise<Array<E>>{
+    public async findAllPagedBy(query: Query<E>): Promise<Page<E>>{
         let url: string = `${this.prefix}/${this.module}/findAllPagedBy`;
         let serializer: Serializer<E> = useSerialization();
         let parameters: URLSearchParams = new URLSearchParams();
-        parameters.append("payload", serializer.serialize(entity));
-        parameters.append("size", String(size));
-        parameters.append("page", String(page));
-        return new Promise<Array<E>>((resolve: FConsumer<Array<E>>, reject: FConsumer<unknown>) => {
+        parameters.append("payload", serializer.serialize(query.target));
+        parameters.append("size", String(query.size));
+        parameters.append("page", String(query.page));
+        return new Promise<Page<E>>((resolve: FConsumer<Page<E>>, reject: FConsumer<unknown>) => {
             try {
-                let serializer: Serializer<Array<E>> = useSerialization();
+                let serializer: Serializer<Page<E>> = useSerialization<Page<E>>();
                 useGet(url, parameters).then((response: Response) => {
                     if(response.status === 200){
                         response.text()
