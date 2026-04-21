@@ -9,7 +9,6 @@ const application: App<Element> = createApp(Application);
 installElementPlus(application);
 const pinia: Pinia = createPinia();
 pinia.use(piniaPluginPersistedState);
-
 application.use(pinia);
 application.use(router);
 application.mount("#app");

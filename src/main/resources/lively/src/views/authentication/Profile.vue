@@ -12,7 +12,9 @@
     <ElDescriptionsItem label="昵称">
       {{profile.get("nickname")}}
     </ElDescriptionsItem>
-
+    <ElDescriptionsItem label="拥有角色">
+      <span v-for="role in profile."></span>
+    </ElDescriptionsItem>
   </ElDescriptions>
 </template>
 
@@ -20,23 +22,14 @@
 
 import {useAuthenticationStore} from "@/stores/authentication.ts";
 import {computed, type ComputedRef} from "vue";
-import {isPrimitive, type Primitive} from "semantic-typescript";
-import type {Authentication, Consumer} from "@/interaction/entity.ts";
+import {isPrimitive, type MaybeInvalid, type Primitive, validate} from "semantic-typescript";
+import type {Authentication, Consumer, Role} from "@/declaration/entity";
 import {useGet} from "@/hooks/network.ts";
 import {useSerialization} from "@/hooks/serialization.ts";
 
-const profile: ComputedRef<Map<keyof Consumer, Primitive>> = computed(() => {
-  let result: Map<keyof Consumer, Primitive> = new Map<keyof Consumer, Primitive>();
-  useAuthenticationStore().principal.ifPresent((consumer): void => {
-    let key: keyof Consumer;
-    for(key in consumer){
-      let value: unknown = consumer[key];
-      if(isPrimitive(value)){
-        result.set(key, value);
-      }
-    }
-  })
-  return result;
+const profile: ComputedRef<Consumer> = computed<Consumer>((): Consumer => {
+  let authentication: MaybeInvalid<Authentication> = useAuthenticationStore().at;
+
 });
 </script>
 

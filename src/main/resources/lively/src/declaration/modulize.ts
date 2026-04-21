@@ -13,5 +13,7 @@ export interface Update<E extends BaseEntity> {
 export interface Operator<E extends BaseEntity>{
     ready(): void;
     dismiss(): void;
+    reset(): void;
+    validate(): Promise<void>;
     perform(): Promise<void>;
 }

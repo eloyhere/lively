@@ -1,13 +1,13 @@
 <template>
-  <ElContainer direction="vertical" style="width: calc(100vw - 180px); height: calc(100vh - 100px)">
+  <ElContainer direction="vertical" style="width: calc(100vw - 180px); height: calc(100vh - 100px); user-select: none">
     <slot name="default">
       <ElHeader style="height: 200px; width: calc(100vw - 180px); display: flex; flex-direction: column;">
         <slot name="header">
           <ElForm ref="queryForm" inline :model="query.target">
-            <slot name="search"></slot>
+            <slot name="search" :search="query.target"></slot>
             <ElFormItem>
               <ElTooltip effect="light" placement="bottom" content="搜索">
-                <ElButton icon="search" type="primary" circle plain/>
+                <ElButton icon="search" type="primary" @click="search()" circle plain/>
               </ElTooltip>
               <ElTooltip effect="light" placement="bottom" content="重置">
                 <ElButton icon="refresh" type="info" circle plain/>
@@ -38,13 +38,19 @@
                 <template #default="scope">
                   <ElSpace wrap>
                     <ElTooltip effect="light" placement="bottom" content="修改">
-                      <ElButton icon="edit" type="primary" circle plain/>
+                      <ElButton icon="edit" type="primary" @click="updateOperator.ready()" circle plain/>
                     </ElTooltip>
                     <ElTooltip effect="light" placement="bottom" content="锁定">
-                      <ElButton icon="lock" type="warning" circle plain/>
+                      <ElButton icon="lock" type="warning" @click="lockOrUnlock(scope.row)" circle plain/>
+                    </ElTooltip>
+                    <ElTooltip v-if="isLocked(scope.row)" effect="light" placement="bottom" content="解锁">
+                      <ElButton v-if="isLocked(scope.row)" icon="unlock" type="warning" @click="lockOrUnlock(scope.row)" circle plain/>
                     </ElTooltip>
                     <ElTooltip effect="light" placement="bottom" content="禁用">
-                      <ElButton icon="hide" type="default" circle plain/>
+                      <ElButton icon="hide" type="default" @click="disableOrEnable(scope.row)" circle plain/>
+                    </ElTooltip>
+                    <ElTooltip effect="light" placement="bottom" content="启用">
+                      <ElButton icon="view" type="default" @click="disableOrEnable(scope.row)" circle plain/>
                     </ElTooltip>
                     <ElTooltip effect="light" placement="bottom" content="删除">
                       <ElButton icon="delete" type="danger" @click="deleteBy(scope.row)" circle plain/>
@@ -57,7 +63,7 @@
         </ElMain>
         <ElFooter>
           <slot name="footer">
-            <ElPagination v-model:page-size="query.size" v-model:current-page="query.page" v-model:total="query.total"/>
+            <ElPagination background :page-size="query.size" :page-count="query.total" @change="(value: number) => query.page = value"/>
           </slot>
         </ElFooter>
       </ElContainer>
@@ -66,9 +72,9 @@
           <slot name="insert"></slot>
         </ElForm>
         <template #footer>
-          <ElButton type="primary" plain>确定</ElButton>
-          <ElButton type="warning" plain>重置</ElButton>
-          <ElButton type="info" @click="insert.show = false" plain>取消</ElButton>
+          <ElButton type="primary" @click="insertOperator.perform()" plain>确定</ElButton>
+          <ElButton type="warning" @click="insertOperator.reset()" plain>重置</ElButton>
+          <ElButton type="info" @click="insertOperator.dismiss()" plain>取消</ElButton>
         </template>
       </ElDialog>
       <ElDialog title="修改" v-model="update.show">
@@ -76,9 +82,9 @@
           <slot name="insert"></slot>
         </ElForm>
         <template #footer>
-          <ElButton type="primary" plain>确定</ElButton>
-          <ElButton type="warning" plain>重置</ElButton>
-          <ElButton type="info" @click="update.show = false" plain>取消</ElButton>
+          <ElButton type="primary" @click="updateOperator.perform()" plain>确定</ElButton>
+          <ElButton type="warning" @click="updateOperator.reset()" plain>重置</ElButton>
+          <ElButton type="info" @click="updateOperator.dismiss()" plain>取消</ElButton>
         </template>
       </ElDialog>
     </slot>
@@ -90,8 +96,8 @@ import type {BaseEntity, Page, Query} from "@/declaration/entity.ts";
 import {type Reactive, reactive, ref, type Ref} from "vue";
 import type {BaseService} from "@/interaction/service.ts";
 import type {Insert, Operator, Update} from "@/declaration/modulize.ts";
-import type {Consumer, MaybeInvalid} from "semantic-typescript";
-import {ElMessage, ElMessageBox} from "element-plus";
+import {type Consumer, type MaybeInvalid, type Predicate, type Runnable, validate} from "semantic-typescript";
+import {ElMessage, ElMessageBox, type FormInstance} from "element-plus";
 
 interface Property<E extends BaseEntity>{
   service: BaseService<E>;
@@ -104,19 +110,252 @@ const query: Reactive<Query<E>> = reactive<Query<E>>({
   size: 10,
   target: {}
 });
-const queryForm: Ref<MaybeInvalid<HTMLElement>> = ref<MaybeInvalid<HTMLElement>>();
+const queryForm: Ref<MaybeInvalid<FormInstance>> = ref<MaybeInvalid<FormInstance>>();
+const search: Runnable = (): void => {
+  property.service.findAllPagedBy(query as unknown as Query<E>).then((page: Page<E>): void => {
+    query.total = page.page.totalPages;
+    query.page = page.page.number;
+    query.size = Math.max(page.page.size, 10)
+    console.log(page, query)
+  }, ()=> {
+    ElMessage({
+      message: "操作失败",
+      type: "warning"
+    });
+  });
+};
 
 const insert: Reactive<Insert<E>> = reactive<Insert<E>>({
   show: false,
   target: {}
 });
-const insertForm: Ref<MaybeInvalid<HTMLElement>> = ref<MaybeInvalid<HTMLElement>>();
+const insertForm: Ref<MaybeInvalid<FormInstance>> = ref<MaybeInvalid<FormInstance>>();
+const insertOperator: Operator<E> = {
+  ready: (): void => {
+    insert.show = true;
+  },
+  dismiss: (): void => {
+    insert.show = false;
+  },
+  reset: (): void => {
+    if(validate(insertForm.value)){
+      insertForm.value.resetFields();
+    }
+  },
+  validate: async (): Promise<void> => {
+    return await new Promise<void>((resolve, reject): void => {
+      if(validate(insertForm.value)){
+        insertForm.value.validate().then((value: boolean): void => {
+          emit("validate", value);
+          if(value){
+            resolve();
+          }else{
+            reject();
+          }
+        }, reject);
+      }else{
+        reject();
+      }
+    });
+  },
+  perform: async (): Promise<void> => {
+    return await new Promise<void>((resolve, reject): void => {
+      insertOperator.validate().then((): void => {
+        property.service.insert(insert.target as unknown as E).then((): void => {
+          emit("insert", update.target as unknown as E);
+          ElMessage({
+            message: "操作成功",
+            type: "success"
+          });
+          insertOperator.dismiss();
+        }, (): void => {
+          ElMessage({
+            message: "操作失败",
+            type: "warning"
+          });
+        })
+      }, reject);
+    });
+  }
+};
 
 const update: Reactive<Update<E>> = reactive<Update<E>>({
   show: false,
   target: {}
 });
-const updateForm: Ref<MaybeInvalid<HTMLElement>> = ref<MaybeInvalid<HTMLElement>>();
+const updateForm: Ref<MaybeInvalid<FormInstance>> = ref<MaybeInvalid<FormInstance>>();
+const updateOperator: Operator<E> = {
+  ready: (): void => {
+    update.show = true;
+  },
+  dismiss: (): void => {
+    update.show = false;
+  },
+  reset: async (): Promise<void> => {
+    if(validate(updateForm.value)){
+      updateForm.value.resetFields();
+    }
+  },
+  validate: async (): Promise<void> => {
+    return await new Promise<void>((resolve, reject): void => {
+      if(validate(updateForm.value)){
+        updateForm.value.validate().then((value: boolean): void => {
+          emit("validate", value);
+          if(value){
+            resolve();
+          }else{
+            reject();
+          }
+        }, reject);
+      }else{
+        reject();
+      }
+    });
+  },
+  perform: async (): Promise<void> => {
+    return await new Promise<void>((resolve, reject): void => {
+      updateOperator.validate().then((): void => {
+        property.service.update(update.target as unknown as E).then((): void => {
+          emit("update", update.target as unknown as E);
+          ElMessage({
+            message: "操作成功",
+            type: "success"
+          });
+          updateOperator.dismiss();
+        }, (): void => {
+          ElMessage({
+            message: "操作失败",
+            type: "warning"
+          });
+        })
+      }, reject);
+    });
+  }
+};
+const isLocked: Predicate<E | Partial<E>> = (entity: E | Partial<E>): boolean => {
+  if(validate(entity.lock)){
+    let now: Date = new Date();
+    return now.getTime() < entity.lock.getTime();
+  }
+  return false;
+};
+const isBanned: Predicate<E | Partial<E>> = (entity: E | Partial<E>): boolean => {
+  if(validate(entity.ban)){
+    let now: Date = new Date();
+    return now.getTime() < entity.ban.getTime();
+  }
+  return false;
+};
+const lockOrUnlock: Consumer<E | Partial<E>> = (entity: E | Partial<E>): void => {
+  let now = new Date();
+  if(isLocked(entity)){
+    ElMessageBox.confirm(`确定要解锁项目${entity.id}吗？`, "提示", {
+      type: "warning",
+      confirmButtonText: "确定",
+      cancelButtonText: "取消"
+    }).then((): void => {
+      now.setTime(now.getTime() - 1000*60*5);
+      entity.lock = now;
+      property.service.update(entity).then((): void => {
+        ElMessage({
+          message: "操作成功，已解除锁定。",
+          type: "success"
+        });
+      }, (): void => {
+        ElMessage({
+          message: "操作失败，无法解除锁定。",
+          type: "warning"
+        });
+      });
+    }, (): void => {
+      ElMessage({
+        message: "操作取消",
+        type: "warning"
+      });
+    });
+  }else{
+    ElMessageBox.confirm(`确定要锁定项目${entity.id}吗？`, "提示", {
+      type: "warning",
+      confirmButtonText: "确定",
+      cancelButtonText: "取消"
+    }).then((): void => {
+      now.setFullYear(now.getFullYear() + 100);
+      entity.lock = now;
+      property.service.update(entity).then((): void => {
+        ElMessage({
+          message: "操作成功，已锁定。",
+          type: "success"
+        });
+      }, (): void => {
+        ElMessage({
+          message: "操作失败，无法锁定。",
+          type: "warning"
+        });
+      });
+    }, (): void => {
+      ElMessage({
+        message: "操作取消",
+        type: "warning"
+      });
+    });
+  }
+};
+
+const disableOrEnable: Consumer<E | Partial<E>> = (entity: E | Partial<E>): void => {
+  let now = new Date();
+  if(isBanned(entity)){
+    ElMessageBox.confirm(`确定要启用项目${entity.id}吗？`, "提示", {
+      type: "warning",
+      confirmButtonText: "确定",
+      cancelButtonText: "取消"
+    }).then((): void => {
+      now.setTime(now.getTime() - 1000*60*5);
+      entity.ban = now;
+      property.service.update(entity).then((): void => {
+        ElMessage({
+          message: "操作成功，已启用。",
+          type: "success"
+        });
+      }, (): void => {
+        ElMessage({
+          message: "操作失败，无法解除禁用。",
+          type: "warning"
+        });
+      });
+    }, (): void => {
+      ElMessage({
+        message: "操作取消",
+        type: "warning"
+      });
+    });
+  }else{
+    ElMessageBox.confirm(`确定要禁用项目${entity.id}吗？`, "提示", {
+      type: "warning",
+      confirmButtonText: "确定",
+      cancelButtonText: "取消"
+    }).then((): void => {
+      now.setFullYear(now.getFullYear() + 100);
+      entity.lock = now;
+      property.service.update(entity).then((): void => {
+        ElMessage({
+          message: "操作成功，已禁用。",
+          type: "success"
+        });
+      }, (): void => {
+        ElMessage({
+          message: "操作失败，无法禁用。",
+          type: "warning"
+        });
+      });
+    }, (): void => {
+      ElMessage({
+        message: "操作取消",
+        type: "warning"
+      });
+    });
+  }
+};
+
 
 const data: Reactive<Array<E>> = reactive<Array<E>>([
   {} as unknown as E
@@ -129,32 +368,9 @@ interface Emit{
   (event: "insert", value: E | Partial<E>): void;
   (event: "update", value: E | Partial<E>): void;
   (event: "delete", value: E | Partial<E>): void;
+  (event: "validate", value: boolean): void;
 }
 const emit = defineEmits<Emit>();
-
-const insertOperator: Operator<E> = {
-  ready: (): void => {
-
-  },
-  dismiss: async (): Promise<void> => {
-
-  },
-  perform: async (): Promise<void> => {
-
-  }
-};
-
-const updateOperator: Operator<E> = {
-  ready: (): void => {
-
-  },
-  dismiss: async (): Promise<void> => {
-
-  },
-  perform: async (): Promise<void> => {
-
-  }
-};
 
 const deleteBy: Consumer<E> = (entity: E) : void => {
   ElMessageBox.confirm(`确定要删除id为${entity.id}的项目吗？`, "提示", {

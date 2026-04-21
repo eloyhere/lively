@@ -1,10 +1,11 @@
 import {defineStore, type PiniaPluginContext, type StateTree} from "pinia";
-import type {Authentication, Authority, Consumer, Role} from "@/interaction/entity.ts";
 import {type Ref, ref} from "vue";
 import {isString, type MaybeInvalid, Optional, validate} from "semantic-typescript";
-import {type Serializer, useSerialization} from "@/hooks/serialization.ts";
+import {useSerialization} from "@/hooks/serialization.ts";
 import {useGet, usePost} from "@/hooks/network.ts";
 import {ElMessage} from "element-plus";
+import type {Authentication, Authority, Consumer, Role} from "@/declaration/entity.ts";
+import type {Serializer} from "@/declaration/serialization.ts";
 
 const serializer = useSerialization<Authentication>();
 export const useAuthenticationStore = defineStore(
@@ -14,8 +15,35 @@ export const useAuthenticationStore = defineStore(
             authentication: ref<MaybeInvalid<Authentication>>() as Ref<MaybeInvalid<Authentication>>
         }),
         getters: {
+            at(): Authentication {
+                if(validate(this.authentication)){
+                    return this.authentication;
+                }
+                return {
+                    authorities: [],
+                    credentials: null,
+                    name: "",
+                    principal: {
+                        ban: new Date(),
+                        edit: new Date(),
+                        id: "",
+                        lock: new Date(),
+                        nickname: "游客",
+                        roles: [],
+                        spawn: new Date(),
+                        tokens: [],
+                        username: "游客",
+                        version: 0n,
+                        avatar: ""
+
+                    },
+                    authenticated: false
+
+                };
+            },
             authenticated(): boolean {
-                return this.authentication !== undefined && this.authentication !== null;
+                let authentication: MaybeInvalid<Authentication> = this.authentication;
+                return validate(authentication) && authentication.name !== "guest";
             },
             principal(): Optional<Consumer> {
                 return Optional.of(this.authentication)
@@ -49,7 +77,7 @@ export const useAuthenticationStore = defineStore(
                     .map((roles: Array<Role>) => {
                         let authorities: Array<Authority> = new Array<Authority>();
                         roles.forEach((role) => {
-                            role.authorities.forEach((authority) => {
+                            role.authorities.forEach((authority: any) => {
                                 authorities.push(authority);
                             });
                         });
@@ -111,21 +139,6 @@ export const useAuthenticationStore = defineStore(
                 });
             }
         },
-        persist: {
-            key: "authentication",
-            storage: localStorage,
-            pick: ["authentication"],
-            serializer: {
-                serialize: (data: StateTree) => {
-                    return serializer.serialize(data as unknown as Authentication);
-                },
-                deserialize: (data: string): Authentication => {
-                    return serializer.deserialize(data.replaceAll("\\\\", "\\"));
-                }
-            },
-            beforeHydrate(conext: PiniaPluginContext){
-
-            }
-        }
+        persist: true
     }
 )

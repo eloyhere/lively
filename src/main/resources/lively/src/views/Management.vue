@@ -6,7 +6,7 @@
     <ElContainer style="height: calc(100vh - 60px); width: 100vw">
       <ElAside width="180px" style="height: calc(100vh - 60px)">
         <ElScrollbar height="100%">
-          <ElMenu :default-active="current.path" router style="user-select: none; height: calc(100vh - 60px)">
+          <ElMenu :default-active="path" router style="user-select: none; height: calc(100vh - 60px)">
             <ElMenuItem index="/management">
               <ElIcon>
                 <House/>
@@ -48,13 +48,13 @@
             <ElMenuItemGroup title="人文">
               <ElMenuItem index="/management/book">
                 <ElIcon>
-                  <Book/>
+                  <Notebook/>
                 </ElIcon>
                 <span>书籍管理</span>
               </ElMenuItem>
               <ElMenuItem index="/management/chat">
                 <ElIcon>
-                  <Book/>
+                  <ChatSquare/>
                 </ElIcon>
                 <span>聊天管理</span>
               </ElMenuItem>
@@ -91,7 +91,7 @@
         </ElScrollbar>
       </ElAside>
       <ElMain style="height: calc(100vh - 60px); width: calc(100vw - 180px) ">
-        <ElTabs type="card" v-model="active" closable @tab-remove="removeTab" style="height: calc(100vh - 60px); width: calc(100vw - 180px)">
+        <ElTabs type="card" v-model="path" closable @tab-remove="removeTab" style="height: calc(100vh - 60px); width: calc(100vw - 180px)">
           <ElTabPane
               v-for="route in history"
               :name="route.path"
@@ -108,9 +108,9 @@
 <script setup lang="ts">
 
 import {type RouteLocationNormalizedLoadedGeneric, type Router, useRouter} from "vue-router";
-import {computed, type ComputedRef, onMounted, reactive, ref, type Ref, watch} from "vue";
+import {computed, type ComputedRef, onMounted, reactive, ref, type Ref, watch, type WritableComputedRef} from "vue";
 import {
-  Cherry,
+  ChatSquare,
   Coffee,
   House,
   List,
@@ -120,21 +120,33 @@ import {
   Present,
   Ticket,
   User,
-  UserFilled
+  UserFilled,
+    Notebook
 } from "@element-plus/icons-vue";
 import Book from "@/views/management/book/Book.vue";
 import TagToolbar from "@/component/TagToolbar.vue";
 import type {Link, Tag} from "@/declaration/component.ts";
 import Toolbar from "@/component/Toolbar.vue";
 import type {Consumer} from "semantic-typescript";
+import Chat from "@/views/management/chat/Chat.vue";
 
 const router: Router = useRouter();
-const current: ComputedRef<RouteLocationNormalizedLoadedGeneric> = computed<RouteLocationNormalizedLoadedGeneric>((): RouteLocationNormalizedLoadedGeneric => {
-  return router.currentRoute.value;
+const current: WritableComputedRef<RouteLocationNormalizedLoadedGeneric> = computed<RouteLocationNormalizedLoadedGeneric, RouteLocationNormalizedLoadedGeneric>({
+  get: (): RouteLocationNormalizedLoadedGeneric => router.currentRoute.value,
+  set: (route: RouteLocationNormalizedLoadedGeneric): void => {
+    router.push({
+      path: route.path
+    });
+  }
 });
-const path: ComputedRef<string> = computed<string>((): string => {
-  return current.value.path;
-})
+const path: WritableComputedRef<string> = computed<string, string>({
+  get: (): string => router.currentRoute.value.path,
+  set: (path: string): void => {
+    router.replace(path);
+  }
+});
+const history: Array<RouteLocationNormalizedLoadedGeneric> = reactive<Array<RouteLocationNormalizedLoadedGeneric>>([]);
+
 const links: Array<Link> = reactive<Array<Link>>([
   { text: '首页', icon: 'house', href: '/' },
   { text: '中医药知识', icon: 'cherry', href: '/knowledge' },
@@ -142,34 +154,31 @@ const links: Array<Link> = reactive<Array<Link>>([
   { text: '在线咨询', icon: 'chat-dot-round', href: '/consultation' },
   { text: '关于我们', icon: 'info-filled', href: '/about' }
 ]);
-const active: Ref<string> = ref<string>(path.value);
-const history: Array<RouteLocationNormalizedLoadedGeneric> = reactive<Array<RouteLocationNormalizedLoadedGeneric>>([]);
+
 const removeTab: Consumer<string> = (name: string): void => {
-  if(history.length === 1){
+  if(history.length <= 1){
     router.replace({
       path: "/management"
     });
     history.length = 0;
   }else{
     let temporary: Array<RouteLocationNormalizedLoadedGeneric> = [...history.filter((route) => route.path !== name)];
+    let previous: RouteLocationNormalizedLoadedGeneric = temporary[temporary.length - 1]!;
+    router.replace({
+      path: previous.path
+    });
     history.length = 0;
     history.push(...temporary);
   }
 };
 onMounted(():void => {
-  watch(current, (n) => {
-    if(n.path !== "/management"){
-      if(!history.some((route) => route.path === n.path)){
-        history.push(n);
+  watch(path, (n) => {
+    if(n !== "/management"){
+      if(!history.some((route) => route.path === current.value.path)){
+        history.push(current.value);
       }
     }
-    active.value = n.path;
-  });
-  watch(active, (n) => {
-    router.replace({
-      path: n
-    });
-  });
+  })
 });
 </script>
 

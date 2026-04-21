@@ -22,6 +22,14 @@ const router: Router = createRouter({
       component: () => import("../views/Management.vue"),
       children: [
         {
+          name: "ManagementIndex",
+          path: "/management",
+          meta: {
+            title: "管理后台"
+          },
+          component: () => import("../views/management/Index.vue"),
+        },
+        {
           name: "Authority",
           path: "/management/authority",
           meta: {
@@ -60,6 +68,38 @@ const router: Router = createRouter({
             title: "凭据管理"
           },
           component: () => import("../views/management/consumer/Token.vue"),
+        },
+        {
+          name: "Book",
+          path: "/management/book",
+          meta: {
+            title: "书籍管理"
+          },
+          component: () => import("../views/management/book/Book.vue"),
+        },
+        {
+          name: "Chapter",
+          path: "/management/book/chapter",
+          meta: {
+            title: "章节管理"
+          },
+          component: () => import("../views/management/book/Chapter.vue"),
+        },
+        {
+          name: "Chat",
+          path: "/management/chat",
+          meta: {
+            title: "聊天管理"
+          },
+          component: () => import("../views/management/chat/Chat.vue"),
+        },
+        {
+          name: "Message",
+          path: "/management/chat/message",
+          meta: {
+            title: "消息管理"
+          },
+          component: () => import("../views/management/chat/Message.vue"),
         },
       ]
     },

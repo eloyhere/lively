@@ -6,6 +6,7 @@ export interface BaseEntity{
     id: string;
     lock: Date;
     spawn: Date;
+    ban: Date;
     edit: Date;
     version: bigint
 }
@@ -16,8 +17,7 @@ export interface Sort{
     unsorted: boolean;
 }
 
-export interface Page<E extends BaseEntity> {
-    content: Array<E>;
+export interface Pager{
     empty: boolean;
     first: boolean;
     last: boolean;
@@ -26,6 +26,11 @@ export interface Page<E extends BaseEntity> {
     size: number;
     totalElements: number;
     totalPages: number;
+}
+
+export interface Page<E extends BaseEntity> {
+    content: Array<E>;
+    page: Pager;
 }
 
 export interface Query<E extends BaseEntity> {
@@ -59,7 +64,7 @@ export interface Consumer extends BaseEntity{
     roles: Array<Role>;
 }
 
-export interface Authentication extends BaseEntity{
+export interface Authentication {
     authenticated: boolean;
     authorities: Array<Authority>;
     credentials: MaybeInvalid<string>;

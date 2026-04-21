@@ -15,14 +15,7 @@ const load = ElLoading.service({
   background: "rgba(0, 0, 0, 0.7)",
 });
 onMounted((): void => {
-  window.addEventListener("load", () => {
-    useAuthenticationStore().auto().then((value) => {
-      load.close();
-    }, () => {
-      load.close();
-    });
-  });
-  setTimeout(load.close, 3000);
+  load.close();
 })
 </script>
 
