@@ -1,0 +1,1 @@
+import{L as e,d as t,v as n,vt as r}from"./runtime-core.esm-bundler-D5teNyIc.js";import{s as i}from"./service-Dp_vFN_Y.js";import{t as a}from"./Modulize-B235IJ6C.js";var o=n({__name:`Token`,setup(n){let o=new i;return(n,i)=>(e(),t(a,{service:r(o)},null,8,[`service`]))}});export{o as default};

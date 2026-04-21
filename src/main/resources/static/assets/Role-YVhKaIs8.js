@@ -1,0 +1,1 @@
+import{L as e,d as t,v as n,vt as r}from"./runtime-core.esm-bundler-D5teNyIc.js";import{o as i}from"./service-CrOQ0WW3.js";import{t as a}from"./Modulize-B235IJ6C.js";var o=n({__name:`Role`,setup(n){let o=new i;return(n,i)=>(e(),t(a,{service:r(o)},null,8,[`service`]))}});export{o as default};
