@@ -32,6 +32,8 @@ lively/
 │   │   │   ├── Everyone.java                # Allows unrestricted public access
 │   │   │   ├── Guest.java                   # Permits both authenticated and non-authenticated access
 │   │   │   └── Unauthenticated.java         # Only allows non-authenticated requests
+│   │   ├── aspect/
+│   │   │   └── ClientAspect.java
 │   │   ├── authentication/                  # Complete security infrastructure
 │   │   │   ├── entry/                       # Authentication entry point handlers
 │   │   │   │   └── InvalidateAuthenticationEntryPoint.java
@@ -54,14 +56,25 @@ lively/
 │   │   │   ├── ResolverConfiguration.java   # Custom argument resolver registration
 │   │   │   ├── ResourcesConfiguration.java  # Static resource handling
 │   │   │   ├── SecurityConfiguration.java   # Core security framework configuration
+│   │   │   ├── WebSocketConfiguration.java       
 │   │   │   └── Vue3Configuration.java       # Frontend integration and routing configuration
 │   │   ├── controller/                      # REST API endpoint controllers
 │   │   │   ├── book/                        # TCM literature management endpoints
+│   │   │   │   ├── BookController.java
+│   │   │   │   └── ChapterController.java
 │   │   │   ├── chat/                        # AI conversation interface endpoints
+│   │   │   │   ├── ChatController.java
+│   │   │   │   └── MessageController.java
 │   │   │   ├── consumer/                    # User management and authentication endpoints
+│   │   │   │   ├── AuthorityController.java
+│   │   │   │   ├── ConsumerController.java
+│   │   │   │   ├── InvitationController.java
+│   │   │   │   ├── RoleController.java
+│   │   │   │   └── TokenController.java
 │   │   │   ├── AnnouncementController.java  # System announcement publishing
 │   │   │   ├── AuthenticationController.java # Authentication flow orchestration
-│   │   │   └── BaseController.java          # Common controller utilities
+│   │   │   ├── BaseController.java          # Common controller utilities
+│   │   │   └── ResourcesController.java
 │   │   ├── converter/                       # Custom type converters
 │   │   │   └── StringBlobConverter.java     # String to BLOB conversion utilities
 │   │   ├── entity/                          # JPA entity definitions

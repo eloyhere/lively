@@ -1,4 +1,4 @@
-import {createRouter, createWebHistory, type Router} from 'vue-router'
+import {createRouter, createWebHistory, type RouteLocationNormalizedLoadedGeneric, type Router} from 'vue-router'
 import Home from "@/views/Home.vue";
 import {useAuthenticationStore} from "@/stores/authentication.ts";
 import {ElMessage} from "element-plus";
@@ -131,7 +131,7 @@ const router: Router = createRouter({
   ],
 })
 
-router.beforeEach((to, from) => {
+router.beforeEach((to: RouteLocationNormalizedLoadedGeneric, from) => {
   let white = new Set(["/","/authentication/account"]);
   if(useAuthenticationStore().authenticated){
     if(to.path === "/authentication/account"){

@@ -1,6 +1,7 @@
 <template>
   <div style="width: calc(100vw - 180px); height: calc(100vh - 100px); user-select: none;">
     <ElScrollbar>
+      <ElStatistics title="用户数量" ></ElStatistics>
       <ElSpace wrap>
         <ElCard>
           <div ref="maxMemory" style="width: 500px; height: 300px"></div>
@@ -22,12 +23,17 @@ import {ElMessage} from "element-plus";
 import {onMounted, onUnmounted, reactive, ref, type Ref} from "vue";
 import {invalidate, type MaybeInvalid, validate} from "semantic-typescript";
 import {useOrigin} from "@/hooks/url.ts";
+import {ConsumerService} from "@/interaction/service.ts";
 interface Structure extends Record<string, number>{
   freeMemory: number;
   maxMemory: number;
   processors: number;
   totalMemory: number;
 }
+
+const consumerService: ConsumerService = new ConsumerService();
+
+const consumerCount: Ref<bigint> = ref<bigint>(0n);
 
 const maxMemory: Ref<MaybeInvalid<HTMLElement>> = ref<MaybeInvalid<HTMLElement>>();
 const maxMemoryChart: Ref<MaybeInvalid<echarts.ECharts>> = ref<MaybeInvalid<echarts.ECharts>>();
@@ -159,6 +165,9 @@ onMounted((): void => {
   if(validate(totalMemory.value)){
     totalMemoryChart.value = echarts.init(totalMemory.value);
   }
+  consumerService.countBy({}).then((value) => {
+    consumerCount.value = value;
+  })
 });
 onUnmounted((): void => {
   if(websocket.value.readyState === WebSocket.OPEN){

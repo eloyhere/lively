@@ -32,6 +32,23 @@ public class Role extends BaseEntity implements GrantedAuthority, GrantedAuthori
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "role")
     private Set<Authority> authorities = new LinkedHashSet<>();
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "role_menu",
+            joinColumns = @JoinColumn(name = "role_id"),
+            inverseJoinColumns = @JoinColumn(name = "menu_id")
+    )
+    @OrderBy("spawn ASC")
+    private LinkedHashSet<Menu> menus = new LinkedHashSet<>();
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "role_route",
+            joinColumns = @JoinColumn(name = "role_id"),
+            inverseJoinColumns = @JoinColumn(name = "route_id")
+    )
+    private LinkedHashSet<Route> routes = new LinkedHashSet<>();
+
     public Role() {
 
     }
