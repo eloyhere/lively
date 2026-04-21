@@ -34,7 +34,7 @@ public class Role extends BaseEntity implements GrantedAuthority, GrantedAuthori
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "role_menu",
+            name = "role_menus",
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "menu_id")
     )
@@ -43,7 +43,7 @@ public class Role extends BaseEntity implements GrantedAuthority, GrantedAuthori
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "role_route",
+            name = "role_routes",
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "route_id")
     )
