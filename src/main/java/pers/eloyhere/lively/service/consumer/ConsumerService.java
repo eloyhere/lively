@@ -18,6 +18,7 @@ import pers.eloyhere.lively.repository.consumer.ConsumerRepository;
 import pers.eloyhere.lively.service.BaseService;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @Service("consumerService")
 public class ConsumerService extends BaseService<Consumer, ConsumerRepository> implements UserDetailsManager {
@@ -45,6 +46,14 @@ public class ConsumerService extends BaseService<Consumer, ConsumerRepository> i
         if(Objects.nonNull(username)){
             this.repository.deleteByUsername(username);
         }
+    }
+
+    @Nonnull
+    public Optional<Consumer> findByUsername(@Nullable final String username){
+        if(Objects.isNull(username)){
+            return Optional.empty();
+        }
+        return this.repository.findByUsername(username);
     }
 
     @Override

@@ -15,7 +15,7 @@ export const useAuthenticationStore = defineStore(
             authentication: ref<MaybeInvalid<Authentication>>() as Ref<MaybeInvalid<Authentication>>
         }),
         getters: {
-            at(): Authentication {
+            value(): Authentication {
                 if(validate(this.authentication)){
                     return this.authentication;
                 }
@@ -91,6 +91,7 @@ export const useAuthenticationStore = defineStore(
                 this.authentication = authentication;
             },
             removeAuthentication(): void {
+                localStorage.removeItem("authentication");
                 this.authentication = null;
             },
             hasAuthority(authority: string): boolean {
@@ -99,6 +100,7 @@ export const useAuthenticationStore = defineStore(
             auto(): Promise<boolean>{
                 let serializer: Serializer<Authentication> = useSerialization();
                 return new Promise<boolean>((resolve, reject) => {
+                    window.document.cookie = "";
                     useGet("http://localhost:8080/authentication/auto")
                         .then((response: Response): Promise<string> => response.text())
                         .then((text: string): Optional<Authentication> => {
@@ -129,6 +131,7 @@ export const useAuthenticationStore = defineStore(
                         .then((response: Response): void => {
                             if(response.status === 200){
                                 response.text().then((text) => {
+
                                     useAuthenticationStore().setAuthentication(serializer.deserialize(text));
                                     resolve();
                                 });

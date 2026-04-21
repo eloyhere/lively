@@ -1,6 +1,11 @@
 <template>
   <Modulize :service="consumerService">
+    <template #search>
 
+    </template>
+    <template #column>
+
+    </template>
   </Modulize>
 </template>
 

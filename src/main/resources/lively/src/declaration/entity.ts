@@ -79,7 +79,6 @@ export interface Invitation extends BaseEntity{
 export interface Announcement extends BaseEntity{
     title: string;
     content: string;
-    seen: Array<Consumer>
 }
 
 export interface Chapter extends BaseEntity{
@@ -94,5 +93,9 @@ export interface Book extends BaseEntity{
     author: string;
     publisher: string;
     chapters: Array<Chapter>;
+}
+
+export interface Message extends BaseEntity{
+
 }
 

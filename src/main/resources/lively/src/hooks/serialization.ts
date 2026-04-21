@@ -38,12 +38,12 @@ export const useSerialization: UseSerialization = <E>(map?: MaybeInvalid<Map<Key
                 }
                 // @ts-ignore
                 return useStringify(target as object, (key, value) => {
-                    if(map.has(key as unknown as K)){
+                    if(map.has(key as unknown as K) && !isString(value)){
                         let serializer: Serializer<ValueOf<E>> = map.get(key as unknown as K)!;
                         // @ts-ignore
-                        return serializer.deserialize(value);
+                        return serializer.serialize(value);
                     }
-                    return value
+                    return value;
                 });
             }
         };

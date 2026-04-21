@@ -44,10 +44,27 @@ public class EntityArgumentResolver implements HandlerMethodArgumentResolver {
     public Object resolveArgument(@NonNull MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
         if(Objects.nonNull(request) && Objects.nonNull(request.getParameter("payload"))){
-            String payload = request.getParameter("payload");
+            String payload = request.getParameter("payload").replace("\\", "");
+            if(payload.startsWith("\"")){
+                payload = payload.substring(1);
+            }
+            if(payload.endsWith("\"")){
+                payload = payload.substring(0, payload.length() - 1);
+            }
             ObjectMapper mapper = new ObjectMapper();
-            ObjectReader reader = mapper.readerFor(parameter.getParameterType());
-            return reader.readValue(payload);
+            ObjectReader reader = mapper.readerFor(HashMap.class);
+            Map<String, Object> properties = reader.readValue(payload);
+            Class<?> clazz = parameter.getParameterType();
+            Object object = clazz.getDeclaredConstructor().newInstance();
+            Field[] fields = clazz.getDeclaredFields();
+            for (Field field : fields) {
+                field.setAccessible(true);
+                Object value = properties.get(field.getName());
+                if(Objects.nonNull(value)){
+                    field.set(object, value);
+                }
+            }
+            return object;
         }
         Class<?> clazz = parameter.getParameterType();
         Object object = clazz.getDeclaredConstructor().newInstance();

@@ -12,17 +12,17 @@ import pers.eloyhere.lively.service.BaseService;
 
 import java.util.Date;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 @Service("tokenService")
 public class TokenService extends BaseService<Token, TokenRepository> implements PersistentTokenRepository {
     private final ConsumerRepository consumerRepository;
-    private final TokenRepository tokenRepository;
+    private final TokenRepository repository;
 
-    public TokenService(TokenRepository repository, ConsumerRepository consumerRepository,
-                        TokenRepository tokenRepository) {
+    public TokenService(TokenRepository repository, ConsumerRepository consumerRepository) {
         super(repository);
         this.consumerRepository = consumerRepository;
-        this.tokenRepository = tokenRepository;
+        this.repository = repository;
     }
 
     @Override
@@ -34,7 +34,7 @@ public class TokenService extends BaseService<Token, TokenRepository> implements
 
     @Override
     public void updateToken(@NonNull String series, @NonNull String tokenValue, @NonNull Date lastUsed) {
-        tokenRepository.findBySeries(series).map((entity)-> {
+        repository.findBySeries(series).map((entity)-> {
             entity.setToken(tokenValue);
             entity.setLast(lastUsed);
             this.update(entity);
@@ -44,14 +44,11 @@ public class TokenService extends BaseService<Token, TokenRepository> implements
 
     @Override
     public PersistentRememberMeToken getTokenForSeries(@NonNull String seriesId) {
-        return tokenRepository.findBySeries(seriesId).map(Token::toPersistentRememberMeToken).orElse(null);
+        return repository.findBySeries(seriesId).map(Token::toPersistentRememberMeToken).orElse(null);
     }
 
     @Override
     public void removeUserTokens(@NonNull String username) {
-        Consumer consumer = consumerRepository.findByUsername(username).orElseThrow(()-> new NoSuchElementException("Consumer not found"));
-        consumer.getTokens().forEach(this::deleteBy);
-        consumer.getTokens().clear();
-        consumerRepository.saveAndFlush(consumer);
+        this.repository.deleteByUsername(username);
     }
 }

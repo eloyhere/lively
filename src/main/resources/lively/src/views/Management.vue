@@ -1,12 +1,12 @@
 <template>
-  <ElContainer>
+  <ElContainer style="height: 100vh; width: 100vw">
     <ElHeader class="header">
       <Toolbar v-model="links"/>
     </ElHeader>
     <ElContainer style="height: calc(100vh - 60px); width: 100vw">
       <ElAside width="180px" style="height: calc(100vh - 60px)">
         <ElScrollbar height="100%">
-          <ElMenu :default-active="path" router style="user-select: none; height: calc(100vh - 60px)">
+          <ElMenu :default-active="current.path" router style="user-select: none; height: calc(100vh - 60px)">
             <ElMenuItem index="/management">
               <ElIcon>
                 <House/>
@@ -156,6 +156,9 @@ const links: Array<Link> = reactive<Array<Link>>([
 ]);
 
 const removeTab: Consumer<string> = (name: string): void => {
+  if(name === "/management"){
+    return;
+  }
   if(history.length <= 1){
     router.replace({
       path: "/management"
@@ -172,11 +175,12 @@ const removeTab: Consumer<string> = (name: string): void => {
   }
 };
 onMounted(():void => {
+  if(history.length === 0){
+    history.push(current.value);
+  }
   watch(path, (n) => {
-    if(n !== "/management"){
-      if(!history.some((route) => route.path === current.value.path)){
-        history.push(current.value);
-      }
+    if(!history.some((route) => route.path === current.value.path)){
+      history.push(current.value);
     }
   })
 });

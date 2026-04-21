@@ -16,14 +16,15 @@
             min: 5
           }
       ]">
-        <ElInput placeholder="请输入id" v-model="scope.search.authority" clearable/>
+        <ElInput placeholder="请输入权限" v-model="scope.search.authority" clearable/>
       </ElFormItem>
     </template>
     <template #column>
-      <ElTableColumn label="id" prop="id"></ElTableColumn>
-      <ElTableColumn label="权限" prop="authority"></ElTableColumn>
-      <ElTableColumn label="锁定" prop="lock"></ElTableColumn>
-      <ElTableColumn label="禁用" prop="lock"></ElTableColumn>
+    </template>
+    <template #insert="scope">
+      <ElFormItem label="权限">
+        <ElInput v-model="scope.insert.authority"/>
+      </ElFormItem>
     </template>
   </Modulize>
 </template>

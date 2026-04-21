@@ -110,10 +110,10 @@ public class SecurityConfiguration {
         livelyUsernamePasswordAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
         livelyUsernamePasswordAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
         return security.cors((cors) -> cors.configurationSource(corsConfigurationSource))
-                .authorizeHttpRequests((request) -> request.anyRequest().permitAll())
+                .authorizeHttpRequests((request) -> request.requestMatchers("/websocket/**").authenticated().anyRequest().permitAll())
                 .anonymous((anonymous) -> {
                     anonymous.key("anonymous").principal("guest").authorities("guest");
-                })
+                  })
                 .securityContext((context) -> context.requireExplicitSave(true).securityContextRepository(securityContextRepository))
                 .rememberMe((remember) -> remember.rememberMeServices(rememberMeServices))
                 .addFilterAt(livelyUsernamePasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class).exceptionHandling((exception) -> exception.authenticationEntryPoint(invalidateAuthenticationEntryPoint))
@@ -126,7 +126,6 @@ public class SecurityConfiguration {
                     })
                 )
                 .logout((logout) -> logout.logoutUrl("/authentication/logout")
-                    .addLogoutHandler(new SecurityContextLogoutHandler())
                     .clearAuthentication(true)
                     .invalidateHttpSession(true)
                     .deleteCookies("Authentication", "remember", "JSESSIONID")

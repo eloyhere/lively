@@ -11,6 +11,8 @@ import pers.eloyhere.lively.annotation.Everyone;
 import pers.eloyhere.lively.entity.BaseEntity;
 import pers.eloyhere.lively.repository.BaseRepository;
 import pers.eloyhere.lively.service.BaseService;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
 
 import java.util.Collection;
 import java.util.List;
@@ -100,19 +102,21 @@ public class BaseController<E extends BaseEntity, R extends BaseRepository<E>, S
     @GetMapping("findAllPagedBy")
     public ResponseEntity<Page<E>> findAllPagedBy(@Nonnull @ModelAttribute final E entity, @Nonnull @RequestParam final Integer page, @Nonnull @RequestParam Integer size, Sort.Direction direction, Collection<String> properties){
         if(Objects.isNull(direction) || Objects.isNull(properties)){
+            System.out.println("11111111111111111111");
             return ResponseEntity.ok(this.service.findAllPagedBy(entity, page, size, direction, properties));
         }
+        System.out.println("222222222222222222");
         return ResponseEntity.ok(this.service.findAllPagedBy(entity, page, size));
     }
 
     @Administrator
-    @GetMapping("insert")
+    @PutMapping("insert")
     public ResponseEntity<E> insert(@Nonnull final E entity){
         return ResponseEntity.ok(this.service.insert(entity));
     }
 
     @Administrator
-    @GetMapping("update")
+    @PutMapping("update")
     public ResponseEntity<E> update(@Nonnull final E entity){
         return ResponseEntity.ok(this.service.update(entity));
     }

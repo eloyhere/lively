@@ -1,35 +1,49 @@
 <template>
-  <ElDescriptions border>
-    <ElDescriptionsItem label="头像" :rowspan="2" align="center">
-      <ElAvatar :src="profile.get('avatar')"/>
-    </ElDescriptionsItem>
-    <ElDescriptionsItem label="id">
-      {{profile.get("id")}}
-    </ElDescriptionsItem>
-    <ElDescriptionsItem label="用户名">
-      {{profile.get("username")}}
-    </ElDescriptionsItem>
-    <ElDescriptionsItem label="昵称">
-      {{profile.get("nickname")}}
-    </ElDescriptionsItem>
-    <ElDescriptionsItem label="拥有角色">
-      <span v-for="role in profile."></span>
-    </ElDescriptionsItem>
-  </ElDescriptions>
+  <ElContainer>
+    <ElHeader>
+      <Toolbar/>
+    </ElHeader>
+    <ElMain>
+      <ElDescriptions border style="user-select: none">
+        <ElDescriptionsItem label="头像" :rowspan="2" align="center">
+          <ElAvatar :src="profile.avatar"/>
+        </ElDescriptionsItem>
+        <ElDescriptionsItem label="id">
+          {{profile.id}}
+        </ElDescriptionsItem>
+        <ElDescriptionsItem label="用户名">
+          {{profile.username}}
+        </ElDescriptionsItem>
+        <ElDescriptionsItem label="昵称">
+          {{profile.nickname}}
+        </ElDescriptionsItem>
+        <ElDescriptionsItem label="角色">
+          <ElTag v-for="role in profile.roles">
+            {{role.name}}
+          </ElTag>
+        </ElDescriptionsItem>
+        <ElDescriptionsItem label="权限">
+          <ElTag v-for="authority in profile.roles.flatMap((role) => role.authorities)">
+            {{authority}}
+          </ElTag>
+        </ElDescriptionsItem>
+        <ElDescriptionsItem label="注册时间">
+          {{profile.spawn}}
+        </ElDescriptionsItem>
+      </ElDescriptions>
+    </ElMain>
+  </ElContainer>
 </template>
 
 <script setup lang="ts">
 
 import {useAuthenticationStore} from "@/stores/authentication.ts";
 import {computed, type ComputedRef} from "vue";
-import {isPrimitive, type MaybeInvalid, type Primitive, validate} from "semantic-typescript";
 import type {Authentication, Consumer, Role} from "@/declaration/entity";
-import {useGet} from "@/hooks/network.ts";
-import {useSerialization} from "@/hooks/serialization.ts";
+import Toolbar from "@/component/Toolbar.vue";
 
 const profile: ComputedRef<Consumer> = computed<Consumer>((): Consumer => {
-  let authentication: MaybeInvalid<Authentication> = useAuthenticationStore().at;
-
+  return useAuthenticationStore().value?.principal!;
 });
 </script>
 

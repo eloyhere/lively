@@ -1,10 +1,9 @@
 <template>
-  <div>
+  <div style="padding-right: 20px">
     <ElSpace wrap>
-          <span>
-          你好，{{nickname}}
-        </span>
-
+      <span style="user-select: none">
+          {{nickname}}
+      </span>
       <ElDropdown @command="handle">
         <ElAvatar :src="avatar">
           <ElIcon>
@@ -18,9 +17,9 @@
           <ElDropdownItem command="/management">
             管理
           </ElDropdownItem>
-          <ElDropdownItem command="/notification">
-            <ElBadge :value="unread.length" :hidden="unread.length === 0" :max="99">
-              通知
+          <ElDropdownItem command="/announcement">
+            <ElBadge :value="announcements.length" :hidden="announcements.length === 0" :max="99">
+              公告
             </ElBadge>
           </ElDropdownItem>
           <ElDropdownItem v-if="isAuthenticated" command="/authentication/logout">
@@ -38,12 +37,12 @@
 
 import {User} from "@element-plus/icons-vue";
 import {type Router, useRouter} from "vue-router";
-import {computed, type ComputedRef} from "vue";
+import {computed, type ComputedRef, onMounted, reactive} from "vue";
 import {type Consumer, type MaybeInvalid, validate} from "semantic-typescript";
-import type {Announcement, Authentication} from "@/interaction/entity.ts";
+import type {Announcement, Authentication} from "@/declaration/entity.ts";
 import {useAuthenticationStore} from "@/stores/authentication.ts";
-import {useGet} from "@/hooks/network.ts";
-import {ElMessage} from "element-plus";
+import {useGet, usePost} from "@/hooks/network.ts";
+import {ElMessage, ElMessageBox, ElNotification} from "element-plus";
 import {AnnouncementService} from "@/interaction/service.ts";
 
 const router:Router = useRouter();
@@ -79,15 +78,24 @@ const handle: Consumer<string> = (command: string): void => {
       });
       break;
     case "/authentication/logout":
-      useGet("http://localhost:8080/authentication/logout").then((response) => {
-        if(response.status === 203){
-          window.document.cookie = "";
-          ElMessage({
-            message: "注销成功。",
-            type: "success"
-          });
-          useAuthenticationStore().removeAuthentication();
-        }
+      ElMessageBox.confirm("确定要注销登录吗？", "提示", {
+        type: "warning",
+        confirmButtonText: "确定",
+        cancelButtonText: "取消"
+      }).then((): void => {
+        usePost("http://localhost:8080/authentication/logout").then((response) => {
+          if(response.status === 200){
+            window.document.cookie = "";
+            router.replace({
+              path: "/"
+            });
+            ElMessage({
+              message: "注销成功。",
+              type: "success"
+            });
+            useAuthenticationStore().removeAuthentication();
+          }
+        });
       });
       break;
     case "/management":
@@ -95,16 +103,46 @@ const handle: Consumer<string> = (command: string): void => {
         path: "/management"
       });
       break;
+    case "/announcement":
+      announcements.forEach((announcement): void => {
+        ElNotification({
+          type: "primary",
+          title: announcement.title,
+          message: announcement.content
+        })
+      })
+      break;
   }
 };
 const announcementService: AnnouncementService = new AnnouncementService();
-const unread: ComputedRef<Array<Announcement>> = computed<Array<Announcement>>((): Array<Announcement> => {
-  return [];
-});
+const announcements: Array<Announcement> = reactive<Array<Announcement>>([]);
+onMounted((): void => {
+  announcementService.findAllPagedBy({
+    page: 0,
+    size: 10,
+    total: 10,
+    target: {}
+  }).then((value): void => {
+    announcements.length = 0;
+    announcements.push(...value.content);
+    announcements.push({
+      ban: new Date(),
+      content: "",
+      edit: new Date(),
+      id: "",
+      lock: new Date(),
+      spawn: new Date(),
+      title: "",
+      version: 0n
+    });
+  }, (): void => {
+    ElMessage({
+      message: "加载公告失败",
+      type: "info"
+    });
+  });
+})
 </script>
-
-
-
 <style scoped>
 
 </style>

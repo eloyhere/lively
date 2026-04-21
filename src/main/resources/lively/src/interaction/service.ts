@@ -7,12 +7,13 @@ import type {
     Token,
     Announcement,
     Query,
-    Page
+    Page, Book, Chapter
 } from "@/declaration/entity";
 import {useDelete, useGet, usePut} from "@/hooks/network";
 import {type Serializer} from "@/declaration/serialization";
 import {type Consumer as FConsumer} from "semantic-typescript";
 import {useSerialization} from "@/hooks/serialization";
+import Chat from "@/views/management/chat/Chat.vue";
 
 
 
@@ -268,9 +269,9 @@ export class BaseService<E extends BaseEntity>{
         let url: string = `${this.prefix}/${this.module}/findAllPagedBy`;
         let serializer: Serializer<E> = useSerialization();
         let parameters: URLSearchParams = new URLSearchParams();
-        parameters.append("payload", serializer.serialize(query.target));
-        parameters.append("size", String(query.size));
-        parameters.append("page", String(query.page));
+        parameters.append("payload", encodeURIComponent(serializer.serialize(query.target)));
+        parameters.append("size", encodeURIComponent(query.size));
+        parameters.append("page", encodeURIComponent(query.page));
         return new Promise<Page<E>>((resolve: FConsumer<Page<E>>, reject: FConsumer<unknown>) => {
             try {
                 let serializer: Serializer<Page<E>> = useSerialization<Page<E>>();
@@ -379,3 +380,17 @@ export class AnnouncementService extends BaseService<Announcement>{
         super("announcement");
     }
 }
+
+export class BookService extends BaseService<Book>{
+    public constructor() {
+        super("book");
+    }
+}
+
+export class ChapterService extends BaseService<Chapter>{
+    public constructor() {
+        super("chapter");
+    }
+}
+
+

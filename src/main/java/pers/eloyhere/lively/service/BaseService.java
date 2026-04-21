@@ -214,8 +214,13 @@ public class BaseService <E extends BaseEntity, R extends BaseRepository<E>>{
 
     @Nonnull
     public Page<E> findAllPagedBy(@Nullable final E entity, final Integer page, @Nullable final Integer size, @Nullable Sort sort){
-        if(Objects.isNull(entity) || Objects.isNull(page) || Objects.isNull(size) || Objects.isNull(sort)){
+        if(Objects.isNull(entity) || Objects.isNull(page) || Objects.isNull(size)){
             return Page.empty();
+        }
+        if(Objects.isNull(sort)){
+            PageRequest pageRequest = PageRequest.of(Math.max(page, 1), Math.max(size, 1));
+            Example<E> example = Example.of(entity);
+            return this.repository.findAll(example, pageRequest);
         }
         PageRequest pageRequest = PageRequest.of(Math.max(page, 1), Math.max(size, 1), sort);
         Example<E> example = Example.of(entity);
@@ -224,8 +229,13 @@ public class BaseService <E extends BaseEntity, R extends BaseRepository<E>>{
 
     @Nonnull
     public Page<E> findAllPagedBy(@Nullable final E entity, final Integer page, @Nullable final Integer size, @Nullable Sort.Direction direction, Collection<String> properties){
-        if(Objects.isNull(entity) || Objects.isNull(page) || Objects.isNull(size) || Objects.isNull(direction) || Objects.isNull(properties)){
+        if(Objects.isNull(entity) || Objects.isNull(page) || Objects.isNull(size)){
             return Page.empty();
+        }
+        if(Objects.isNull(direction) || Objects.isNull(properties) || properties.isEmpty()){
+            PageRequest pageRequest = PageRequest.of(Math.max(page, 1), Math.max(size, 1));
+            Example<E> example = Example.of(entity);
+            return this.repository.findAll(example, pageRequest);
         }
         PageRequest pageRequest = PageRequest.of(Math.max(page, 1), Math.max(size, 1), direction, properties.toArray(String[]::new));
         Example<E> example = Example.of(entity);
@@ -234,7 +244,7 @@ public class BaseService <E extends BaseEntity, R extends BaseRepository<E>>{
 
     @Nonnull
     public Page<E> findAllPagedBy(@Nullable final Specification<E> specification, @Nullable final Integer page, @Nullable final Integer size){
-        if(Objects.isNull(specification) ||  Objects.isNull(page) || Objects.isNull(size)){
+        if(Objects.isNull(specification) || Objects.isNull(page) || Objects.isNull(size)){
             return Page.empty();
         }
         PageRequest pageRequest = PageRequest.of(Math.max(page, 1), Math.max(size, 1));
@@ -243,8 +253,12 @@ public class BaseService <E extends BaseEntity, R extends BaseRepository<E>>{
 
     @Nonnull
     public Page<E> findAllPagedBy(@Nullable final Specification<E> specification, final Integer page, @Nullable final Integer size, @Nullable Sort sort){
-        if(Objects.isNull(specification) || Objects.isNull(page) || Objects.isNull(size) || Objects.isNull(sort)){
+        if(Objects.isNull(specification) || Objects.isNull(page) || Objects.isNull(size)){
             return Page.empty();
+        }
+        if(Objects.isNull(sort)){
+            PageRequest pageRequest = PageRequest.of(Math.max(page, 1), Math.max(size, 1));
+            return this.repository.findAll(specification, pageRequest);
         }
         PageRequest pageRequest = PageRequest.of(Math.max(page, 1), Math.max(size, 1), sort);
         return this.repository.findAll(specification, pageRequest);
@@ -252,8 +266,12 @@ public class BaseService <E extends BaseEntity, R extends BaseRepository<E>>{
 
     @Nonnull
     public Page<E> findAllPagedBy(@Nullable final Specification<E> specification, final Integer page, @Nullable final Integer size, @Nullable Sort.Direction direction, Collection<String> properties){
-        if(Objects.isNull(specification) || Objects.isNull(page) || Objects.isNull(size) || Objects.isNull(direction) || Objects.isNull(properties)){
+        if(Objects.isNull(specification) || Objects.isNull(page) || Objects.isNull(size)){
             return Page.empty();
+        }
+        if(Objects.isNull(direction) || Objects.isNull(properties) || properties.isEmpty()){
+            PageRequest pageRequest = PageRequest.of(Math.max(page, 1), Math.max(size, 1));
+            return this.repository.findAll(specification, pageRequest);
         }
         PageRequest pageRequest = PageRequest.of(Math.max(page, 1), Math.max(size, 1), direction, properties.toArray(String[]::new));
         return this.repository.findAll(specification, pageRequest);
@@ -289,5 +307,9 @@ public class BaseService <E extends BaseEntity, R extends BaseRepository<E>>{
             return this.repository.saveAllAndFlush(collection);
         }
         return List.of();
+    }
+
+    public R getRepository(){
+        return this.repository;
     }
 }

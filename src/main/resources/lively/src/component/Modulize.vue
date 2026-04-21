@@ -1,56 +1,59 @@
 <template>
-  <ElContainer direction="vertical" style="width: calc(100vw - 180px); height: calc(100vh - 100px); user-select: none">
-    <slot name="default">
-      <ElHeader style="height: 200px; width: calc(100vw - 180px); display: flex; flex-direction: column;">
-        <slot name="header">
-          <ElForm ref="queryForm" inline :model="query.target">
-            <slot name="search" :search="query.target"></slot>
-            <ElFormItem>
-              <ElTooltip effect="light" placement="bottom" content="搜索">
-                <ElButton icon="search" type="primary" @click="search()" circle plain/>
-              </ElTooltip>
-              <ElTooltip effect="light" placement="bottom" content="重置">
-                <ElButton icon="refresh" type="info" circle plain/>
-              </ElTooltip>
-            </ElFormItem>
-          </ElForm>
-          <ElSpace wrap>
-            <ElTooltip effect="light" placement="bottom" content="新增">
-              <ElButton icon="plus" type="primary" @click="insert.show = true" circle plain/>
+  <ElContainer style="width: calc(100vw - 180px); height: calc(100vh - 100px); user-select: none;">
+    <ElHeader style="height: 150px; width: calc(100vw - 180px); display: flex; flex-direction: column;">
+      <slot name="header">
+        <ElForm ref="queryForm" inline :model="query.target">
+          <slot name="search" :search="query.target"></slot>
+          <ElFormItem>
+            <ElTooltip effect="light" placement="bottom" content="搜索">
+              <ElButton icon="search" type="primary" @click="search()" circle plain/>
             </ElTooltip>
-            <ElTooltip effect="light" placement="bottom" content="删除">
-              <ElButton icon="delete" type="danger" circle plain/>
-            </ElTooltip>
-            <ElTooltip effect="light" placement="bottom" content="刷新">
+            <ElTooltip effect="light" placement="bottom" content="重置">
               <ElButton icon="refresh" type="info" circle plain/>
             </ElTooltip>
-          </ElSpace>
-        </slot>
-      </ElHeader>
-      <ElContainer direction="vertical" style="width: calc(100vw - 180px); height: calc(100vh - 300px)">
-        <ElMain style="height: calc(100vh - 360px); width: calc(100vw - 180px)">
-          <slot name="main">
-            <ElTable :data="data" style="height: calc(100vh - 360px); width: calc(100vw - 180px)">
+          </ElFormItem>
+        </ElForm>
+        <ElSpace wrap>
+          <ElTooltip effect="light" placement="bottom" content="新增">
+            <ElButton icon="plus" type="primary" @click="insert.show = true" circle plain/>
+          </ElTooltip>
+          <ElTooltip effect="light" placement="bottom" content="删除">
+            <ElButton icon="delete" type="danger" circle plain/>
+          </ElTooltip>
+          <ElTooltip effect="light" placement="bottom" content="刷新">
+            <ElButton icon="refresh" @click="obtain()" type="info" circle plain/>
+          </ElTooltip>
+        </ElSpace>
+      </slot>
+    </ElHeader>
+    <ElContainer style="width: calc(100vw - 180px); height: calc(100vh - 300px);">
+      <ElMain style="width: calc(100vw - 180px); height: calc(100vh - 420px);">
+        <slot name="main">
+          <ElScrollbar>
+            <ElTable v-loading="load" :data="data" style="width: calc(100vw - 180px); height: calc(100vh - 420px)">
+              <ElTableColumn label="id" prop="id"></ElTableColumn>
               <slot name="column">
-
               </slot>
+              <ElTableColumn label="权限" prop="authority"></ElTableColumn>
+              <ElTableColumn label="锁定" prop="lock"></ElTableColumn>
+              <ElTableColumn label="禁用" prop="lock"></ElTableColumn>
               <ElTableColumn fixed="right" label="操作">
                 <template #default="scope">
                   <ElSpace wrap>
                     <ElTooltip effect="light" placement="bottom" content="修改">
                       <ElButton icon="edit" type="primary" @click="updateOperator.ready()" circle plain/>
                     </ElTooltip>
-                    <ElTooltip effect="light" placement="bottom" content="锁定">
-                      <ElButton icon="lock" type="warning" @click="lockOrUnlock(scope.row)" circle plain/>
+                    <ElTooltip v-if="!isLocked(scope.row)" effect="light" placement="bottom" content="锁定">
+                      <ElButton v-if="!isLocked(scope.row)" icon="lock" type="warning" @click="lockOrUnlock(scope.row)" circle plain/>
                     </ElTooltip>
                     <ElTooltip v-if="isLocked(scope.row)" effect="light" placement="bottom" content="解锁">
                       <ElButton v-if="isLocked(scope.row)" icon="unlock" type="warning" @click="lockOrUnlock(scope.row)" circle plain/>
                     </ElTooltip>
-                    <ElTooltip effect="light" placement="bottom" content="禁用">
-                      <ElButton icon="hide" type="default" @click="disableOrEnable(scope.row)" circle plain/>
+                    <ElTooltip v-if="!isBanned(scope.row)" effect="light" placement="bottom" content="禁用">
+                      <ElButton v-if="!isBanned(scope.row)" icon="hide" type="default" @click="disableOrEnable(scope.row)" circle plain/>
                     </ElTooltip>
-                    <ElTooltip effect="light" placement="bottom" content="启用">
-                      <ElButton icon="view" type="default" @click="disableOrEnable(scope.row)" circle plain/>
+                    <ElTooltip v-if="isBanned(scope.row)" effect="light" placement="bottom" content="启用">
+                      <ElButton v-if="isBanned(scope.row)" icon="view" type="default" @click="disableOrEnable(scope.row)" circle plain/>
                     </ElTooltip>
                     <ElTooltip effect="light" placement="bottom" content="删除">
                       <ElButton icon="delete" type="danger" @click="deleteBy(scope.row)" circle plain/>
@@ -59,41 +62,42 @@
                 </template>
               </ElTableColumn>
             </ElTable>
-          </slot>
-        </ElMain>
-        <ElFooter>
-          <slot name="footer">
-            <ElPagination background :page-size="query.size" :page-count="query.total" @change="(value: number) => query.page = value"/>
-          </slot>
-        </ElFooter>
-      </ElContainer>
-      <ElDialog title="新增" v-model="insert.show">
-        <ElForm ref="insertForm" :model="insert.target">
-          <slot name="insert"></slot>
-        </ElForm>
-        <template #footer>
-          <ElButton type="primary" @click="insertOperator.perform()" plain>确定</ElButton>
-          <ElButton type="warning" @click="insertOperator.reset()" plain>重置</ElButton>
-          <ElButton type="info" @click="insertOperator.dismiss()" plain>取消</ElButton>
-        </template>
-      </ElDialog>
-      <ElDialog title="修改" v-model="update.show">
-        <ElForm ref="updateForm" :model="update.target">
-          <slot name="insert"></slot>
-        </ElForm>
-        <template #footer>
-          <ElButton type="primary" @click="updateOperator.perform()" plain>确定</ElButton>
-          <ElButton type="warning" @click="updateOperator.reset()" plain>重置</ElButton>
-          <ElButton type="info" @click="updateOperator.dismiss()" plain>取消</ElButton>
-        </template>
-      </ElDialog>
-    </slot>
+          </ElScrollbar>
+        </slot>
+      </ElMain>
+      <ElFooter style="width: calc(100vw - 180px); height: 120px;display: flex; flex-direction: column; justify-content: center; align-items: center">
+        <slot name="footer">
+          <ElPagination background :page-size="query.size" :page-count="query.total" @change="(value: number) => query.page = value"/>
+        </slot>
+        <ElDialog title="新增" v-model="insert.show">
+          <ElForm ref="insertForm" :model="insert.target">
+            <slot name="insert" :insert="insert.target"></slot>
+          </ElForm>
+          <template #footer>
+            <ElButton type="primary" @click="insertOperator.perform()" plain>确定</ElButton>
+            <ElButton type="warning" @click="insertOperator.reset()" plain>重置</ElButton>
+            <ElButton type="info" @click="insertOperator.dismiss()" plain>取消</ElButton>
+          </template>
+        </ElDialog>
+        <ElDialog title="修改" v-model="update.show">
+          <ElForm ref="updateForm" :model="update.target">
+            <slot name="update" :update="update.target"></slot>
+          </ElForm>
+          <template #footer>
+            <ElButton type="primary" @click="updateOperator.perform()" plain>确定</ElButton>
+            <ElButton type="warning" @click="updateOperator.reset()" plain>重置</ElButton>
+            <ElButton type="info" @click="updateOperator.dismiss()" plain>取消</ElButton>
+          </template>
+        </ElDialog>
+      </ElFooter>
+    </ElContainer>
+
   </ElContainer>
 </template>
 <script generic="E extends BaseEntity" setup lang="ts">
 
 import type {BaseEntity, Page, Query} from "@/declaration/entity.ts";
-import {type Reactive, reactive, ref, type Ref} from "vue";
+import {onMounted, type Reactive, reactive, ref, type Ref} from "vue";
 import type {BaseService} from "@/interaction/service.ts";
 import type {Insert, Operator, Update} from "@/declaration/modulize.ts";
 import {type Consumer, type MaybeInvalid, type Predicate, type Runnable, validate} from "semantic-typescript";
@@ -163,6 +167,7 @@ const insertOperator: Operator<E> = {
       insertOperator.validate().then((): void => {
         property.service.insert(insert.target as unknown as E).then((): void => {
           emit("insert", update.target as unknown as E);
+          obtain();
           ElMessage({
             message: "操作成功",
             type: "success"
@@ -173,8 +178,13 @@ const insertOperator: Operator<E> = {
             message: "操作失败",
             type: "warning"
           });
-        })
-      }, reject);
+        });
+      }, (): void => {
+        ElMessage({
+          message: "操作失败",
+          type: "warning"
+        });
+      });
     });
   }
 };
@@ -217,6 +227,7 @@ const updateOperator: Operator<E> = {
       updateOperator.validate().then((): void => {
         property.service.update(update.target as unknown as E).then((): void => {
           emit("update", update.target as unknown as E);
+          obtain();
           ElMessage({
             message: "操作成功",
             type: "success"
@@ -356,7 +367,6 @@ const disableOrEnable: Consumer<E | Partial<E>> = (entity: E | Partial<E>): void
   }
 };
 
-
 const data: Reactive<Array<E>> = reactive<Array<E>>([
   {} as unknown as E
 ]);
@@ -379,11 +389,13 @@ const deleteBy: Consumer<E> = (entity: E) : void => {
     type: "warning"
   }).then((): void => {
     property.service.deleteByIdentifier(entity.id).then((): void => {
+      obtain();
       ElMessage({
         message: "操作成功",
         type: "success"
       });
     }, (): void => {
+      obtain();
       ElMessage({
         message: "操作失败",
         type: "success"
@@ -396,6 +408,28 @@ const deleteBy: Consumer<E> = (entity: E) : void => {
     });
   })
 };
+const load: Ref<boolean> = ref<boolean>(true);
+const obtain: Runnable = (): void => {
+  load.value = true;
+  property.service.findAllPagedBy(query as unknown as Query<E>).then((page): void => {
+    data.length = 0;
+    data.push(...page.content as unknown as any);
+    emit("load", page);
+    load.value = false;
+  }, (): void => {
+    ElMessage({
+      type: "warning",
+      message: "加载失败"
+    });
+  });
+  setTimeout((): void => {
+    load.value = false;
+  }, 3000)
+}
+
+onMounted((): void => {
+  obtain();
+});
 </script>
 
 <style scoped>

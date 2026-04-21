@@ -66,8 +66,10 @@ public class Token extends BaseEntity {
     }
 
     public void setConsumer(Consumer consumer) {
-        this.consumer = consumer;
-        consumer.getTokens().add(this);
+        if(Objects.nonNull(consumer)){
+            this.consumer = consumer;
+            consumer.getTokens().add(this);
+        }
     }
 
     public PersistentRememberMeToken toPersistentRememberMeToken() {

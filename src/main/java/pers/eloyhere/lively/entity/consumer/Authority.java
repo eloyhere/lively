@@ -1,5 +1,6 @@
 package pers.eloyhere.lively.entity.consumer;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -29,6 +30,7 @@ public class Authority extends BaseEntity implements GrantedAuthority {
         return description;
     }
 
+    @JsonSetter("description")
     public void setDescription(String description) {
         this.description = description;
     }
@@ -37,6 +39,7 @@ public class Authority extends BaseEntity implements GrantedAuthority {
         this.authority = authority;
     }
 
+    @JsonSetter("authority")
     public void setAuthority(String authority) {
         this.authority = authority;
     }

@@ -101,6 +101,14 @@ const router: Router = createRouter({
           },
           component: () => import("../views/management/chat/Message.vue"),
         },
+        {
+          name: "Announcement",
+          path: "/management/announcement",
+          meta: {
+            title: "消息管理"
+          },
+          component: () => import("../views/management/Announcement.vue"),
+        },
       ]
     },
     {
