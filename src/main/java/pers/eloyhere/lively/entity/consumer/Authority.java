@@ -1,5 +1,6 @@
 package pers.eloyhere.lively.entity.consumer;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Cache;
@@ -9,7 +10,6 @@ import org.hibernate.annotations.NaturalIdCache;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import pers.eloyhere.lively.entity.BaseEntity;
-
 @Entity
 @Table(name = "authority")
 @Cacheable
@@ -30,16 +30,10 @@ public class Authority extends BaseEntity implements GrantedAuthority {
         return description;
     }
 
-    @JsonSetter("description")
     public void setDescription(String description) {
         this.description = description;
     }
 
-    public Authority(String authority) {
-        this.authority = authority;
-    }
-
-    @JsonSetter("authority")
     public void setAuthority(String authority) {
         this.authority = authority;
     }

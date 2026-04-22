@@ -1,13 +1,46 @@
 import {
+    type BiFunctional, isFunction,
     isObject,
     isPrimitive, isString,
-    type MaybeInvalid,
-    useStringify,
-    useToBigInt, validate
+    type MaybeInvalid, typeOf,
+    validate
 } from "semantic-typescript";
 import type {Serializer} from "@/declaration/serialization.ts";
 import type {KeyOf, ValueOf} from "@/hooks/utility.ts";
 
+interface UseStringify{
+    (target: any): string;
+    (target: any, callback: BiFunctional<string, any, string>): string;
+}
+export const useStringify: UseStringify = (target, callback?: BiFunctional<string, any, string>): string => {
+    switch (typeOf(target)) {
+        case "object":
+            let seen: WeakSet<object> = new WeakSet<object>();
+            return JSON.stringify(target, (key, value) => {
+                if(seen.has(value)){
+                    return (void 0);
+                }
+                if(isObject(value)){
+                    seen.add(value);
+                }
+                if(isFunction(callback)){
+                    return callback(key, value);
+                }
+                return value;
+            });
+        case "string":
+            return target;
+        case "bigint":
+        case "number":
+        case "boolean":
+            return String(target);
+        case "null":
+        case "undefined":
+            return "";
+        default:
+            return "";
+    }
+};
 
 interface UseSerialization{
     <E>(): Serializer<E>;
@@ -29,22 +62,7 @@ export const useSerialization: UseSerialization = <E>(map?: MaybeInvalid<Map<Key
                 });
             },
             serialize(target: E | Partial<E>): string {
-                if(isString(target)){
-                    return target;
-                }else if(isPrimitive(target)){
-                    return String(target);
-                }else if(isObject(target)){
-                    return useStringify(target);
-                }
-                // @ts-ignore
-                return useStringify(target as object, (key, value) => {
-                    if(map.has(key as unknown as K) && !isString(value)){
-                        let serializer: Serializer<ValueOf<E>> = map.get(key as unknown as K)!;
-                        // @ts-ignore
-                        return serializer.serialize(value);
-                    }
-                    return value;
-                });
+                return useStringify(target);
             }
         };
     }
@@ -56,17 +74,7 @@ export const useSerialization: UseSerialization = <E>(map?: MaybeInvalid<Map<Key
             });
         },
         serialize(target: E | Partial<E>): string {
-            if(isString(target)){
-                return target;
-            }else if(isPrimitive(target)){
-                return String(target);
-            }else if(isObject(target)){
-                return useStringify(target);
-            }
-            // @ts-ignore
-            return useStringify(target as object, (key, value) => {
-                return value;
-            });
+            return useStringify(target);
         }
     };
 };

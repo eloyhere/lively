@@ -23,31 +23,32 @@ public class Role extends BaseEntity implements GrantedAuthority, GrantedAuthori
     @Column(name = "description")
     private String description;
 
-    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "role_authority",
+            name = "role_authorities",
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "authority_id")
     )
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "role")
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
     private Set<Authority> authorities = new LinkedHashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "role_menus",
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "menu_id")
     )
     @OrderBy("spawn ASC")
-    private LinkedHashSet<Menu> menus = new LinkedHashSet<>();
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Set<Menu> menus = new LinkedHashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+
     @JoinTable(
             name = "role_routes",
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "route_id")
     )
-    private LinkedHashSet<Route> routes = new LinkedHashSet<>();
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Set<Route> routes = new LinkedHashSet<>();
 
     public Role() {
 
@@ -74,6 +75,22 @@ public class Role extends BaseEntity implements GrantedAuthority, GrantedAuthori
         this.authorities.remove(authority);
     }
 
+    public void add(Route route){
+        this.routes.add(route);
+    }
+
+    public void remove(Route route){
+        this.routes.remove(route);
+    }
+
+    public void add(Menu menu){
+        this.menus.add(menu);
+    }
+
+    public void remove(Menu menu){
+        this.menus.remove(menu);
+    }
+
     @Nonnull
     @Override
     public Collection<? extends GrantedAuthority> getGrantedAuthorities() {
@@ -97,5 +114,21 @@ public class Role extends BaseEntity implements GrantedAuthority, GrantedAuthori
 
     public void setAuthorities(Set<Authority> authorities) {
         this.authorities = authorities;
+    }
+
+    public Set<Menu> getMenus() {
+        return menus;
+    }
+
+    public void setMenus(LinkedHashSet<Menu> menus) {
+        this.menus = menus;
+    }
+
+    public Set<Route> getRoutes() {
+        return routes;
+    }
+
+    public void setRoutes(LinkedHashSet<Route> routes) {
+        this.routes = routes;
     }
 }

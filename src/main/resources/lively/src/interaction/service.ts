@@ -7,20 +7,17 @@ import type {
     Token,
     Announcement,
     Query,
-    Page, Book, Chapter
+    Page, Book, Chapter, Authentication
 } from "@/declaration/entity";
-import {useDelete, useGet, usePut} from "@/hooks/network";
+import {useDelete, useGet, usePost, usePut} from "@/hooks/network";
 import {type Serializer} from "@/declaration/serialization";
-import {type Consumer as FConsumer} from "semantic-typescript";
+import {type Consumer as FConsumer, isObject, isString, type Optional} from "semantic-typescript";
 import {useSerialization} from "@/hooks/serialization";
-import Chat from "@/views/management/chat/Chat.vue";
-import {useOrigin} from "@/hooks/url.ts";
-
-
+import {useAuthenticationStore} from "@/stores/authentication.ts";
 
 export class BaseService<E extends BaseEntity>{
 
-    private readonly prefix: string = useOrigin();
+    private readonly prefix: string = "http://localhost:8080";
 
     private readonly module: string;
 
@@ -270,9 +267,9 @@ export class BaseService<E extends BaseEntity>{
         let url: string = `${this.prefix}/${this.module}/findAllPagedBy`;
         let serializer: Serializer<E> = useSerialization();
         let parameters: URLSearchParams = new URLSearchParams();
-        parameters.append("payload", encodeURIComponent(serializer.serialize(query.target)));
-        parameters.append("size", encodeURIComponent(query.size));
-        parameters.append("page", encodeURIComponent(query.page));
+        parameters.append("payload", serializer.serialize(query.target));
+        parameters.append("size", String(query.size));
+        parameters.append("page", String(Math.max(query.page - 1, 0)));
         return new Promise<Page<E>>((resolve: FConsumer<Page<E>>, reject: FConsumer<unknown>) => {
             try {
                 let serializer: Serializer<Page<E>> = useSerialization<Page<E>>();
@@ -354,10 +351,138 @@ export class RoleService extends BaseService<Role>{
     }
 }
 
+interface AuthenticationForm{
+    username: string;
+    password: string;
+    remember: boolean;
+}
 export class ConsumerService extends BaseService<Consumer>{
 
     public constructor() {
         super("consumer");
+    }
+
+    public async identity():Promise<Authentication> {
+        let serializer: Serializer<Authentication> = useSerialization();
+        return await new Promise<Authentication>((resolve, reject) => {
+            useGet("http://localhost:8080/authentication/identity")
+                .then((response: Response): void => {
+                    if(response.status === 200){
+                        response.text().then((text) => {
+                            let authentication: Authentication = serializer.deserialize(text);
+                            useAuthenticationStore().setAuthentication(authentication);
+                            resolve(authentication);
+                        });
+                    }else{
+                        reject(response);
+                    }
+                }, reject);
+        });
+    }
+
+    public async login(consumer: AuthenticationForm): Promise<void>;
+    public async login(username: string, password: string, remember?: boolean): Promise<void>;
+    public async login(parameter1: string | AuthenticationForm, parameter2?: string, parameter3?: boolean): Promise<void>{
+        if(isString(parameter1) && isString(parameter2)){
+            let username: string = parameter1;
+            let password: string = parameter2;
+            let remember: boolean = parameter3 === true;
+            return await new Promise<void>((resolve, reject) => {
+                let parameters: URLSearchParams = new URLSearchParams();
+                parameters.append("username", username);
+                parameters.append("password", password);
+                parameters.append("remember", String(remember));
+                usePost("http://localhost:8080/authentication/login", parameters)
+                    .then((response: Response): void => {
+                        if(response.status === 200){
+                            resolve();
+                        }else{
+                            reject(response);
+                        }
+                    }, reject);
+            });
+        }
+        if(isObject(parameter1) && isString(parameter1.username) && isString(parameter1.password)){
+            return await new Promise<void>((resolve, reject) => {
+                let parameters: URLSearchParams = new URLSearchParams();
+                parameters.append("username", parameter1.username);
+                parameters.append("password", parameter1.password);
+                parameters.append("remember", String(parameter1.remember === true));
+                usePost(`http://localhost:8080/authentication/login`, parameters)
+                    .then((response: Response): void => {
+                        if(response.status === 200){
+                            resolve();
+                        }else{
+                            reject(response);
+                        }
+                    }, reject);
+            });
+        }
+        return Promise.reject();
+    }
+
+    public async auto(): Promise<Authentication> {
+        let serializer: Serializer<Authentication> = useSerialization();
+        return new Promise<Authentication>((resolve, reject) => {
+            useGet(`http://localhost:8080/authentication/auto`)
+                .then((response: Response): Promise<string> => response.text())
+                .then((text: string): void => {
+                    if(isString(text) && text.length > 0){
+                        let authentication: Authentication = serializer.deserialize(text);
+                        useAuthenticationStore().setAuthentication(authentication);
+                        resolve(authentication);
+                    }else{
+                        reject(text);
+                    }
+                })
+                .catch(reject);
+        });
+    }
+
+    public async logout(): Promise<void> {
+        return await new Promise<void>((resolve, reject) => {
+            usePost(`http://localhost:8080/authentication/logout`).then((response) => {
+                if(response.status === 200){
+                    useAuthenticationStore().removeAuthentication();
+                    window.localStorage.removeItem("authentication");
+                    resolve();
+                }else{
+                    reject(response);
+                }
+            });
+        });
+    }
+
+    public async register(consumer: Pick<Consumer, "username" | "nickname" | "password" | "avatar"> & { invitation: string}): Promise<Authentication>{
+        let serializer: Serializer<Authentication> = useSerialization();
+        if(isString(consumer.username) && isString(consumer.nickname) && isString(consumer.password) && isString(consumer.avatar)){
+            let username: string = consumer.username;
+            let password: string = consumer.password;
+            let nickname: string = consumer.nickname;
+            let avatar: string = consumer.avatar;
+            let invitation: string = consumer.invitation;
+            return await new Promise<Authentication>((resolve, reject) => {
+                let parameters: URLSearchParams = new URLSearchParams();
+                parameters.append("username", username);
+                parameters.append("password", password);
+                parameters.append("nickname", nickname);
+                parameters.append("avatar", avatar);
+                parameters.append("invitation", invitation);
+                usePost("http://localhost:8080/authentication/login", parameters)
+                    .then((response: Response): void => {
+                        if(response.status === 200){
+                            response.text().then((text) => {
+                                let authentication: Authentication = serializer.deserialize(text);
+                                useAuthenticationStore().setAuthentication(authentication);
+                                resolve(authentication);
+                            });
+                        }else{
+                            reject(response);
+                        }
+                    }, reject);
+            });
+        }
+        return Promise.reject();
     }
 }
 

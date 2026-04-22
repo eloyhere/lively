@@ -207,7 +207,7 @@ public class BaseService <E extends BaseEntity, R extends BaseRepository<E>>{
         if(Objects.isNull(entity) || Objects.isNull(page) || Objects.isNull(size)){
             return Page.empty();
         }
-        PageRequest pageRequest = PageRequest.of(Math.max(page, 1), Math.max(size, 1));
+        PageRequest pageRequest = PageRequest.of(Math.max(page, 0), Math.max(size, 1));
         Example<E> example = Example.of(entity);
         return this.repository.findAll(example, pageRequest);
     }
@@ -218,11 +218,11 @@ public class BaseService <E extends BaseEntity, R extends BaseRepository<E>>{
             return Page.empty();
         }
         if(Objects.isNull(sort)){
-            PageRequest pageRequest = PageRequest.of(Math.max(page, 1), Math.max(size, 1));
+            PageRequest pageRequest = PageRequest.of(Math.max(page, 0), Math.max(size, 1));
             Example<E> example = Example.of(entity);
             return this.repository.findAll(example, pageRequest);
         }
-        PageRequest pageRequest = PageRequest.of(Math.max(page, 1), Math.max(size, 1), sort);
+        PageRequest pageRequest = PageRequest.of(Math.max(page, 0), Math.max(size, 1), sort);
         Example<E> example = Example.of(entity);
         return this.repository.findAll(example, pageRequest);
     }
@@ -233,11 +233,11 @@ public class BaseService <E extends BaseEntity, R extends BaseRepository<E>>{
             return Page.empty();
         }
         if(Objects.isNull(direction) || Objects.isNull(properties) || properties.isEmpty()){
-            PageRequest pageRequest = PageRequest.of(Math.max(page, 1), Math.max(size, 1));
+            PageRequest pageRequest = PageRequest.of(Math.max(page, 0), Math.max(size, 1));
             Example<E> example = Example.of(entity);
             return this.repository.findAll(example, pageRequest);
         }
-        PageRequest pageRequest = PageRequest.of(Math.max(page, 1), Math.max(size, 1), direction, properties.toArray(String[]::new));
+        PageRequest pageRequest = PageRequest.of(Math.max(page, 0), Math.max(size, 1), direction, properties.toArray(String[]::new));
         Example<E> example = Example.of(entity);
         return this.repository.findAll(example, pageRequest);
     }
@@ -247,7 +247,7 @@ public class BaseService <E extends BaseEntity, R extends BaseRepository<E>>{
         if(Objects.isNull(specification) || Objects.isNull(page) || Objects.isNull(size)){
             return Page.empty();
         }
-        PageRequest pageRequest = PageRequest.of(Math.max(page, 1), Math.max(size, 1));
+        PageRequest pageRequest = PageRequest.of(Math.max(page, 0), Math.max(size, 1));
         return this.repository.findAll(specification, pageRequest);
     }
 
@@ -257,10 +257,10 @@ public class BaseService <E extends BaseEntity, R extends BaseRepository<E>>{
             return Page.empty();
         }
         if(Objects.isNull(sort)){
-            PageRequest pageRequest = PageRequest.of(Math.max(page, 1), Math.max(size, 1));
+            PageRequest pageRequest = PageRequest.of(Math.max(page, 0), Math.max(size, 1));
             return this.repository.findAll(specification, pageRequest);
         }
-        PageRequest pageRequest = PageRequest.of(Math.max(page, 1), Math.max(size, 1), sort);
+        PageRequest pageRequest = PageRequest.of(Math.max(page, 0), Math.max(size, 1), sort);
         return this.repository.findAll(specification, pageRequest);
     }
 
@@ -270,10 +270,10 @@ public class BaseService <E extends BaseEntity, R extends BaseRepository<E>>{
             return Page.empty();
         }
         if(Objects.isNull(direction) || Objects.isNull(properties) || properties.isEmpty()){
-            PageRequest pageRequest = PageRequest.of(Math.max(page, 1), Math.max(size, 1));
+            PageRequest pageRequest = PageRequest.of(Math.max(page, 0), Math.max(size, 1));
             return this.repository.findAll(specification, pageRequest);
         }
-        PageRequest pageRequest = PageRequest.of(Math.max(page, 1), Math.max(size, 1), direction, properties.toArray(String[]::new));
+        PageRequest pageRequest = PageRequest.of(Math.max(page, 0), Math.max(size, 1), direction, properties.toArray(String[]::new));
         return this.repository.findAll(specification, pageRequest);
     }
 

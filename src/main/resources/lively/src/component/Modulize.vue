@@ -1,42 +1,54 @@
 <template>
-  <ElContainer style="width: calc(100vw - 180px); height: calc(100vh - 100px); user-select: none;">
+  <ElContainer v-loading="load" style="width: calc(100vw - 180px); height: calc(100vh - 100px); user-select: none;">
     <ElHeader style="height: 150px; width: calc(100vw - 180px); display: flex; flex-direction: column;">
       <slot name="header">
         <ElForm ref="queryForm" inline :model="query.target">
           <slot name="search" :search="query.target"></slot>
           <ElFormItem>
-            <ElTooltip effect="light" placement="bottom" content="搜索">
-              <ElButton icon="search" type="primary" @click="search()" circle plain/>
-            </ElTooltip>
-            <ElTooltip effect="light" placement="bottom" content="重置">
-              <ElButton icon="refresh" type="info" circle plain/>
-            </ElTooltip>
+            <ElSpace wrap>
+              <ElRadioGroup v-model="query.direction">
+                <ElRadioButton value="ASC" border>升序</ElRadioButton>
+                <ElRadioButton value="DESC" border>降序</ElRadioButton>
+              </ElRadioGroup>
+              <ElTooltip effect="light" placement="bottom" content="搜索">
+                <ElButton icon="search" type="primary" @click="search()" circle plain/>
+              </ElTooltip>
+              <ElTooltip effect="light" placement="bottom" content="重置">
+                <ElButton icon="refresh" type="info" @click="resetQueryForm()" circle plain/>
+              </ElTooltip>
+            </ElSpace>
           </ElFormItem>
         </ElForm>
         <ElSpace wrap>
           <ElTooltip effect="light" placement="bottom" content="新增">
             <ElButton icon="plus" type="primary" @click="insert.show = true" circle plain/>
           </ElTooltip>
+          <ElTooltip effect="light" v-if="multiple" placement="bottom" content="单选">
+            <ElButton icon="SemiSelect" v-if="multiple" type="info" @click="multiple = !multiple" circle plain/>
+          </ElTooltip>
+          <ElTooltip effect="light" v-if="!multiple" placement="bottom" content="多选">
+            <ElButton icon="Select" v-if="!multiple" type="info" @click="multiple = !multiple" circle plain/>
+          </ElTooltip>
           <ElTooltip effect="light" placement="bottom" content="删除">
-            <ElButton icon="delete" type="danger" circle plain/>
+            <ElButton icon="delete" type="danger" @click="multipleDelete()" circle plain/>
           </ElTooltip>
           <ElTooltip effect="light" placement="bottom" content="刷新">
-            <ElButton icon="refresh" @click="obtain()" type="info" circle plain/>
+            <ElButton icon="refresh" @click="search()" type="info" circle plain/>
           </ElTooltip>
         </ElSpace>
       </slot>
     </ElHeader>
     <ElContainer style="width: calc(100vw - 180px); height: calc(100vh - 300px);">
-      <ElMain style="width: calc(100vw - 180px); height: calc(100vh - 420px);">
+      <ElMain style="width: calc(100vw - 180px); height: calc(100vh - 400px);">
         <slot name="main">
           <ElScrollbar>
-            <ElTable v-loading="load" :data="data" style="width: calc(100vw - 180px); height: calc(100vh - 420px)">
+            <ElTable ref="table" :data="data" border style="width: calc(100vw - 180px); height: calc(100vh - 400px);" @selection-change="selectionChange">
+              <ElTableColumn type="selection" width="50" align="center" v-if="multiple"></ElTableColumn>
               <ElTableColumn label="id" prop="id"></ElTableColumn>
               <slot name="column">
               </slot>
-              <ElTableColumn label="权限" prop="authority"></ElTableColumn>
               <ElTableColumn label="锁定" prop="lock"></ElTableColumn>
-              <ElTableColumn label="禁用" prop="lock"></ElTableColumn>
+              <ElTableColumn label="禁用" prop="ban"></ElTableColumn>
               <ElTableColumn fixed="right" label="操作">
                 <template #default="scope">
                   <ElSpace wrap>
@@ -65,9 +77,12 @@
           </ElScrollbar>
         </slot>
       </ElMain>
-      <ElFooter style="width: calc(100vw - 180px); height: 120px;display: flex; flex-direction: column; justify-content: center; align-items: center">
+      <ElFooter style="width: calc(100vw - 180px); height: 100px;display: flex; flex-direction: column; justify-content: center; align-items: center">
         <slot name="footer">
-          <ElPagination background :page-size="query.size" :page-count="query.total" @change="(value: number) => query.page = value"/>
+          <ElPagination background :page-size="query.size" :total="query.total" @change="(value: number) => {
+            query.page = Math.max(0, value);
+            search();
+          }"/>
         </slot>
         <ElDialog title="新增" v-model="insert.show">
           <ElForm ref="insertForm" :model="insert.target">
@@ -97,7 +112,7 @@
 <script generic="E extends BaseEntity" setup lang="ts">
 
 import type {BaseEntity, Page, Query} from "@/declaration/entity.ts";
-import {onMounted, type Reactive, reactive, ref, type Ref} from "vue";
+import {type ModelRef, onMounted, type Reactive, reactive, ref, type Ref,} from "vue";
 import type {BaseService} from "@/interaction/service.ts";
 import type {Insert, Operator, Update} from "@/declaration/modulize.ts";
 import {type Consumer, type MaybeInvalid, type Predicate, type Runnable, validate} from "semantic-typescript";
@@ -108,42 +123,62 @@ interface Property<E extends BaseEntity>{
 }
 const property = defineProps<Property<E>>();
 
-const query: Reactive<Query<E>> = reactive<Query<E>>({
-  page: 0,
-  total: 0,
-  size: 10,
-  target: {}
+const query: ModelRef<Query<E>> = defineModel("query", {
+  required: true
 });
+
 const queryForm: Ref<MaybeInvalid<FormInstance>> = ref<MaybeInvalid<FormInstance>>();
 const search: Runnable = (): void => {
-  property.service.findAllPagedBy(query as unknown as Query<E>).then((page: Page<E>): void => {
-    query.total = page.page.totalPages;
-    query.page = page.page.number;
-    query.size = Math.max(page.page.size, 10)
-    console.log(page, query)
-  }, ()=> {
-    ElMessage({
-      message: "操作失败",
-      type: "warning"
+  load.value = true;
+  if(validate(queryForm.value)){
+    queryForm.value.validate().then((value) => {
+      if(value){
+        property.service.findAllPagedBy(query.value as unknown as Query<E>).then((page: Page<E>): void => {
+          query.value.total = page.page.totalElements;
+          query.value.page = page.page.number;
+          query.value.size = Math.max(page.page.size, 10);
+          data.value.length = 0;
+          emit("search", query.value.target);
+          page.content.forEach((entity) => data.value.push(entity as unknown as any));
+          load.value = false;
+        }, ()=> {
+          load.value = false;
+          ElMessage({
+            message: "操作失败",
+            type: "warning"
+          });
+        });
+      }else{
+        load.value = false;
+      }
     });
-  });
+  }
+};
+const resetQueryForm: Runnable = (): void => {
+  query.value.total = 0;
+  query.value.page = 0;
+  query.value.size = 10;
+  if(validate(queryForm.value)){
+    queryForm.value.resetFields();
+  }
 };
 
-const insert: Reactive<Insert<E>> = reactive<Insert<E>>({
-  show: false,
-  target: {}
-});
+const insert: ModelRef<Insert<E>> = defineModel("insert", {
+  required: true
+})
 const insertForm: Ref<MaybeInvalid<FormInstance>> = ref<MaybeInvalid<FormInstance>>();
 const insertOperator: Operator<E> = {
   ready: (): void => {
-    insert.show = true;
+    insert.value.show = true;
   },
   dismiss: (): void => {
-    insert.show = false;
+    insert.value.show = false;
   },
   reset: (): void => {
+
     if(validate(insertForm.value)){
       insertForm.value.resetFields();
+      console.log("click")
     }
   },
   validate: async (): Promise<void> => {
@@ -165,9 +200,9 @@ const insertOperator: Operator<E> = {
   perform: async (): Promise<void> => {
     return await new Promise<void>((resolve, reject): void => {
       insertOperator.validate().then((): void => {
-        property.service.insert(insert.target as unknown as E).then((): void => {
-          emit("insert", update.target as unknown as E);
-          obtain();
+        property.service.insert(insert.value.target as unknown as E).then((): void => {
+          emit("insert", update.value.target as unknown as E);
+          search();
           ElMessage({
             message: "操作成功",
             type: "success"
@@ -189,17 +224,16 @@ const insertOperator: Operator<E> = {
   }
 };
 
-const update: Reactive<Update<E>> = reactive<Update<E>>({
-  show: false,
-  target: {}
+const update: ModelRef<Update<E>> = defineModel("update", {
+  required: true
 });
 const updateForm: Ref<MaybeInvalid<FormInstance>> = ref<MaybeInvalid<FormInstance>>();
 const updateOperator: Operator<E> = {
   ready: (): void => {
-    update.show = true;
+    update.value.show = true;
   },
   dismiss: (): void => {
-    update.show = false;
+    update.value.show = false;
   },
   reset: async (): Promise<void> => {
     if(validate(updateForm.value)){
@@ -225,9 +259,9 @@ const updateOperator: Operator<E> = {
   perform: async (): Promise<void> => {
     return await new Promise<void>((resolve, reject): void => {
       updateOperator.validate().then((): void => {
-        property.service.update(update.target as unknown as E).then((): void => {
-          emit("update", update.target as unknown as E);
-          obtain();
+        property.service.update(update.value.target as unknown as E).then((): void => {
+          emit("update", update.value.target as unknown as E);
+          search();
           ElMessage({
             message: "操作成功",
             type: "success"
@@ -367,11 +401,40 @@ const disableOrEnable: Consumer<E | Partial<E>> = (entity: E | Partial<E>): void
   }
 };
 
-const data: Reactive<Array<E>> = reactive<Array<E>>([
-  {} as unknown as E
-]);
+const load: Ref<boolean> = ref<boolean>(true);
+const data: ModelRef<Array<E>> = defineModel("data", {
+  required: true
+})
+const multiple: Ref<boolean> = ref<boolean>(false);
+const selection: Reactive<Array<E>> = reactive<Array<E>>([]);
+const selectionChange: Consumer<Array<E>> = (value: Array<E>): void => {
+  selection.length = 0;
+  selection.push(...value as unknown as any);
+};
+const multipleDelete: Runnable = (): void => {
+  if(selection.length > 0){
+    ElMessageBox.confirm("确定要删除选定的多条数据吗？", "提示", {
+      type: "warning",
+      confirmButtonText: "确定",
+      cancelButtonLoadingIcon: "取消"
+    }).then((): void => {
+      property.service.deleteAllByIdentifiers((selection as Array<E>).map((entity: E) => entity.id)).then((): void => {
+        search();
+        ElMessage({
+          message: "操作成功",
+          type: "success"
+        });
+      }, (): void => {
+        ElMessage({
+          message: "操作失败",
+          type: "error"
+        });
+      });
+    });
+  }
+};
 
-interface Emit{
+interface Emit<E extends BaseEntity>{
   (event: "search", value: E | Partial<E>): void;
   (event: "load", value: Page<E>): void;
   (event: "clear"): void;
@@ -380,7 +443,7 @@ interface Emit{
   (event: "delete", value: E | Partial<E>): void;
   (event: "validate", value: boolean): void;
 }
-const emit = defineEmits<Emit>();
+const emit = defineEmits<Emit<E>>();
 
 const deleteBy: Consumer<E> = (entity: E) : void => {
   ElMessageBox.confirm(`确定要删除id为${entity.id}的项目吗？`, "提示", {
@@ -389,13 +452,13 @@ const deleteBy: Consumer<E> = (entity: E) : void => {
     type: "warning"
   }).then((): void => {
     property.service.deleteByIdentifier(entity.id).then((): void => {
-      obtain();
+      search();
       ElMessage({
         message: "操作成功",
         type: "success"
       });
     }, (): void => {
-      obtain();
+      search();
       ElMessage({
         message: "操作失败",
         type: "success"
@@ -408,27 +471,13 @@ const deleteBy: Consumer<E> = (entity: E) : void => {
     });
   })
 };
-const load: Ref<boolean> = ref<boolean>(true);
-const obtain: Runnable = (): void => {
-  load.value = true;
-  property.service.findAllPagedBy(query as unknown as Query<E>).then((page): void => {
-    data.length = 0;
-    data.push(...page.content as unknown as any);
-    emit("load", page);
-    load.value = false;
-  }, (): void => {
-    ElMessage({
-      type: "warning",
-      message: "加载失败"
-    });
-  });
+
+
+onMounted((): void => {
+  search();
   setTimeout((): void => {
     load.value = false;
   }, 3000)
-}
-
-onMounted((): void => {
-  obtain();
 });
 </script>
 

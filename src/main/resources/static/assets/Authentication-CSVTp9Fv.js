@@ -1,1 +1,0 @@
-import{B as e,I as t,d as n}from"./runtime-core.esm-bundler-DIN9oH-m.js";import{t as r}from"./_plugin-vue_export-helper-CXTkFu_Z.js";var i={};function a(r,i){let a=e(`RouterView`);return t(),n(a)}var o=r(i,[[`render`,a]]);export{o as default};

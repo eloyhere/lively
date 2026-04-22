@@ -69,8 +69,10 @@ lively/
 │   │   │   │   ├── AuthorityController.java
 │   │   │   │   ├── ConsumerController.java
 │   │   │   │   ├── InvitationController.java
-│   │   │   │   ├── RoleController.java
-│   │   │   │   └── TokenController.java
+│   │   │   │   ├── MenuControllerController.java
+│   │   │   │   ├── RoleControllerController.java
+│   │   │   │   ├── RouteControllerController.java
+│   │   │   │   └── TokenControllerController.java
 │   │   │   ├── AnnouncementController.java  # System announcement publishing
 │   │   │   ├── AuthenticationController.java # Authentication flow orchestration
 │   │   │   ├── BaseController.java          # Common controller utilities
@@ -79,8 +81,19 @@ lively/
 │   │   │   └── StringBlobConverter.java     # String to BLOB conversion utilities
 │   │   ├── entity/                          # JPA entity definitions
 │   │   │   ├── book/                        # TCM literature domain entities
+│   │   │   │   ├── Book.java
+│   │   │   │   └── Chapter.java
 │   │   │   ├── chat/                        # Conversation and AI interaction entities
+│   │   │   │   ├── Chat.java
+│   │   │   │   └── Message.java
 │   │   │   ├── consumer/                    # User and permission domain entities
+│   │   │   │   ├── Authority.java
+│   │   │   │   ├── Consumer.java
+│   │   │   │   ├── Invitation.java
+│   │   │   │   ├── Menu.java
+│   │   │   │   ├── Role.java
+│   │   │   │   ├── Route.java
+│   │   │   │   └── Token.java
 │   │   │   ├── Announcement.java            # System announcement persistence model
 │   │   │   └── BaseEntity.java              # Common entity properties and behaviour
 │   │   ├── projection/                      # Spring Data projections
@@ -96,7 +109,9 @@ lively/
 │   │   │   │   ├── AuthorityRepository.java
 │   │   │   │   ├── ConsumerRepository.java
 │   │   │   │   ├── InvitationRepository.java
+│   │   │   │   ├── MenuRepository.java
 │   │   │   │   ├── RoleRepository.java
+│   │   │   │   ├── RouteRepository.java
 │   │   │   │   └── TokenRepository.java
 │   │   │   ├── AnnouncementRepository.java
 │   │   │   └── BaseRepository.java          # Common repository operations
@@ -116,7 +131,9 @@ lively/
 │   │   │   │   ├── AuthorityService.java
 │   │   │   │   ├── ConsumerService.java
 │   │   │   │   ├── InvitationService.java
+│   │   │   │   ├── MenuService.java
 │   │   │   │   ├── RoleService.java
+│   │   │   │   ├── RouteService.java
 │   │   │   │   └── TokenService.java
 │   │   │   ├── AnnouncementService.java
 │   │   │   └── BaseService.java             # Common service operations

@@ -12,14 +12,8 @@ interface UseGet{
 export const useGet: UseGet = (url: string, parameters?: FormData | URLSearchParams, headers?: Headers): Promise<Response> => {
     return new Promise<Response>((resolve: Consumer<Response>, reject: Consumer<unknown>) => {
         try{
-            let link: URL = new URL(url);
             if(validate(parameters)){
-                for (const [k, v] of parameters){
-                    if(isPrimitive(v)){
-                        link.searchParams.append(k, v);
-                    }
-                }
-                window.fetch(link, {
+                window.fetch(`${url}?${parameters.toString()}`, {
                     method: "GET",
                     credentials: "include",
                     headers: headers || new Headers()
@@ -31,7 +25,7 @@ export const useGet: UseGet = (url: string, parameters?: FormData | URLSearchPar
                     }
                 }, reject);
             } else{
-                window.fetch(link, {
+                window.fetch(url, {
                     method: "GET",
                     credentials: "include",
                     headers: headers || new Headers()
@@ -63,11 +57,10 @@ interface UsePost{
 }
 export const usePost: UsePost = (url: string, parameters?: FormData | URLSearchParams | object, headers?: Headers): Promise<Response> => {
     return new Promise<Response>((resolve, reject): void => {
-        let link: URL = new URL(url);
         if(validate(parameters)){
             if(parameters instanceof FormData){
                 try{
-                    window.fetch(link, {
+                    window.fetch(url, {
                         method: "POST",
                         body: parameters,
                         credentials: "include",
@@ -84,7 +77,7 @@ export const usePost: UsePost = (url: string, parameters?: FormData | URLSearchP
                 }
             }else if(parameters instanceof URLSearchParams){
                 try {
-                    window.fetch(link, {
+                    window.fetch(url, {
                         method: "POST",
                         body: parameters,
                         credentials: "include",
@@ -110,7 +103,7 @@ export const usePost: UsePost = (url: string, parameters?: FormData | URLSearchP
                             form.append(key, String(value));
                         }
                     }
-                    window.fetch(link, {
+                    window.fetch(url, {
                         method: "POST",
                         body: form,
                         credentials: "include",
@@ -130,7 +123,7 @@ export const usePost: UsePost = (url: string, parameters?: FormData | URLSearchP
             }
         }else{
             try{
-                window.fetch(link, {
+                window.fetch(url, {
                     method: "POST",
                     credentials: "include",
                     headers: headers || new Headers()
@@ -161,14 +154,8 @@ interface UsePut{
 export const usePut: UsePut = (url: string, parameters?: FormData | URLSearchParams, headers?: Headers): Promise<Response> => {
     return new Promise<Response>((resolve, reject): void => {
         try {
-            let link: URL = new URL(url);
             if(validate(parameters)){
-                for (const [k, v] of parameters){
-                    if(isPrimitive(v)){
-                        link.searchParams.append(k, v);
-                    }
-                }
-                window.fetch(link, {
+                window.fetch(`${url}?${parameters.toString()}`, {
                     method: "PUT",
                     credentials: "include",
                     headers: headers || new Headers()
@@ -180,7 +167,7 @@ export const usePut: UsePut = (url: string, parameters?: FormData | URLSearchPar
                     }
                 }, reject);
             } else {
-                window.fetch(link, {
+                window.fetch(url, {
                     method: "PUT",
                     credentials: "include",
                     headers: headers || new Headers()
@@ -210,14 +197,8 @@ interface UseDelete{
 export const useDelete: UseDelete = (url: string, parameters?: FormData | URLSearchParams, headers?: Headers): Promise<Response> => {
     return new Promise<Response>((resolve: Consumer<Response>, reject: Consumer<unknown>) => {
         try {
-            let link: URL = new URL(url);
             if(validate(parameters)){
-                for (const [k, v] of parameters){
-                    if(isPrimitive(v)){
-                        link.searchParams.append(k, v);
-                    }
-                }
-                window.fetch(link, {
+                window.fetch(`${url}?${parameters.toString()}`, {
                     method: "DELETE",
                     credentials: "include",
                     headers: headers || new Headers()
@@ -229,7 +210,7 @@ export const useDelete: UseDelete = (url: string, parameters?: FormData | URLSea
                     }
                 }, reject);
             } else{
-                window.fetch(link, {
+                window.fetch(url, {
                     method: "DELETE",
                     credentials: "include",
                     headers: headers || new Headers()

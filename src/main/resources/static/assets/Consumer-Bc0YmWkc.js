@@ -1,1 +1,0 @@
-import{L as e,d as t,et as n,v as r,vt as i}from"./runtime-core.esm-bundler-D5teNyIc.js";import{i as a}from"./service-QjfkGW1_.js";import{t as o}from"./Modulize-BEDHCrJz.js";var s=r({__name:`Consumer`,setup(r){let s=new a;return(r,a)=>(e(),t(o,{service:i(s)},{search:n(()=>[...a[0]||=[]]),column:n(()=>[...a[1]||=[]]),_:1},8,[`service`]))}});export{s as default};

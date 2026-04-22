@@ -39,7 +39,7 @@
 
 import {useAuthenticationStore} from "@/stores/authentication.ts";
 import {computed, type ComputedRef} from "vue";
-import type {Authentication, Consumer, Role} from "@/declaration/entity";
+import type { Consumer } from "@/declaration/entity";
 import Toolbar from "@/component/Toolbar.vue";
 
 const profile: ComputedRef<Consumer> = computed<Consumer>((): Consumer => {

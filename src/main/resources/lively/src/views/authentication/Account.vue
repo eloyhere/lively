@@ -260,6 +260,7 @@ import {type Router, useRouter} from "vue-router";
 import {type MaybeInvalid, type Runnable, validate,} from "semantic-typescript";
 import {Optional} from "semantic-typescript";
 import {useDataUrl, useOrigin} from "@/hooks/url";
+import {ConsumerService} from "@/interaction/service.ts";
 
 const router: Router = useRouter();
 const load = ElLoading.service({
@@ -267,6 +268,7 @@ const load = ElLoading.service({
   text: "加载中...",
   background: "rgba(0, 0, 0, 0.7)",
 });
+const consumerService: ConsumerService = new ConsumerService();
 
 type Title = "UsernameAndPasswordLogin" | "CheckCodeLogin" | "QRLogin" | "register";
 const title: Ref<Title> = ref("UsernameAndPasswordLogin");
@@ -276,10 +278,10 @@ const closeEyes: Ref<string> = ref("");
 
 const src: Ref<string> = ref("");
 
-const toSmile: () => void = (): void => {
+const toSmile: Runnable = (): void => {
   src.value = smile.value;
 };
-const toCloseEyes: () => void = (): void => {
+const toCloseEyes: Runnable = (): void => {
   src.value = closeEyes.value;
 };
 
@@ -299,11 +301,9 @@ const performUsernamePasswordLogin: () => void = async (): Promise<void> => {
   if(validate(usernamePasswordLoginForm.value)){
     await usernamePasswordLoginForm.value.validate((valid: boolean) => {
       if(valid){
-        useAuthenticationStore().usernameAndPasswordLogin(
-            usernamePasswordLoginFormData.username,
-            usernamePasswordLoginFormData.password,
-            usernamePasswordLoginFormData.remember
-        ).then(() => {
+        consumerService.login(usernamePasswordLoginFormData.username,
+        usernamePasswordLoginFormData.password,
+        usernamePasswordLoginFormData.remember).then(() => {
           ElMessage({
             message: "登录成功",
             type: "success"
@@ -315,6 +315,15 @@ const performUsernamePasswordLogin: () => void = async (): Promise<void> => {
           ElMessage({
             message: "登录失败",
             type: "info"
+          });
+        }).then((): void => {
+          consumerService.identity().then((authentication: Authentication): void => {
+            useAuthenticationStore().setAuthentication(authentication);
+          }).catch((): void => {
+            ElMessage({
+              message: "获取用户信息失败",
+              type: "info"
+            });
           });
         });
       }else{
@@ -351,28 +360,7 @@ const performCheckCodeLogin: () => void = async (): Promise<void> => {
         parameters.append("username", checkCodeLoginFormData.username);
         parameters.append("code", checkCodeLoginFormData.code);
         parameters.append("remember", String(checkCodeLoginFormData.remember));
-        usePost(`${useOrigin()}/authentication/code`, parameters)
-            .then((response: Response): void => {
-              if(response.status === 200){
-                response.text().then((text) => {
-                  let resolver = useSerialization<Authentication>();
-                  useAuthenticationStore().setAuthentication(resolver.deserialize(text));
-                });
-                ElMessage({
-                  message: "登录成功",
-                  type: "success"
-                });
-                router.push({
-                  path: "/",
-                  replace: true
-                });
-              }else{
-                ElMessage({
-                  message: "登录失败",
-                  type: "info"
-                });
-              }
-            });
+
       }else{
         ElMessage({
           message: "请完善信息",
@@ -424,34 +412,21 @@ const performRegister: () => void = async (): Promise<void> => {
   if(validate(registerForm.value)){
     await registerForm.value.validate((valid: boolean) => {
       if(valid){
-        let parameters: URLSearchParams = new URLSearchParams();
-        parameters.append("username", registerFormData.username);
-        parameters.append("password", registerFormData.password);
-        parameters.append("nickname", registerFormData.nickname);
-        parameters.append("invitation", registerFormData.invitation);
-        parameters.append("avatar", registerFormData.avatar);
-        usePost(`${useOrigin()}/authentication/register`, parameters)
-            .then((response: Response): void => {
-              if(response.status === 200){
-                response.text().then((text) => {
-                  let resolver = useSerialization<Authentication>();
-                  useAuthenticationStore().setAuthentication(resolver.deserialize(text));
-                });
-                ElMessage({
-                  message: "注册成功",
-                  type: "success"
-                });
-                router.push({
-                  path: "/",
-                  replace: true
-                });
-              }else{
-                ElMessage({
-                  message: "注册失败",
-                  type: "info"
-                });
-              }
-            });
+        consumerService.register(registerFormData).then((): void => {
+          ElMessage({
+            message: "注册成功",
+            type: "success"
+          });
+          router.push({
+            path: "/",
+            replace: true
+          });
+        }, (): void => {
+          ElMessage({
+            message: "注册失败",
+            type: "info"
+          });
+        });
       }else{
         ElMessage({
           message: "请完善信息",
@@ -460,21 +435,21 @@ const performRegister: () => void = async (): Promise<void> => {
       }
     });
   }
-};
+}
 const resetRegisterForm: Runnable = () => {
   if(validate(registerForm.value)){
     registerForm.value.resetFields();
   }
 };
 onMounted(() => {
-  fetchPicture(`${useOrigin()}/smile.png`).then((value) => {
+  fetchPicture("http://localhost:8080/smile.png").then((value) => {
     smile.value = value;
     src.value = value;
+    load.close();
   });
-  fetchPicture(`${useOrigin()}/Close Eyes.png`).then((value) => {
+  fetchPicture("http://localhost:8080/Close Eyes.png").then((value) => {
     closeEyes.value = value;
   });
-  load.close();
 });
 </script>
 
@@ -499,7 +474,7 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
 
-  background: url(/background.jpeg) no-repeat fixed;
+  background: url(http://localhost:8080/background.jpeg) no-repeat fixed;
   background-size: 100% 100%;
 }
 

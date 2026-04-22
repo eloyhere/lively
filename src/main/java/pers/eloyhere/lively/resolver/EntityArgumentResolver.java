@@ -10,7 +10,12 @@ import org.springframework.web.method.support.*;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.nio.CharBuffer;
+import java.nio.charset.StandardCharsets;
 import java.time.*;
 
 import java.util.*;
@@ -40,32 +45,55 @@ public class EntityArgumentResolver implements HandlerMethodArgumentResolver {
         return clazz.isAnnotationPresent(Entity.class);
     }
 
-    @Override
-    public Object resolveArgument(@NonNull MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-        HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
-        if(Objects.nonNull(request) && Objects.nonNull(request.getParameter("payload"))){
-            String payload = request.getParameter("payload").replace("\\", "");
-            if(payload.startsWith("\"")){
-                payload = payload.substring(1);
-            }
-            if(payload.endsWith("\"")){
-                payload = payload.substring(0, payload.length() - 1);
-            }
-            ObjectMapper mapper = new ObjectMapper();
-            ObjectReader reader = mapper.readerFor(HashMap.class);
-            Map<String, Object> properties = reader.readValue(payload);
-            Class<?> clazz = parameter.getParameterType();
-            Object object = clazz.getDeclaredConstructor().newInstance();
-            Field[] fields = clazz.getDeclaredFields();
-            for (Field field : fields) {
-                field.setAccessible(true);
-                Object value = properties.get(field.getName());
-                if(Objects.nonNull(value)){
-                    field.set(object, value);
-                }
-            }
-            return object;
+    protected String resolveJSON(String value){
+        if(Objects.isNull(value)){
+            return null;
         }
+        if(value.startsWith("\"")){
+            value = value.substring(1);
+            if(value.endsWith("\"")){
+                value = value.substring(0, value.length() - 1);
+            }
+        }
+        return value.replace("\\\"", "").trim();
+    }
+
+    private boolean availableFromPayload(HttpServletRequest request){
+        return Objects.nonNull(request.getParameter("payload"));
+    }
+
+    private boolean availableFromJSON(HttpServletRequest request){
+        String content = request.getContentType();
+        return Objects.nonNull(content) && (content.toLowerCase(Locale.ROOT).contains("application/json") || content.contains("application/json;charset=utf-8"));
+    }
+
+    protected Object resolveFromJSON(@NonNull MethodParameter parameter, HttpServletRequest request) throws Exception {
+        InputStream inputStream = request.getInputStream();
+        InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+        CharBuffer buffer = CharBuffer.allocate(inputStream.available());
+        inputStreamReader.read(buffer);
+        String value = resolveJSON(buffer.toString());
+        if(value.contentEquals("{}") || value.isEmpty()){
+            Class<?> clazz = parameter.getParameterType();
+            return clazz.getDeclaredConstructor().newInstance();
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectReader reader = mapper.readerFor(parameter.getParameterType());
+        return reader.readValue(value);
+    }
+
+    protected Object resolveFromPayload(@NonNull MethodParameter parameter, HttpServletRequest request) throws Exception {
+        String payload = resolveJSON(request.getParameter("payload"));
+        if(payload.contentEquals("{}") || payload.isEmpty()){
+            Class<?> clazz = parameter.getParameterType();
+            return clazz.getDeclaredConstructor().newInstance();
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectReader reader = mapper.readerFor(parameter.getParameterType());
+        return reader.readValue(payload);
+    }
+
+    protected Object resolveFromParameters(@NonNull MethodParameter parameter, HttpServletRequest request) throws Exception {
         Class<?> clazz = parameter.getParameterType();
         Object object = clazz.getDeclaredConstructor().newInstance();
         Field[] fields = clazz.getDeclaredFields();
@@ -78,5 +106,21 @@ public class EntityArgumentResolver implements HandlerMethodArgumentResolver {
             }
         }
         return object;
+    }
+
+    @Override
+    public Object resolveArgument(@NonNull MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+        HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
+        if(Objects.nonNull(request)){
+            if(availableFromPayload(request)){
+                return resolveFromPayload(parameter, request);
+            }
+            if(availableFromJSON(request)){
+                return resolveFromJSON(parameter, request);
+            }
+            return resolveFromParameters(parameter, request);
+        }
+        Constructor<?> constructor = parameter.getParameterType().getDeclaredConstructor();
+        return constructor.newInstance();
     }
 }

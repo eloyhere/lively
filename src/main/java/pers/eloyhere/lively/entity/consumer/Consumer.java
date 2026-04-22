@@ -1,6 +1,9 @@
 package pers.eloyhere.lively.entity.consumer;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
@@ -51,19 +54,18 @@ public class Consumer extends BaseEntity implements UserDetails {
             joinColumns = @JoinColumn(name = "consumer_id"),
             inverseJoinColumns = @JoinColumn(name = "block_id")
     )
-    @JsonIgnore
-    private Set<Consumer> block = new LinkedHashSet<>();
+    private Set<Consumer> blocks = new LinkedHashSet<>();
 
     public Consumer() {
 
     }
 
     public void block(Consumer consumer){
-        this.block.add(consumer);
+        this.blocks.add(consumer);
     }
 
     public void unblock(Consumer consumer){
-        this.block.remove(consumer);
+        this.blocks.remove(consumer);
     }
 
     public void add(Token token){
@@ -106,6 +108,7 @@ public class Consumer extends BaseEntity implements UserDetails {
 
     @Nonnull
     @Override
+    @JsonGetter("authorities")
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if(Objects.isNull(this.roles)){
             return List.of();
@@ -165,5 +168,13 @@ public class Consumer extends BaseEntity implements UserDetails {
 
     public void setTokens(Set<Token> tokens) {
         this.tokens = tokens;
+    }
+
+    public Set<Consumer> getBlocks() {
+        return blocks;
+    }
+
+    public void setBlocks(Set<Consumer> blocks) {
+        this.blocks = blocks;
     }
 }

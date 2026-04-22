@@ -1,7 +1,7 @@
 <template>
   <div style="width: calc(100vw - 180px); height: calc(100vh - 100px); user-select: none;">
     <ElScrollbar>
-      <ElStatistics title="用户数量" ></ElStatistics>
+      <ElStatistic title="用户数量" ></ElStatistic>
       <ElSpace wrap>
         <ElCard>
           <div ref="maxMemory" style="width: 500px; height: 300px"></div>

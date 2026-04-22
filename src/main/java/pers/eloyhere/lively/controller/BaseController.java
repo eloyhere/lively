@@ -100,13 +100,12 @@ public class BaseController<E extends BaseEntity, R extends BaseRepository<E>, S
     }
 
     @GetMapping("findAllPagedBy")
-    public ResponseEntity<Page<E>> findAllPagedBy(@Nonnull @ModelAttribute final E entity, @Nonnull @RequestParam final Integer page, @Nonnull @RequestParam Integer size, Sort.Direction direction, Collection<String> properties){
+    public ResponseEntity<Page<E>> findAllPagedBy(@Nonnull final E entity, @Nonnull @RequestParam final Integer page, @Nonnull @RequestParam Integer size, Sort.Direction direction, Collection<String> properties){
+        System.out.println("================="+entity);
         if(Objects.isNull(direction) || Objects.isNull(properties)){
-            System.out.println("11111111111111111111");
-            return ResponseEntity.ok(this.service.findAllPagedBy(entity, page, size, direction, properties));
+            return ResponseEntity.ok(this.service.findAllPagedBy(entity, page, size));
         }
-        System.out.println("222222222222222222");
-        return ResponseEntity.ok(this.service.findAllPagedBy(entity, page, size));
+        return ResponseEntity.ok(this.service.findAllPagedBy(entity, page, size, direction, properties));
     }
 
     @Administrator

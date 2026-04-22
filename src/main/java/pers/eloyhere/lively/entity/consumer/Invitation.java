@@ -1,5 +1,6 @@
 package pers.eloyhere.lively.entity.consumer;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

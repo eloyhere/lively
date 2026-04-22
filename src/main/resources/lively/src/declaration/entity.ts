@@ -33,10 +33,12 @@ export interface Page<E extends BaseEntity> {
     page: Pager;
 }
 
+export type Direction = "ASC" | "DESC";
 export interface Query<E extends BaseEntity> {
     page: number;
     size: number;
     total: number;
+    direction: Direction;
     target: E | Partial<E>;
 }
 

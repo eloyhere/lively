@@ -15,11 +15,11 @@ import Toolbar from "@/component/Toolbar.vue";
 import type {Link} from "@/declaration/component.ts";
 
 const links: Array<Link> = reactive<Array<Link>>([
-  { text: '首页', icon: 'house', href: '/' },
-  { text: '中医药知识', icon: 'cherry', href: '/knowledge' },
-  { text: '方剂查询', icon: 'document', href: '/prescription' },
-  { text: '在线咨询', icon: 'chat-dot-round', href: '/consultation' },
-  { text: '关于我们', icon: 'info-filled', href: '/about' }
+  { text: "首页", icon: "house", href: "/" },
+  { text: "中医药知识", icon: "cherry", href: "/knowledge" },
+  { text: "方剂查询", icon: "document", href: "/prescription" },
+  { text: "在线咨询", icon: "chat-dot-round", href: "/consultation" },
+  { text: "关于我们", icon: "info-filled", href: "/about" }
 ]);
 onMounted((): void => {
 })

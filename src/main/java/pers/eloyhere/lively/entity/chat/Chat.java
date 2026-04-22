@@ -20,7 +20,7 @@ public class Chat extends BaseEntity {
     @Column(name = "description", length = 500)
     private String description;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.REFRESH})
     @JoinTable(
             name = "chat_admins",
             joinColumns = @JoinColumn(name = "chat_id"),
@@ -32,7 +32,7 @@ public class Chat extends BaseEntity {
     @OrderBy("spawn ASC")
     private Set<Message> messages = new LinkedHashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.REFRESH})
     @JoinTable(
             name = "chat_members",
             joinColumns = @JoinColumn(name = "chat_id"),

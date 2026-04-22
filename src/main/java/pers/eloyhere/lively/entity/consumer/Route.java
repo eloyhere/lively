@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import pers.eloyhere.lively.entity.BaseEntity;
 
 import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "route")
@@ -20,12 +21,12 @@ public class Route extends BaseEntity {
     private String full;
 
     @JsonIgnore
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "parent_id")
     private Route parent;
 
-    @OneToMany(mappedBy = "parent")
-    private LinkedHashSet<Role> children = new LinkedHashSet<>();
+    @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.REMOVE})
+    private Set<Route> children = new LinkedHashSet<>();
 
     public Route() {
     }

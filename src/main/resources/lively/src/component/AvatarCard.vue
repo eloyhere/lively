@@ -41,13 +41,12 @@ import {computed, type ComputedRef, onMounted, reactive} from "vue";
 import {type Consumer, type MaybeInvalid, validate} from "semantic-typescript";
 import type {Announcement, Authentication} from "@/declaration/entity.ts";
 import {useAuthenticationStore} from "@/stores/authentication.ts";
-import {useGet, usePost} from "@/hooks/network.ts";
 import {ElMessage, ElMessageBox, ElNotification} from "element-plus";
-import {AnnouncementService} from "@/interaction/service.ts";
-import {useOrigin} from "@/hooks/url.ts";
+import {AnnouncementService, ConsumerService} from "@/interaction/service.ts";
 
 const router:Router = useRouter();
 
+const consumerService: ConsumerService = new ConsumerService();
 const authentication: ComputedRef<MaybeInvalid<Authentication>> = computed<MaybeInvalid<Authentication>>((): MaybeInvalid<Authentication> => {
   return useAuthenticationStore().authentication;
 });
@@ -84,18 +83,19 @@ const handle: Consumer<string> = (command: string): void => {
         confirmButtonText: "确定",
         cancelButtonText: "取消"
       }).then((): void => {
-        usePost(`${useOrigin()}/authentication/logout`).then((response) => {
-          if(response.status === 200){
-            window.document.cookie = "";
-            router.replace({
-              path: "/"
-            });
-            ElMessage({
-              message: "注销成功。",
-              type: "success"
-            });
-            useAuthenticationStore().removeAuthentication();
-          }
+        consumerService.logout().then((): void =>{
+          router.push({
+            path: "/"
+          });
+          ElMessage({
+            message: "操作成功，正在返回首页",
+            type: "success"
+          });
+        }, (): void => {
+          ElMessage({
+            message: "操作失败",
+            type: "warning"
+          });
         });
       });
       break;

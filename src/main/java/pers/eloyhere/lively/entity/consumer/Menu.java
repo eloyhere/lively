@@ -2,6 +2,7 @@ package pers.eloyhere.lively.entity.consumer;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
 import pers.eloyhere.lively.entity.BaseEntity;
 
 import java.util.LinkedHashSet;
@@ -17,11 +18,11 @@ public class Menu extends BaseEntity {
     private String path;
 
     @JsonIgnore
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "parent_id")
     private Menu parent;
 
-    @OneToMany(mappedBy = "parent")
+    @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.REMOVE})
     private LinkedHashSet<Menu> children = new LinkedHashSet<>();
 
     public Menu() {

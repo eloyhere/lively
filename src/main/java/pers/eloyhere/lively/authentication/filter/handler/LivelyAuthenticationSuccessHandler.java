@@ -18,6 +18,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectWriter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 public class LivelyAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
@@ -36,19 +37,9 @@ public class LivelyAuthenticationSuccessHandler implements AuthenticationSuccess
         context.setAuthentication(authentication);
         strategy.setContext(context);
         SecurityContextHolder.setContext(context);
-
         response.setContentType("application/json;charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpStatus.OK.value());
-        response.addHeader("Access-Control-Allow-Origin", "http://localhost:5173");
-        response.addHeader("Access-Control-Allow-Origin", "http://localhost:8080");
-        response.addHeader("Access-Control-Allow-Origin", "http://localhost:80");
-        response.addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        response.addHeader("Access-Control-Allow-Headers", "*");
-        response.addHeader("Access-Control-Allow-Credentials", "true");
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectWriter writer = mapper.writerFor(Authentication.class);
-        response.getWriter().write(writer.writeValueAsString(authentication));
 
         repository.saveContext(context, request, response);
     }

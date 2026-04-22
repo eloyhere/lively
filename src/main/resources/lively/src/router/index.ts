@@ -30,7 +30,7 @@ const router: Router = createRouter({
           component: () => import("../views/management/Index.vue"),
         },
         {
-          name: "Authority",
+          name: "ManagementAuthority",
           path: "/management/authority",
           meta: {
             title: "权限管理"
@@ -38,7 +38,7 @@ const router: Router = createRouter({
           component: () => import("../views/management/consumer/Authority.vue"),
         },
         {
-          name: "Consumer",
+          name: "ManagementConsumer",
           path: "/management/consumer",
           meta: {
             title: "用户管理"
@@ -46,7 +46,7 @@ const router: Router = createRouter({
           component: () => import("../views/management/consumer/Consumer.vue"),
         },
         {
-          name: "Invitation",
+          name: "ManagementInvitation",
           path: "/management/invitation",
           meta: {
             title: "邀请管理"
@@ -54,7 +54,15 @@ const router: Router = createRouter({
           component: () => import("../views/management/consumer/Invitation.vue"),
         },
         {
-          name: "Role",
+          name: "ManagementMenu",
+          path: "/management/menu",
+          meta: {
+            title: "菜单管理"
+          },
+          component: () => import("../views/management/consumer/Invitation.vue"),
+        },
+        {
+          name: "ManagementRole",
           path: "/management/role",
           meta: {
             title: "角色管理"
@@ -62,7 +70,15 @@ const router: Router = createRouter({
           component: () => import("../views/management/consumer/Role.vue"),
         },
         {
-          name: "Token",
+          name: "ManagementRoute",
+          path: "/management/route",
+          meta: {
+            title: "路由管理"
+          },
+          component: () => import("../views/management/consumer/Invitation.vue"),
+        },
+        {
+          name: "ManagementToken",
           path: "/management/token",
           meta: {
             title: "凭据管理"
@@ -70,7 +86,7 @@ const router: Router = createRouter({
           component: () => import("../views/management/consumer/Token.vue"),
         },
         {
-          name: "Book",
+          name: "ManagementBook",
           path: "/management/book",
           meta: {
             title: "书籍管理"
@@ -78,7 +94,7 @@ const router: Router = createRouter({
           component: () => import("../views/management/book/Book.vue"),
         },
         {
-          name: "Chapter",
+          name: "ManagementChapter",
           path: "/management/book/chapter",
           meta: {
             title: "章节管理"
@@ -86,7 +102,7 @@ const router: Router = createRouter({
           component: () => import("../views/management/book/Chapter.vue"),
         },
         {
-          name: "Chat",
+          name: "ManagementChat",
           path: "/management/chat",
           meta: {
             title: "聊天管理"
@@ -94,7 +110,7 @@ const router: Router = createRouter({
           component: () => import("../views/management/chat/Chat.vue"),
         },
         {
-          name: "Message",
+          name: "ManagementMessage",
           path: "/management/chat/message",
           meta: {
             title: "消息管理"
@@ -102,7 +118,7 @@ const router: Router = createRouter({
           component: () => import("../views/management/chat/Message.vue"),
         },
         {
-          name: "Announcement",
+          name: "ManagementAnnouncement",
           path: "/management/announcement",
           meta: {
             title: "消息管理"

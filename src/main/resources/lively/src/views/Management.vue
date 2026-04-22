@@ -20,17 +20,35 @@
                 </ElIcon>
                 <span>权限管理</span>
               </ElMenuItem>
+              <ElMenuItem index="/management/consumer">
+                <ElIcon>
+                  <UserFilled/>
+                </ElIcon>
+                <span>用户管理</span>
+              </ElMenuItem>
+              <ElMenuItem index="/management/invitation">
+                <ElIcon>
+                  <Present/>
+                </ElIcon>
+                <span>邀请管理</span>
+              </ElMenuItem>
+              <ElMenuItem index="/management/menu">
+                <ElIcon>
+                  <Menu/>
+                </ElIcon>
+                <span>菜单管理</span>
+              </ElMenuItem>
               <ElMenuItem index="/management/role">
                 <ElIcon>
                   <User/>
                 </ElIcon>
                 <span>角色管理</span>
               </ElMenuItem>
-              <ElMenuItem index="/management/consumer">
+              <ElMenuItem index="/management/route">
                 <ElIcon>
-                  <UserFilled/>
+                  <Paperclip/>
                 </ElIcon>
-                <span>用户管理</span>
+                <span>路由管理</span>
               </ElMenuItem>
               <ElMenuItem index="/management/token">
                 <ElIcon>
@@ -38,11 +56,11 @@
                 </ElIcon>
                 <span>凭据管理</span>
               </ElMenuItem>
-              <ElMenuItem index="/management/invitation">
+              <ElMenuItem index="/management/announcement">
                 <ElIcon>
-                  <Present/>
+                  <Notification/>
                 </ElIcon>
-                <span>邀请管理</span>
+                <span>公告管理</span>
               </ElMenuItem>
             </ElMenuItemGroup>
             <ElMenuItemGroup title="人文">
@@ -108,7 +126,7 @@
 <script setup lang="ts">
 
 import {type RouteLocationNormalizedLoadedGeneric, type Router, useRouter} from "vue-router";
-import {computed, type ComputedRef, onMounted, reactive, ref, type Ref, watch, type WritableComputedRef} from "vue";
+import {computed, onMounted, reactive, watch, type WritableComputedRef} from "vue";
 import {
   ChatSquare,
   Coffee,
@@ -121,9 +139,9 @@ import {
   Ticket,
   User,
   UserFilled,
-    Notebook
+  Notebook, Paperclip, Notification
 } from "@element-plus/icons-vue";
-import type {Link, Tag} from "@/declaration/component.ts";
+import type { Link } from "@/declaration/component.ts";
 import Toolbar from "@/component/Toolbar.vue";
 import type {Consumer} from "semantic-typescript";
 
