@@ -22,50 +22,50 @@ The system employs a monolithic application architecture, maintaining a clear se
 
 ### Complete Project Structure Analysis
 ```
-lively/
-├── logs/                                    # Application runtime logs
+lively/                                           # Main project root directory
+├── logs/                                         # Application runtime and operational logs
 ├── src/
 │   ├── main/java/pers/eloyhere/lively
-│   │   ├── annotation/                      # Custom security annotations
-│   │   │   ├── Administrator.java           # Restricts access to admin endpoints
-│   │   │   ├── Authenticated.java           # Requires valid authentication credentials
-│   │   │   ├── Everyone.java                # Allows unrestricted public access
-│   │   │   ├── Guest.java                   # Permits both authenticated and non-authenticated access
-│   │   │   └── Unauthenticated.java         # Only allows non-authenticated requests
+│   │   ├── annotation/                           # Custom security annotations for fine-grained access control
+│   │   │   ├── Administrator.java                # Annotation restricting endpoint access to users possessing administrative privileges
+│   │   │   ├── Authenticated.java                # Annotation mandating valid user authentication for access
+│   │   │   ├── Everyone.java                     # Annotation permitting unrestricted public access, bypassing security checks
+│   │   │   ├── Guest.java                        # Annotation permitting access to both authenticated and non-authenticated (guest) users
+│   │   │   └── Unauthenticated.java              # Annotation restricting access exclusively to non-authenticated requests
 │   │   ├── aspect/
-│   │   │   └── ClientAspect.java
-│   │   ├── authentication/                  # Complete security infrastructure
-│   │   │   ├── entry/                       # Authentication entry point handlers
-│   │   │   │   └── InvalidateAuthenticationEntryPoint.java
-│   │   │   ├── filter/                      # Request filtering components
-│   │   │   │   ├── handler/                 # Authentication result handlers
-│   │   │   │   │   ├── LivelyAuthenticationFailureHandler.java
-│   │   │   │   │   └── LivelyAuthenticationSuccessHandler.java
-│   │   │   │   ├── LivelyAuthenticationDetailsSource.java
-│   │   │   │   └── LivelyUsernamePasswordAuthenticationFilter.java
-│   │   │   ├── granter/                     # Authentication grant providers
-│   │   │   │   └── Granter.java
-│   │   │   ├── provider/                    # Authentication provider implementations
-│   │   │   │   └── UsernamePasswordAuthenticationProvider.java
-│   │   │   └── strategy/                    # Session management strategies
-│   │   │       └── InvalidateSessionStrategy.java
-│   │   ├── component/                       # Application components
-│   │   │   └── DataInitializer.java         # Database initialisation and data seeding
-│   │   ├── configuration/                   # Spring configuration classes
-│   │   │   ├── CrossOriginConfiguration.java # CORS policy configuration
-│   │   │   ├── ResolverConfiguration.java   # Custom argument resolver registration
-│   │   │   ├── ResourcesConfiguration.java  # Static resource handling
-│   │   │   ├── SecurityConfiguration.java   # Core security framework configuration
-│   │   │   ├── WebSocketConfiguration.java       
-│   │   │   └── Vue3Configuration.java       # Frontend integration and routing configuration
-│   │   ├── controller/                      # REST API endpoint controllers
-│   │   │   ├── book/                        # TCM literature management endpoints
+│   │   │   └── ClientAspect.java                 # Aspect-oriented programming (AOP) aspect for client-side cross-cutting concerns
+│   │   ├── authentication/                       # Complete Spring Security infrastructure, configuration, and custom extensions
+│   │   │   ├── entry/                            # Authentication entry point handlers for processing security exceptions
+│   │   │   │   └── InvalidateAuthenticationEntryPoint.java # Entry point for handling invalid or expired authentication attempts
+│   │   │   ├── filter/                           # Custom filters for authentication and authorisation request processing
+│   │   │   │   ├── handler/                      # Handlers for post-authentication results
+│   │   │   │   │   ├── LivelyAuthenticationFailureHandler.java # Logic executed upon authentication failure
+│   │   │   │   │   └── LivelyAuthenticationSuccessHandler.java # Logic executed upon successful authentication
+│   │   │   │   ├── LivelyAuthenticationDetailsSource.java # Provides additional authentication request details
+│   │   │   │   └── LivelyUsernamePasswordAuthenticationFilter.java # Custom username/password authentication filter
+│   │   │   ├── granter/                          # Custom authentication grant providers for extended authentication mechanisms
+│   │   │   │   └── Granter.java                  # Base interface/class for custom authentication granters
+│   │   │   ├── provider/                         # Authentication provider implementations
+│   │   │   │   └── UsernamePasswordAuthenticationProvider.java # Custom provider for username/password authentication
+│   │   │   └── strategy/                         # Strategies for session management and invalidation
+│   │   │       └── InvalidateSessionStrategy.java # Defines strategy for invalidating user sessions
+│   │   ├── component/                            # Spring-managed application components and beans
+│   │   │   └── DataInitializer.java              # Component for initialising database with seed data upon application startup
+│   │   ├── configuration/                        # Spring Boot and framework configuration classes
+│   │   │   ├── CrossOriginConfiguration.java     # Cross-Origin Resource Sharing (CORS) policy configuration
+│   │   │   ├── ResolverConfiguration.java        # Registers custom handler method argument resolvers with Spring MVC
+│   │   │   ├── ResourcesConfiguration.java       # Configuration for serving static resources and caching policies
+│   │   │   ├── SecurityConfiguration.java        # Core Spring Security framework configuration and rule definitions
+│   │   │   ├── WebSocketConfiguration.java       # WebSocket endpoint registration and message broker configuration
+│   │   │   └── Vue3Configuration.java           # Frontend integration configuration for Vue 3, including routing and history mode fallback
+│   │   ├── controller/                           # RESTful API endpoint controllers (MVC)
+│   │   │   ├── book/                             # Traditional Chinese Medicine (TCM) literature management endpoints
 │   │   │   │   ├── BookController.java
 │   │   │   │   └── ChapterController.java
-│   │   │   ├── chat/                        # AI conversation interface endpoints
+│   │   │   ├── chat/                             # AI-powered conversational chat and messaging interface endpoints
 │   │   │   │   ├── ChatController.java
 │   │   │   │   └── MessageController.java
-│   │   │   ├── consumer/                    # User management and authentication endpoints
+│   │   │   ├── consumer/                         # User, role, permission, and system management endpoints
 │   │   │   │   ├── AuthorityController.java
 │   │   │   │   ├── ConsumerController.java
 │   │   │   │   ├── InvitationController.java
@@ -73,20 +73,20 @@ lively/
 │   │   │   │   ├── RoleControllerController.java
 │   │   │   │   ├── RouteControllerController.java
 │   │   │   │   └── TokenControllerController.java
-│   │   │   ├── AnnouncementController.java  # System announcement publishing
-│   │   │   ├── AuthenticationController.java # Authentication flow orchestration
-│   │   │   ├── BaseController.java          # Common controller utilities
-│   │   │   └── ResourcesController.java
-│   │   ├── converter/                       # Custom type converters
-│   │   │   └── StringBlobConverter.java     # String to BLOB conversion utilities
-│   │   ├── entity/                          # JPA entity definitions
-│   │   │   ├── book/                        # TCM literature domain entities
+│   │   │   ├── AnnouncementController.java       # Endpoints for publishing and managing system-wide announcements
+│   │   │   ├── AuthenticationController.java    # Orchestrates authentication flows (login, logout, registration)
+│   │   │   ├── BaseController.java               # Common controller utilities, constants, and base class for other controllers
+│   │   │   └── ResourcesController.java         # Controller for serving application resources
+│   │   ├── converter/                            # Custom type converters for Spring MVC data binding
+│   │   │   └── StringBlobConverter.java          # Converter utilities for String to SQL BLOB type conversion
+│   │   ├── entity/                               # JPA entity class definitions representing the domain model
+│   │   │   ├── book/                             # TCM literature domain entities
 │   │   │   │   ├── Book.java
 │   │   │   │   └── Chapter.java
-│   │   │   ├── chat/                        # Conversation and AI interaction entities
+│   │   │   ├── chat/                             # Conversation and AI interaction domain entities
 │   │   │   │   ├── Chat.java
 │   │   │   │   └── Message.java
-│   │   │   ├── consumer/                    # User and permission domain entities
+│   │   │   ├── consumer/                         # User, authentication, and authorisation domain entities
 │   │   │   │   ├── Authority.java
 │   │   │   │   ├── Consumer.java
 │   │   │   │   ├── Invitation.java
@@ -94,18 +94,18 @@ lively/
 │   │   │   │   ├── Role.java
 │   │   │   │   ├── Route.java
 │   │   │   │   └── Token.java
-│   │   │   ├── Announcement.java            # System announcement persistence model
-│   │   │   └── BaseEntity.java              # Common entity properties and behaviour
-│   │   ├── projection/                      # Spring Data projections
-│   │   │   └── BaseProjection.java          # Common projection interface
-│   │   ├── repository/                      # Spring Data repository interfaces
-│   │   │   ├── book/                        # TCM literature data access
+│   │   │   ├── Announcement.java                 # Entity for persisting system announcements
+│   │   │   └── BaseEntity.java                   # Abstract base entity defining common properties (ID, timestamps) and behaviour
+│   │   ├── projection/                           # Spring Data JPA projection interfaces for repository queries
+│   │   │   └── BaseProjection.java               # Common base interface for projections
+│   │   ├── repository/                           # Spring Data JPA repository interfaces for data persistence
+│   │   │   ├── book/                             # Data access interfaces for TCM literature entities
 │   │   │   │   ├── BookRepository.java
 │   │   │   │   └── ChapterRepository.java
-│   │   │   ├── chat/                        # Conversation data access
+│   │   │   ├── chat/                             # Data access interfaces for conversation entities
 │   │   │   │   ├── ChatRepository.java
 │   │   │   │   └── MessageRepository.java
-│   │   │   ├── consumer/                    # User and permission data access
+│   │   │   ├── consumer/                         # Data access interfaces for user and permission entities
 │   │   │   │   ├── AuthorityRepository.java
 │   │   │   │   ├── ConsumerRepository.java
 │   │   │   │   ├── InvitationRepository.java
@@ -114,20 +114,20 @@ lively/
 │   │   │   │   ├── RouteRepository.java
 │   │   │   │   └── TokenRepository.java
 │   │   │   ├── AnnouncementRepository.java
-│   │   │   └── BaseRepository.java          # Common repository operations
-│   │   ├── resolver/                        # Custom handler method argument resolvers
-│   │   │   ├── EntityArgumentResolver.java  # Resolves entities from request parameters
-│   │   │   └── UUIDArgumentResolver.java    # UUID type conversion and validation
-│   │   ├── service/                         # Business logic layer
-│   │   │   ├── authentication/              # Authentication services
-│   │   │   │   └── LivelyPersistentTokenBasedRememberMeServices.java
-│   │   │   ├── book/                        # TCM literature business logic
+│   │   │   └── BaseRepository.java               # Common repository operations and base interface with generic types
+│   │   ├── resolver/                             # Custom Spring MVC handler method argument resolvers
+│   │   │   ├── EntityArgumentResolver.java       # Resolves and injects entity instances directly from request parameters
+│   │   │   └── UUIDArgumentResolver.java         # Resolves, converts, and validates UUID parameters from requests
+│   │   ├── service/                              # Business logic and service layer implementations
+│   │   │   ├── authentication/                   # Authentication-related business services
+│   │   │   │   └── LivelyPersistentTokenBasedRememberMeServices.java # Custom "remember-me" authentication service
+│   │   │   ├── book/                             # Business logic services for TCM literature management
 │   │   │   │   ├── BookService.java
 │   │   │   │   └── ChapterService.java
-│   │   │   ├── chat/                        # Conversation management
+│   │   │   ├── chat/                             # Business logic services for conversation and message management
 │   │   │   │   ├── ChatService.java
 │   │   │   │   └── MessageService.java
-│   │   │   ├── consumer/                    # User and permission management
+│   │   │   ├── consumer/                         # Business logic services for user, role, and permission management
 │   │   │   │   ├── AuthorityService.java
 │   │   │   │   ├── ConsumerService.java
 │   │   │   │   ├── InvitationService.java
@@ -136,76 +136,93 @@ lively/
 │   │   │   │   ├── RouteService.java
 │   │   │   │   └── TokenService.java
 │   │   │   ├── AnnouncementService.java
-│   │   │   └── BaseService.java             # Common service operations
-│   │   └── LivelyApplication.java           # Main application entry point
+│   │   │   └── BaseService.java                  # Abstract base service providing common CRUD operations
+│   │   └── LivelyApplication.java                # Main Spring Boot application entry point and bootstrap class
 │   ├── resources/
-│   │   ├── lively/                          # Integrated Vue 3 frontend project
-│   │   │   ├── public/                      # Static assets not processed by Vite
+│   │   ├── lively/                               # Integrated Vue 3 single-page application (SPA) frontend project
+│   │   │   ├── public/                           # Static assets served directly without Vite processing
 │   │   │   ├── src/
-│   │   │   │   ├── hooks/                   # Vue 3 composition functions
-│   │   │   │   │   ├── serialization.ts            # Entity interaction utilities
-│   │   │   │   │   ├── network.ts           # HTTP client abstraction
-│   │   │   │   │   ├── picture.ts           # Image processing utilities
-│   │   │   │   │   └── url.ts               # URL construction and manipulation
-│   │   │   │   ├── interaction/             # Frontend data interaction layer
-│   │   │   │   │   ├── serialization.ts            # TypeScript entity definitions
-│   │   │   │   │   └── service.ts           # Frontend service abstractions
-│   │   │   │   ├── plugins/                 # Vue plugin integrations
-│   │   │   │   │   └── element.ts           # Element Plus component library
-│   │   │   │   ├── router/                  # Vue Router configuration
-│   │   │   │   │   └── index.ts             # Route definitions and guards
-│   │   │   │   ├── stores/                  # Pinia state management
-│   │   │   │   │   ├── authentication.ts    # Authentication state
-│   │   │   │   │   └── counter.ts           # Example store implementation
-│   │   │   │   ├── views/                   # Page-level Vue components
-│   │   │   │   │   ├── authentication/      # Authentication interfaces
-│   │   │   │   │   │   ├── Account.vue      # User account management
-│   │   │   │   │   │   └── Profile.vue      # User profile management
-│   │   │   │   │   ├── management/          # Management interfaces
-│   │   │   │   │   │   ├── book/            # TCM literature management
+│   │   │   │   ├── component/
+│   │   │   │   │   ├── AvatarCard.vue            # User avatar display and dropdown menu component
+│   │   │   │   │   ├── Modulize.vue              # Abstract, reusable component for CRUD operations with integrated search, table, and forms
+│   │   │   │   │   └── Toolbar.vue               # Reusable toolbar component with common actions
+│   │   │   │   ├── declaration/                  # TypeScript type and interface declarations
+│   │   │   │   │   ├── component.ts
+│   │   │   │   │   ├── entity.ts                 # Type declarations corresponding to backend JPA entities
+│   │   │   │   │   ├── modulize.ts               # Type declarations for the abstract CRUD component
+│   │   │   │   │   └── serialization.ts          # Type declarations for data serialisation and deserialisation
+│   │   │   │   ├── hooks/                        # Vue 3 Composition API custom hooks (composables)
+│   │   │   │   │   ├── datetime.ts               # Date and time formatting and manipulation utilities
+│   │   │   │   │   ├── network.ts                # HTTP client functions abstracting GET, POST, PUT, DELETE requests
+│   │   │   │   │   ├── picture.ts                # Image conversion, compression, and manipulation utilities
+│   │   │   │   │   ├── serialization.ts          # JSON serialisation and deserialisation utilities
+│   │   │   │   │   ├── url.ts                    # URL construction, parsing, and manipulation utilities
+│   │   │   │   │   └── utility.ts                # General-purpose utility and helper functions
+│   │   │   │   ├── interaction/                  # Frontend data interaction and service abstraction layer
+│   │   │   │   │   ├── serialization.ts          # Serialisation/deserialisation logic and TypeScript interface definitions for DTOs
+│   │   │   │   │   └── service.ts                # Frontend service abstractions for communicating with backend APIs
+│   │   │   │   ├── plugins/                      # Vue plugin initialisation and configuration
+│   │   │   │   │   └── element.ts                # Configuration and setup for the Element Plus UI component library
+│   │   │   │   ├── router/                       # Vue Router configuration for frontend routing
+│   │   │   │   │   └── index.ts                  # Route definitions, navigation guards, and router instance
+│   │   │   │   ├── stores/                       # Pinia state management stores
+│   │   │   │   │   ├── authentication.ts         # Store for managing user authentication state, tokens, and actions
+│   │   │   │   │   └── counter.ts                # Example demonstration store (may be replaced or removed)
+│   │   │   │   ├── views/                        # Page-level Vue components (routes)
+│   │   │   │   │   ├── authentication/           # User authentication and account management views
+│   │   │   │   │   │   ├── Account.vue           # User account management and settings view
+│   │   │   │   │   │   └── Profile.vue           # User profile viewing and editing interface
+│   │   │   │   │   ├── management/               # Administrative and system management views
+│   │   │   │   │   │   ├── book/                 # TCM literature management interface
 │   │   │   │   │   │   │   ├── Book.vue
 │   │   │   │   │   │   │   └── Chapter.vue
-│   │   │   │   │   │   ├── chat/            # Conversation management
+│   │   │   │   │   │   ├── chat/                 # Conversation history and management interface
 │   │   │   │   │   │   │   ├── Chat.vue
 │   │   │   │   │   │   │   └── Message.vue
-│   │   │   │   │   │   └── consumer/        # User management
+│   │   │   │   │   │   ├── consumer/             # User, role, and system configuration management interface
 │   │   │   │   │   │   │   ├── Authority.vue
 │   │   │   │   │   │   │   ├── Consumer.vue
 │   │   │   │   │   │   │   ├── Invitation.vue
+│   │   │   │   │   │   │   ├── Menu.vue
 │   │   │   │   │   │   │   ├── Role.vue
+│   │   │   │   │   │   │   ├── Route.vue
 │   │   │   │   │   │   │   └── Token.vue
-│   │   │   │   │   ├── Authentication.vue   # Login and registration
-│   │   │   │   │   ├── Home.vue             # Main dashboard
-│   │   │   │   │   └── Management.vue       # Management dashboard
-│   │   │   │   ├── App.vue                  # Root application component
-│   │   │   │   ├── main.ts                  # Application entry point
-│   │   │   │   └── style.css                # Global styles
-│   │   │   ├── .gitignore                   # Frontend-specific Git exclusions
-│   │   │   ├── env.d.ts                     # TypeScript environment definitions
-│   │   │   ├── index.html                   # HTML entry point
-│   │   │   ├── package.json                 # NPM dependencies and scripts
-│   │   │   ├── package-lock.json            # Dependency lock file
-│   │   │   ├── README.md                    # Frontend documentation
-│   │   │   ├── tsconfig.app.json            # Application TypeScript configuration
-│   │   │   ├── tsconfig.json                # Base TypeScript configuration
-│   │   │   ├── tsconfig.node.json           # Node.js TypeScript configuration
-│   │   │   └── vite.config.ts               # Vite build configuration
-│   │   ├── static/                          # Spring Boot static resources directory
-│   │   │   ├── assets/                      # Compiled frontend assets
-│   │   │   ├── background.jpeg              # Background image
-│   │   │   ├── Close Eyes.png               # Mascot visual assets
-│   │   │   ├── favicon.ico                  # Browser icon
-│   │   │   ├── index.html                   # Fallback HTML entry point
-│   │   │   └── smile.png                    # Additional mascot image
-│   │   └── application.properties           # Spring Boot configuration
+│   │   │   │   │   │   ├── Announcement.vue      # Interface for viewing and managing system announcements
+│   │   │   │   │   │   ├── Index.vue             # Index or landing page for the management section
+│   │   │   │   │   │   ├── Online.vue            # View for monitoring user online status and session logs
+│   │   │   │   │   │   └── Operation.vue         # View for inspecting system operation and audit logs
+│   │   │   │   │   ├── Authentication.vue        # Login and user registration page
+│   │   │   │   │   ├── Home.vue                  # Main application dashboard post-authentication
+│   │   │   │   │   └── Management.vue            # Central administrative dashboard
+│   │   │   │   ├── App.vue                       # Root Vue application component and layout wrapper
+│   │   │   │   ├── main.ts                       # Frontend application entry point, mounting the Vue app
+│   │   │   │   └── style.css                     # Global CSS styles and theming
+│   │   │   ├── .gitignore                        # Frontend-specific Git version control exclusions
+│   │   │   ├── env.d.ts                          # TypeScript ambient declarations for Vite environment variables
+│   │   │   ├── index.html                        # Primary HTML entry point for the Vue 3 application
+│   │   │   ├── package.json                      # NPM project configuration, dependencies, and scripts
+│   │   │   ├── package-lock.json                 # Dependency lock file ensuring reproducible installations
+│   │   │   ├── README.md                         # Frontend project-specific documentation and guides
+│   │   │   ├── tsconfig.app.json                 # TypeScript configuration for the application source code
+│   │   │   ├── tsconfig.json                     # Base TypeScript configuration file
+│   │   │   ├── tsconfig.node.json                # TypeScript configuration for Node.js tooling and build scripts
+│   │   │   └── vite.config.ts                    # Vite build tool configuration for development and production
+│   │   ├── static/                               # Spring Boot static resources directory (served from root '/')
+│   │   │   ├── assets/                           # Compiled frontend assets (CSS, JS) generated by the build process
+│   │   │   ├── background.jpeg                   # Background image asset for the application
+│   │   │   ├── Close Eyes.png                    # Mascot or branding image asset
+│   │   │   ├── favicon.ico                       # Browser favicon
+│   │   │   ├── index.html                        # Fallback HTML entry point (typically for SPA routing)
+│   │   │   └── smile.png                         # Additional mascot or branding image asset
+│   │   └── application.properties                # Primary Spring Boot application configuration (datasource, server, etc.)
 │   └── test/java/pers/eloyhere/lively/
-│       └── LivelyApplicationTests.java      # Primary test suite
-├── .gitattributes                           # Git file handling directives
-├── .gitignore                              # Version control exclusions
-├── mvnw                                    # Maven wrapper for Unix systems
-├── mvnw.cmd                                # Maven wrapper for Windows systems
-├── pom.xml                                 # Maven project configuration
-└── readme.md                               # Project overview documentation
+│       └── LivelyApplicationTests.java           # Primary integration and unit test suite for the application
+├── .gitattributes                                # Git file handling directives (e.g., line endings, merge strategies)
+├── .gitignore                                    # Version control exclusions for generated files, dependencies, and local environments
+├── mvnw                                          # Maven wrapper executable script for Unix-based systems (Linux/macOS)
+├── mvnw.cmd                                      # Maven wrapper executable script for Windows systems
+├── pom.xml                                       # Maven Project Object Model (POM) file defining dependencies, build, and project metadata
+└── readme.md                                     # Comprehensive project overview, setup instructions, and usage documentation
 ```
 
 ## Core Pedagogical Features

@@ -2,6 +2,8 @@ import {defineStore, type PiniaPluginContext, type StateTree} from "pinia";
 import {ref} from "vue";
 import {type MaybeInvalid, Optional, validate} from "semantic-typescript";
 import type {Authentication, Authority, Consumer, Role} from "@/declaration/entity";
+import {ElMessage} from "element-plus";
+import {useRouter} from "vue-router";
 
 export const useAuthenticationStore = defineStore(
     "authentication",
@@ -88,6 +90,11 @@ export const useAuthenticationStore = defineStore(
             removeAuthentication(): void {
                 localStorage.removeItem("authentication");
                 this.authentication = null;
+                ElMessage({
+                    message: "身份信息已失效",
+                    type: "info"
+                });
+                useRouter().push("/authentication");
             },
             hasAuthority(authority: string): boolean {
                 return false;

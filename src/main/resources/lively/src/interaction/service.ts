@@ -39,11 +39,13 @@ export class BaseService<E extends BaseEntity>{
                     .then((response: Response) => {
                         if(response.status === 200){
                             response.text().then((value: string) => {
-                                console.log("trace", value)
                                 resolve(Number(value));
                             });
                         }else{
-                            reject(response.statusText);
+                            if(response.status === 401){
+                                useAuthenticationStore().removeAuthentication();
+                            }
+                            reject(response);
                         }
                     })
             }catch (e) {
@@ -61,7 +63,10 @@ export class BaseService<E extends BaseEntity>{
                         if(response.status === 200){
                             resolve();
                         }else{
-                            reject(response.statusText);
+                            if(response.status === 401){
+                                useAuthenticationStore().removeAuthentication();
+                            }
+                            reject(response);
                         }
                     });
             }catch (e) {
@@ -81,7 +86,10 @@ export class BaseService<E extends BaseEntity>{
                         if(response.status === 200){
                             resolve();
                         }else{
-                            reject(response.statusText);
+                            if(response.status === 401){
+                                useAuthenticationStore().removeAuthentication();
+                            }
+                            reject(response);
                         }
                     });
             }catch (e) {
@@ -103,7 +111,10 @@ export class BaseService<E extends BaseEntity>{
                         if(response.status === 200){
                             resolve();
                         }else{
-                            reject(response.statusText);
+                            if(response.status === 401){
+                                useAuthenticationStore().removeAuthentication();
+                            }
+                            reject(response);
                         }
                     });
             }catch (e) {
@@ -123,7 +134,10 @@ export class BaseService<E extends BaseEntity>{
                         if(response.status === 200){
                             resolve();
                         }else{
-                            reject(response.statusText);
+                            if(response.status === 401){
+                                useAuthenticationStore().removeAuthentication();
+                            }
+                            reject(response);
                         }
                     });
             }catch (e) {
@@ -145,7 +159,10 @@ export class BaseService<E extends BaseEntity>{
                         if(response.status === 200){
                             response.json().then(resolve);
                         }else{
-                            reject(response.statusText);
+                            if(response.status === 401){
+                                useAuthenticationStore().removeAuthentication();
+                            }
+                            reject(response);
                         }
                     });
             }catch (e) {
@@ -167,7 +184,10 @@ export class BaseService<E extends BaseEntity>{
                                 .then(this.serializer.deserialize)
                                 .then(resolve);
                         }else{
-                            reject(response.statusText);
+                            if(response.status === 401){
+                                useAuthenticationStore().removeAuthentication();
+                            }
+                            reject(response);
                         }
                     })
             }catch (e) {
@@ -191,7 +211,10 @@ export class BaseService<E extends BaseEntity>{
                                 .then(this.serializer.deserialize)
                                 .then(resolve);
                         }else{
-                            reject(response.statusText);
+                            if(response.status === 401){
+                                useAuthenticationStore().removeAuthentication();
+                            }
+                            reject(response);
                         }
                     });
             }catch (e) {
@@ -214,7 +237,10 @@ export class BaseService<E extends BaseEntity>{
                                 .then(serializer.deserialize)
                                 .then(resolve);
                         }else{
-                            reject(response.statusText);
+                            if(response.status === 401){
+                                useAuthenticationStore().removeAuthentication();
+                            }
+                            reject(response);
                         }
                     })
             }catch (e) {
@@ -234,11 +260,13 @@ export class BaseService<E extends BaseEntity>{
                             .then(serializer.deserialize)
                             .then(resolve);
                     }else{
-                        reject(response.statusText);
+                        if(response.status === 401){
+                            useAuthenticationStore().removeAuthentication();
+                        }
+                        reject(response);
                     }
                 })
             }catch (e) {
-                console.log("11111", e);
                 reject(e);
             }
         });
@@ -257,7 +285,10 @@ export class BaseService<E extends BaseEntity>{
                             .then(serializer.deserialize)
                             .then(resolve);
                     }else{
-                        reject(response.statusText);
+                        if(response.status === 401){
+                            useAuthenticationStore().removeAuthentication();
+                        }
+                        reject(response);
                     }
                 })
             }catch (e) {
@@ -282,7 +313,10 @@ export class BaseService<E extends BaseEntity>{
                             .then(serializer.deserialize)
                             .then(resolve);
                     }else{
-                        reject(response.statusText);
+                        if(response.status === 401){
+                            useAuthenticationStore().removeAuthentication();
+                        }
+                        reject(response);
                     }
                 })
             }catch (e) {
@@ -306,7 +340,10 @@ export class BaseService<E extends BaseEntity>{
                             .then(serializer.deserialize)
                             .then(resolve);
                     }else{
-                        reject(response.statusText);
+                        if(response.status === 401){
+                            useAuthenticationStore().removeAuthentication();
+                        }
+                        reject(response);
                     }
                 })
             }catch (e) {
@@ -330,7 +367,10 @@ export class BaseService<E extends BaseEntity>{
                             .then(serializer.deserialize)
                             .then(resolve);
                     }else{
-                        reject(response.statusText);
+                        if(response.status === 401){
+                            useAuthenticationStore().removeAuthentication();
+                        }
+                        reject(response);
                     }
                 })
             }catch (e) {
@@ -377,6 +417,9 @@ export class ConsumerService extends BaseService<Consumer>{
                             resolve(authentication);
                         });
                     }else{
+                        if(response.status === 401){
+                            useAuthenticationStore().removeAuthentication();
+                        }
                         reject(response);
                     }
                 }, reject);
@@ -410,7 +453,7 @@ export class ConsumerService extends BaseService<Consumer>{
                 let parameters: URLSearchParams = new URLSearchParams();
                 parameters.append("username", parameter1.username);
                 parameters.append("password", parameter1.password);
-                parameters.append("remember", String(parameter1.remember === true));
+                parameters.append("remember", parameter1.remember? "true" : "false");
                 usePost(`http://localhost:8080/authentication/login`, parameters)
                     .then((response: Response): void => {
                         if(response.status === 200){
