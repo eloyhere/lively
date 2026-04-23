@@ -1,8 +1,18 @@
 <template>
-  <div style="width: calc(100vw - 180px); height: calc(100vh - 100px); user-select: none;">
+  <div style="width: calc(100vw - 180px); height: calc(100vh - 100px); user-select: none;display: flex;flex-direction: column">
+    <ElSpace alignment="center" wrap style="margin-left: 10px; margin-right: 10px">
+      <ElCard>
+        <ElStatistic title="用户数量" :value="consumerCountTransition">
+          <template #title>
+            <ElLink icon="CaretTop" type="success">用户数量</ElLink>
+          </template>
+        </ElStatistic>
+      </ElCard>
+    </ElSpace>
     <ElScrollbar>
-      <ElStatistic title="用户数量" ></ElStatistic>
+
       <ElSpace wrap>
+
         <ElCard>
           <div ref="maxMemory" style="width: 500px; height: 300px"></div>
         </ElCard>
@@ -20,10 +30,10 @@
 <script setup lang="ts">
 import * as echarts from "echarts";
 import {ElMessage} from "element-plus";
-import {onMounted, onUnmounted, reactive, ref, type Ref} from "vue";
+import {onActivated, onDeactivated, onMounted, onUnmounted, type Reactive, reactive, ref, type Ref} from "vue";
 import {invalidate, type MaybeInvalid, validate} from "semantic-typescript";
-import {useOrigin} from "@/hooks/url.ts";
 import {ConsumerService} from "@/interaction/service.ts";
+import {useTransition} from "@vueuse/core";
 interface Structure extends Record<string, number>{
   freeMemory: number;
   maxMemory: number;
@@ -32,8 +42,10 @@ interface Structure extends Record<string, number>{
 }
 
 const consumerService: ConsumerService = new ConsumerService();
-
-const consumerCount: Ref<bigint> = ref<bigint>(0n);
+const consumerCount: Ref<number> = ref<number>(0);
+const consumerCountTransition = useTransition(consumerCount, {
+  duration: 1500
+});
 
 const maxMemory: Ref<MaybeInvalid<HTMLElement>> = ref<MaybeInvalid<HTMLElement>>();
 const maxMemoryChart: Ref<MaybeInvalid<echarts.ECharts>> = ref<MaybeInvalid<echarts.ECharts>>();
@@ -48,7 +60,136 @@ const processors: Ref<number> = ref<number>(0);
 const structures: Array<Structure> = reactive<Array<Structure>>([]);
 const interval: Ref<MaybeInvalid<number>> = ref<MaybeInvalid<number>>();
 
-const websocket: Ref<WebSocket> = ref<WebSocket>(new WebSocket(`${useOrigin("ws")}/websocket/monitor`));
+interface Handler{
+  create(): void;
+  dispose(): void;
+  draw(): void;
+  pause(): void;
+  play(): void;
+}
+const active: Ref<boolean> = ref<boolean>(true);
+const handler: Handler = {
+  create: (): void => {
+    if(validate(maxMemory.value) && invalidate(maxMemoryChart.value)){
+      maxMemoryChart.value = echarts.init(maxMemory.value);
+    }
+    if(validate(freeMemory.value) && invalidate(freeMemoryChart.value)){
+      freeMemoryChart.value = echarts.init(freeMemory.value);
+    }
+    if(validate(totalMemory.value) && invalidate(totalMemoryChart.value)){
+      totalMemoryChart.value = echarts.init(totalMemory.value);
+    }
+  },
+  draw: (): void => {
+    if(active.value){
+      if(validate(maxMemory.value)){
+        maxMemoryChart.value?.setOption({
+          xAxis: {
+            data: structures.map((structure, index) => index),
+            name: "时间点"
+          },
+          yAxis: {
+            name: "内存大小 (MB)",
+            nameLocation: "end",
+            nameGap: 20,
+          },
+          legend: {
+            data: ["最大堆内存"],
+            top: 10
+          },
+          series: [
+            {
+              name: "最大堆内存",
+              data: structures.map((structure) => structure.maxMemory / 1048576),
+              type: "line",
+              stack: "x",
+              areaStyle: {}
+            }
+          ]
+        });
+      }
+      if(validate(freeMemory.value)){
+        freeMemoryChart.value?.setOption({
+          xAxis: {
+            data: structures.map((structure, index) => index),
+            name: "时间点"
+          },
+          yAxis: {
+            name: "内存大小 (MB)",
+            nameLocation: "end",
+            nameGap: 20,
+          },
+          legend: {
+            data: ["空闲堆内存"],
+            top: 10
+          },
+          series: [
+            {
+              name: "空闲堆内存",
+              data: structures.map((structure) => structure.freeMemory / 1048576),
+              type: "line",
+              stack: "x",
+              areaStyle: {}
+            }
+          ]
+        });
+      }
+      if(validate(totalMemory.value)){
+        totalMemoryChart.value?.setOption({
+          xAxis: {
+            data: structures.map((structure, index) => index),
+            name: "时间点"
+          },
+          yAxis: {
+            name: "内存大小 (MB)",
+            nameLocation: "end",
+            nameGap: 20,
+          },
+          legend: {
+            data: ["已分配堆内存"],
+            top: 10
+          },
+          series: [
+            {
+              name: "已分配堆内存",
+              data: structures.map((structure) => structure.totalMemory / 1048576),
+              type: "line",
+              stack: "x",
+              areaStyle: {}
+            }
+          ]
+        });
+      }
+    }
+  },
+  dispose: (): void => {
+    if(validate(maxMemoryChart.value)){
+      maxMemoryChart.value.dispose();
+    }
+    if(freeMemoryChart.value){
+      freeMemoryChart.value.dispose();
+    }
+    if(totalMemoryChart.value){
+      totalMemoryChart.value.dispose();
+    }
+  },
+  pause: () => {
+    active.value = false;
+  },
+  play: () => {
+    active.value = true;
+    if(validate(maxMemoryChart.value)){
+      maxMemoryChart.value.resize();
+    }
+    if(freeMemoryChart.value){
+      freeMemoryChart.value.resize();
+    }
+    if(totalMemoryChart.value){
+      totalMemoryChart.value.resize();
+    }
+  },
+};
+const websocket: Ref<WebSocket> = ref<WebSocket>(new WebSocket(`ws://localhost:8080/websocket/monitor`));
 websocket.value.addEventListener("open", (event): void => {
   websocket.value.send("Created.");
   if(invalidate(interval.value)){
@@ -56,7 +197,7 @@ websocket.value.addEventListener("open", (event): void => {
       if(websocket.value.readyState === WebSocket.OPEN){
         websocket.value.send("monitor");
       }
-    }, 1000);
+    }, 5000);
   }
 });
 websocket.value.addEventListener("message", (event: MessageEvent) => {
@@ -70,110 +211,34 @@ websocket.value.addEventListener("message", (event: MessageEvent) => {
       structures.push(...temporary);
     }
   }
-  if(validate(maxMemory.value)){
-    maxMemoryChart.value?.setOption({
-      xAxis: {
-        data: structures.map((structure, index) => index),
-        name: "时间点"
-      },
-      yAxis: {
-        name: "内存大小 (MB)",
-        nameLocation: "end",
-        nameGap: 20,
-      },
-      legend: {
-        data: ["最大堆内存"],
-        top: 10
-      },
-      series: [
-        {
-          name: "最大堆内存",
-          data: structures.map((structure) => structure.maxMemory / 1048576),
-          type: "line",
-          stack: "x",
-          areaStyle: {}
-        }
-      ]
-    });
-  }
-  if(validate(freeMemory.value)){
-    freeMemoryChart.value?.setOption({
-      xAxis: {
-        data: structures.map((structure, index) => index),
-        name: "时间点"
-      },
-      yAxis: {
-        name: "内存大小 (MB)",
-        nameLocation: "end",
-        nameGap: 20,
-      },
-      legend: {
-        data: ["空闲内存"],
-        top: 10
-      },
-      series: [
-        {
-          name: "空闲内存",
-          data: structures.map((structure) => structure.freeMemory / 1048576),
-          type: "line",
-          stack: "x",
-          areaStyle: {}
-        }
-      ]
-    });
-  }
-  if(validate(totalMemory.value)){
-    totalMemoryChart.value?.setOption({
-      xAxis: {
-        data: structures.map((structure, index) => index),
-        name: "时间点"
-      },
-      yAxis: {
-        name: "内存大小 (MB)",
-        nameLocation: "end",
-        nameGap: 20,
-      },
-      legend: {
-        data: ["已分配内存"],
-        top: 10
-      },
-      series: [
-        {
-          name: "已分配内存",
-          data: structures.map((structure) => structure.totalMemory / 1048576),
-          type: "line",
-          stack: "x",
-          areaStyle: {}
-        }
-      ]
-    });
-  }
+  handler.draw();
 });
 websocket.value.addEventListener("error", (event: Event) => {
+  handler.dispose();
   ElMessage({
     message: "连接服务器出现问题。",
     type: "warning"
   });
 });
 onMounted((): void => {
-  if(validate(maxMemory.value)){
-    maxMemoryChart.value = echarts.init(maxMemory.value);
-  }
-  if(validate(freeMemory.value)){
-    freeMemoryChart.value = echarts.init(freeMemory.value);
-  }
-  if(validate(totalMemory.value)){
-    totalMemoryChart.value = echarts.init(totalMemory.value);
-  }
-  consumerService.countBy({}).then((value) => {
+  handler.create();
+  consumerService.countBy({}).then((value: number) => {
     consumerCount.value = value;
-  })
+  });
+});
+onActivated((): void => {
+  handler.create();
+  handler.play();
+});
+onDeactivated((): void => {
+  handler.dispose();
 });
 onUnmounted((): void => {
+  handler.dispose();
   if(websocket.value.readyState === WebSocket.OPEN){
     websocket.value.close();
   }
-})
+});
 </script>
 
 

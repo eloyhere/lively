@@ -47,8 +47,36 @@
               <ElTableColumn label="id" prop="id"></ElTableColumn>
               <slot name="column">
               </slot>
-              <ElTableColumn label="锁定" prop="lock"></ElTableColumn>
-              <ElTableColumn label="禁用" prop="ban"></ElTableColumn>
+              <ElTableColumn label="锁定" width="75" align="center" prop="lock">
+                <template #default="scope">
+                  <ElIcon v-if="isLocked(scope.row)">
+                    <Check/>
+                  </ElIcon>
+                  <ElIcon v-if="!isLocked(scope.row)">
+                    <Close/>
+                  </ElIcon>
+                </template>
+              </ElTableColumn>
+              <ElTableColumn label="禁用" width="75" align="center" prop="ban">
+                <template #default="scope">
+                  <ElIcon v-if="isBanned(scope.row)">
+                    <Check/>
+                  </ElIcon>
+                  <ElIcon v-if="!isBanned(scope.row)">
+                    <Close/>
+                  </ElIcon>
+                </template>
+              </ElTableColumn>
+              <ElTableColumn label="修改时间" prop="edit" sortable>
+                <template #default="scope">
+                  {{useDateFormat(scope.row.edit)}}
+                </template>
+              </ElTableColumn>
+              <ElTableColumn label="创建时间" prop="spawn" sortable>
+                <template #default="scope">
+                  {{useDateFormat(scope.row.spawn)}}
+                </template>
+              </ElTableColumn>
               <ElTableColumn fixed="right" label="操作">
                 <template #default="scope">
                   <ElSpace wrap>
@@ -117,6 +145,8 @@ import type {BaseService} from "@/interaction/service.ts";
 import type {Insert, Operator, Update} from "@/declaration/modulize.ts";
 import {type Consumer, type MaybeInvalid, type Predicate, type Runnable, validate} from "semantic-typescript";
 import {ElMessage, ElMessageBox, type FormInstance} from "element-plus";
+import {Check, Clock, Close, Lock, Unlock} from "@element-plus/icons-vue";
+import {useDateFormat} from "@/hooks/datetime.ts";
 
 interface Property<E extends BaseEntity>{
   service: BaseService<E>;
@@ -138,7 +168,7 @@ const search: Runnable = (): void => {
           query.value.page = page.page.number;
           query.value.size = Math.max(page.page.size, 10);
           data.value.length = 0;
-          emit("search", query.value.target);
+          emit("search", query.value);
           page.content.forEach((entity) => data.value.push(entity as unknown as any));
           load.value = false;
         }, ()=> {
@@ -155,11 +185,15 @@ const search: Runnable = (): void => {
   }
 };
 const resetQueryForm: Runnable = (): void => {
-  query.value.total = 0;
-  query.value.page = 0;
-  query.value.size = 10;
   if(validate(queryForm.value)){
     queryForm.value.resetFields();
+    query.value = {
+      total: 0,
+      page: 0,
+      size: 10,
+      target: {},
+      direction: "ASC"
+    };
   }
 };
 
@@ -175,10 +209,9 @@ const insertOperator: Operator<E> = {
     insert.value.show = false;
   },
   reset: (): void => {
-
     if(validate(insertForm.value)){
       insertForm.value.resetFields();
-      console.log("click")
+      insert.value.target = {};
     }
   },
   validate: async (): Promise<void> => {
@@ -201,20 +234,23 @@ const insertOperator: Operator<E> = {
     return await new Promise<void>((resolve, reject): void => {
       insertOperator.validate().then((): void => {
         property.service.insert(insert.value.target as unknown as E).then((): void => {
-          emit("insert", update.value.target as unknown as E);
+          emit("insert", update.value);
           search();
+          resolve();
           ElMessage({
             message: "操作成功",
             type: "success"
           });
           insertOperator.dismiss();
         }, (): void => {
+          reject();
           ElMessage({
             message: "操作失败",
             type: "warning"
           });
         });
       }, (): void => {
+        reject();
         ElMessage({
           message: "操作失败",
           type: "warning"
@@ -260,7 +296,7 @@ const updateOperator: Operator<E> = {
     return await new Promise<void>((resolve, reject): void => {
       updateOperator.validate().then((): void => {
         property.service.update(update.value.target as unknown as E).then((): void => {
-          emit("update", update.value.target as unknown as E);
+          emit("update", update.value);
           search();
           ElMessage({
             message: "操作成功",
@@ -435,11 +471,11 @@ const multipleDelete: Runnable = (): void => {
 };
 
 interface Emit<E extends BaseEntity>{
-  (event: "search", value: E | Partial<E>): void;
+  (event: "search", value: Query<E>): void;
   (event: "load", value: Page<E>): void;
   (event: "clear"): void;
-  (event: "insert", value: E | Partial<E>): void;
-  (event: "update", value: E | Partial<E>): void;
+  (event: "insert", value: Insert<E>): void;
+  (event: "update", value: Update<E>): void;
   (event: "delete", value: E | Partial<E>): void;
   (event: "validate", value: boolean): void;
 }

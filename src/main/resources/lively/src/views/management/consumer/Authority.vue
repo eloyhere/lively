@@ -1,6 +1,6 @@
 <template>
   <Modulize :service="authorityService" v-model:query="query" v-model:data="data" v-model:update="update" v-model:insert="insert">
-    <template #search>
+    <template #search="{search}">
       <ElFormItem label="id" prop="id" :rules="[
           {
             pattern: /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/,
@@ -8,7 +8,7 @@
             trigger: 'blur'
           }
       ]">
-        <ElInput placeholder="请输入id" v-model="query.target.id" clearable/>
+        <ElInput placeholder="请输入id" v-model="search.id" clearable/>
       </ElFormItem>
       <ElFormItem label="权限" prop="authority" :rules="[
           {
@@ -18,7 +18,7 @@
             trigger: 'blur'
           }
       ]">
-        <ElInput placeholder="请输入权限" v-model="query.target.authority" clearable/>
+        <ElInput placeholder="请输入权限" v-model="search.authority" clearable/>
       </ElFormItem>
     </template>
     <template #column>

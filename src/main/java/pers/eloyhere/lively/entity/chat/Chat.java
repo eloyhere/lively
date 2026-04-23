@@ -41,7 +41,7 @@ public class Chat extends BaseEntity {
     @OrderBy("username ASC")
     private Set<Consumer> members = new LinkedHashSet<>();
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     @JoinColumn(name = "owner")
     private Consumer owner;
 

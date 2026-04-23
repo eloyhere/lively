@@ -46,6 +46,13 @@ import {AnnouncementService, ConsumerService} from "@/interaction/service.ts";
 
 const router:Router = useRouter();
 
+const authenticationWebsocket: WebSocket = new WebSocket("ws://localhost:8080/websocket/authentication");
+authenticationWebsocket.addEventListener("open", () => {
+  authenticationWebsocket.send("1");
+});
+authenticationWebsocket.addEventListener("message", (event: MessageEvent) => {
+  console.log(event.data);
+});
 const consumerService: ConsumerService = new ConsumerService();
 const authentication: ComputedRef<MaybeInvalid<Authentication>> = computed<MaybeInvalid<Authentication>>((): MaybeInvalid<Authentication> => {
   return useAuthenticationStore().authentication;
@@ -122,6 +129,7 @@ onMounted((): void => {
     page: 0,
     size: 10,
     total: 10,
+    direction: "ASC",
     target: {}
   }).then((value): void => {
     announcements.length = 0;

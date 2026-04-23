@@ -73,7 +73,6 @@ public class DataInitializer implements CommandLineRunner {
         Map<String, Route> map = new TreeMap<>();
         Route route1 = new Route();
         route1.setPath("/");
-        route1.setFull("/");
         route1.setName("index");
         map.put(route1.getName(), route1);
         return map;

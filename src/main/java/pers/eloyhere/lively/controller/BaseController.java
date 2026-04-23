@@ -9,6 +9,7 @@ import pers.eloyhere.lively.annotation.Administrator;
 import pers.eloyhere.lively.annotation.Authenticated;
 import pers.eloyhere.lively.annotation.Everyone;
 import pers.eloyhere.lively.entity.BaseEntity;
+import pers.eloyhere.lively.entity.consumer.Consumer;
 import pers.eloyhere.lively.repository.BaseRepository;
 import pers.eloyhere.lively.service.BaseService;
 import tools.jackson.databind.ObjectMapper;
@@ -99,9 +100,9 @@ public class BaseController<E extends BaseEntity, R extends BaseRepository<E>, S
         return ResponseEntity.ok(this.service.findAllBy(entity));
     }
 
+    @Authenticated
     @GetMapping("findAllPagedBy")
     public ResponseEntity<Page<E>> findAllPagedBy(@Nonnull final E entity, @Nonnull @RequestParam final Integer page, @Nonnull @RequestParam Integer size, Sort.Direction direction, Collection<String> properties){
-        System.out.println("================="+entity);
         if(Objects.isNull(direction) || Objects.isNull(properties)){
             return ResponseEntity.ok(this.service.findAllPagedBy(entity, page, size));
         }

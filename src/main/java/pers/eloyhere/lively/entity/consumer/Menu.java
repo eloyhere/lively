@@ -6,6 +6,7 @@ import org.hibernate.annotations.Fetch;
 import pers.eloyhere.lively.entity.BaseEntity;
 
 import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "menu")
@@ -23,7 +24,7 @@ public class Menu extends BaseEntity {
     private Menu parent;
 
     @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.REMOVE})
-    private LinkedHashSet<Menu> children = new LinkedHashSet<>();
+    private Set<Menu> children = new LinkedHashSet<>();
 
     public Menu() {
     }

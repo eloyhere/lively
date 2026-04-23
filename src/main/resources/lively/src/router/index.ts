@@ -125,6 +125,22 @@ const router: Router = createRouter({
           },
           component: () => import("../views/management/Announcement.vue"),
         },
+        {
+          name: "ManagementOnline",
+          path: "/management/online",
+          meta: {
+            title: "在线日志"
+          },
+          component: () => import("../views/management/Online.vue"),
+        },
+        {
+          name: "ManagementOperation",
+          path: "/management/operation",
+          meta: {
+            title: "操作日志"
+          },
+          component: () => import("../views/management/Operation.vue"),
+        },
       ]
     },
     {

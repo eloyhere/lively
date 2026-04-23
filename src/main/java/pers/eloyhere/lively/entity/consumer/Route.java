@@ -1,5 +1,6 @@
 package pers.eloyhere.lively.entity.consumer;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import pers.eloyhere.lively.entity.BaseEntity;
@@ -16,9 +17,6 @@ public class Route extends BaseEntity {
 
     @Column(name = "path", unique = true)
     private String path;
-
-    @Column(name = "full", unique = true)
-    private String full;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
@@ -45,13 +43,5 @@ public class Route extends BaseEntity {
 
     public void setPath(String path) {
         this.path = path;
-    }
-
-    public String getFull() {
-        return full;
-    }
-
-    public void setFull(String full) {
-        this.full = full;
     }
 }

@@ -15,16 +15,21 @@ import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
 import pers.eloyhere.lively.entity.consumer.Consumer;
 import pers.eloyhere.lively.repository.consumer.ConsumerRepository;
+import pers.eloyhere.lively.repository.consumer.RoleRepository;
 import pers.eloyhere.lively.service.BaseService;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service("consumerService")
 public class ConsumerService extends BaseService<Consumer, ConsumerRepository> implements UserDetailsManager {
 
-    public ConsumerService(ConsumerRepository repository) {
+    private final RoleRepository roleRepository;
+
+    public ConsumerService(ConsumerRepository repository, RoleRepository roleRepository) {
         super(repository);
+        this.roleRepository = roleRepository;
     }
 
     @Override
@@ -32,6 +37,24 @@ public class ConsumerService extends BaseService<Consumer, ConsumerRepository> i
         if(Objects.nonNull(user) && user instanceof Consumer consumer){
             this.insert(consumer);
         }
+    }
+
+    public Optional<Consumer> addRole(@Nonnull final UUID consumer, @Nonnull final UUID role){
+        return this.repository.findById(consumer).flatMap((c) -> {
+            return this.roleRepository.findById(role).map((r) -> {
+                c.add(r);
+                return this.repository.saveAndFlush(c);
+            });
+        });
+    }
+
+    public Optional<Consumer> removeRole(@Nonnull final UUID consumer, @Nonnull final UUID role){
+        return this.repository.findById(consumer).flatMap((c) -> {
+            return this.roleRepository.findById(role).map((r) -> {
+                c.remove(r);
+                return this.repository.saveAndFlush(c);
+            });
+        });
     }
 
     @Override
@@ -98,4 +121,10 @@ public class ConsumerService extends BaseService<Consumer, ConsumerRepository> i
         }
         throw new UsernameNotFoundException("Null.");
     }
+
+    @Override
+    public void deleteAll() {
+        super.deleteAll();
+    }
+
 }

@@ -7,7 +7,7 @@ import type {
     Token,
     Announcement,
     Query,
-    Page, Book, Chapter, Authentication
+    Page, Book, Chapter, Authentication, Menu, Message, Route, Chat
 } from "@/declaration/entity";
 import {useDelete, useGet, usePost, usePut} from "@/hooks/network";
 import {type Serializer} from "@/declaration/serialization";
@@ -27,18 +27,21 @@ export class BaseService<E extends BaseEntity>{
         this.module = module;
     }
 
-    public async countBy(entity: E): Promise<bigint>;
-    public async countBy(entity: Partial<E>): Promise<bigint>;
-    public async countBy(entity: E | Partial<E>): Promise<bigint> {
+    public async countBy(entity: E): Promise<number>;
+    public async countBy(entity: Partial<E>): Promise<number>;
+    public async countBy(entity: E | Partial<E>): Promise<number> {
         let url: string = `${this.prefix}/${this.module}/countBy`;
         let parameters: URLSearchParams = new URLSearchParams();
         parameters.append("payload", this.serializer.serialize(entity));
-        return new Promise<bigint>((resolve: FConsumer<bigint>, reject: FConsumer<unknown>) => {
+        return new Promise<number>((resolve: FConsumer<number>, reject: FConsumer<unknown>) => {
             try{
                 useGet(url, parameters)
                     .then((response: Response) => {
                         if(response.status === 200){
-                            response.json().then(BigInt).then(resolve);
+                            response.text().then((value: string) => {
+                                console.log("trace", value)
+                                resolve(Number(value));
+                            });
                         }else{
                             reject(response.statusText);
                         }
@@ -508,15 +511,44 @@ export class AnnouncementService extends BaseService<Announcement>{
 }
 
 export class BookService extends BaseService<Book>{
+
     public constructor() {
         super("book");
     }
 }
 
 export class ChapterService extends BaseService<Chapter>{
+
     public constructor() {
         super("chapter");
     }
 }
 
+export class MessageService extends BaseService<Message>{
 
+    public constructor() {
+        super("message");
+    }
+}
+
+export class ChatService extends BaseService<Chat>{
+
+    public constructor() {
+        super("chat");
+    }
+}
+
+export class MenuService extends BaseService<Menu>{
+
+    public constructor() {
+        super("menu");
+    }
+}
+
+
+export class RouteService extends BaseService<Route>{
+
+    public constructor() {
+        super("route");
+    }
+}

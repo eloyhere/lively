@@ -16,6 +16,7 @@ import type {Link} from "@/declaration/component.ts";
 
 const links: Array<Link> = reactive<Array<Link>>([
   { text: "首页", icon: "house", href: "/" },
+  { text: "关卡", icon: "IceCream", href: "/level" },
   { text: "中医药知识", icon: "cherry", href: "/knowledge" },
   { text: "方剂查询", icon: "document", href: "/prescription" },
   { text: "在线咨询", icon: "chat-dot-round", href: "/consultation" },
