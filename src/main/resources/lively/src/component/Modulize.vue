@@ -141,7 +141,7 @@
 
 import type {BaseEntity, Page, Query} from "@/declaration/entity.ts";
 import {type ModelRef, onMounted, type Reactive, reactive, ref, type Ref,} from "vue";
-import type {BaseService} from "@/interaction/service.ts";
+import type {BaseService} from "../hooks/service.ts";
 import type {Insert, Operator, Update} from "@/declaration/modulize.ts";
 import {type Consumer, type MaybeInvalid, type Predicate, type Runnable, validate} from "semantic-typescript";
 import {ElMessage, ElMessageBox, type FormInstance} from "element-plus";

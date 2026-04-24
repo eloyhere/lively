@@ -51,7 +51,7 @@ export interface Role extends BaseEntity{
     name: string;
     routes: Array<Route>;
     menus: Array<Menu>;
-    authorities: Set<Authority>;
+    authorities: Array<Authority>;
 }
 
 export interface Token extends BaseEntity{
@@ -119,6 +119,10 @@ export interface Menu extends BaseEntity{
     children: Array<Menu>;
 }
 
-export interface Route extends BaseEntity, Pick<RouteRecordRaw, "name" | "path"  | "children">{
-
+export interface Route extends BaseEntity, Pick<RouteRecordRaw, "name" | "path">{
+    title: string;
+    component: string;
+    children: Array<Route>;
 }
+
+let a: Route;

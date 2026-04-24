@@ -9,6 +9,7 @@ import java.time.ZoneId;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeMap;
 
 @Entity
 @Table(name = "chat")
@@ -57,6 +58,8 @@ public class Chat extends BaseEntity {
     }
 
     public void send(Consumer consumer, Message message){
+        this.messages.add(message);
+        message.setChat(this);
         message.setSender(consumer);
     }
 
@@ -113,5 +116,13 @@ public class Chat extends BaseEntity {
 
     public void setOwner(Consumer owner) {
         this.owner = owner;
+    }
+
+    @Override
+    public TreeMap<String, Object> properties() {
+        TreeMap<String, Object> map = super.properties();
+        map.put("name", this.getName());
+        map.put("description", this.getDescription());
+        return map;
     }
 }

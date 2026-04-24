@@ -12,10 +12,6 @@ import pers.eloyhere.lively.repository.consumer.ConsumerRepository;
 import pers.eloyhere.lively.repository.consumer.RoleRepository;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Order(-42148519)
@@ -28,6 +24,7 @@ public class DataInitializer implements CommandLineRunner {
 
     private final ConsumerRepository consumerRepository;
 
+
     public DataInitializer(AuthorityRepository authorityRepository, RoleRepository roleRepository, ConsumerRepository consumerRepository) {
         this.authorityRepository = authorityRepository;
         this.roleRepository = roleRepository;
@@ -36,7 +33,7 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String @NonNull ... args) throws Exception {
-        consumers(roles(authorities(), routes(), menus()));
+        consumers(roles(authorities()));
     }
 
     private Map<String, Authority> authorities(){
@@ -58,7 +55,7 @@ public class DataInitializer implements CommandLineRunner {
         }).toList()).forEach((authority) -> map.put(authority.getAuthority(), authority));
         List<Authority> authorities = modules.stream().flatMap((a) -> {
             return atomic.stream().map((b)-> {
-                String authorization = a.concat(":").concat(b);
+                String authorization = a.concat("::").concat(b);
                Authority authority = new Authority();
                authority.setAuthority(authorization);
                authority.setDescription(authorization);
@@ -69,21 +66,7 @@ public class DataInitializer implements CommandLineRunner {
         return map;
     }
 
-    private Map<String, Route> routes(){
-        Map<String, Route> map = new TreeMap<>();
-        Route route1 = new Route();
-        route1.setPath("/");
-        route1.setName("index");
-        map.put(route1.getName(), route1);
-        return map;
-    }
-
-    private Map<String, Menu> menus(){
-        Map<String, Menu> map = new TreeMap<>();
-        return map;
-    }
-
-    private Map<String, Role> roles(Map<String, Authority> authorities, Map<String, Route> routes, Map<String, Menu> menus){
+    private Map<String, Role> roles(Map<String, Authority> authorities){
         Map<String, Role> map = new TreeMap<>();
         roleRepository.saveAllAndFlush(Stream.of("administrator", "consumer", "guest").map((name)-> {
             Role role = new Role();
@@ -94,26 +77,10 @@ public class DataInitializer implements CommandLineRunner {
                     authorities.forEach((k, v) -> {
                         role.add(v);
                     });
-                    routes.forEach((k, v) -> {
-                        role.add(v);
-                    });
-                    menus.forEach((k, v) -> {
-                        role.add(v);
-                    });
                 }
                 case "consumer" -> {
                     List<String> white = List.of("book", "chapter", "chat", "message", "consumer", "announcement", "select", "count");
                     authorities.forEach((k, v) -> {
-                        if(white.contains(k)){
-                            role.add(v);
-                        }
-                    });
-                    routes.forEach((k, v) -> {
-                        if(white.contains(k)){
-                            role.add(v);
-                        }
-                    });
-                    menus.forEach((k, v) -> {
                         if(white.contains(k)){
                             role.add(v);
                         }
@@ -132,7 +99,7 @@ public class DataInitializer implements CommandLineRunner {
 
         Consumer administrator = new Consumer();
         administrator.setNickname("administrator");
-        administrator.setAvatar("http://localhost:8080/smile.png");
+        administrator.setAvatar("/smile.png");
         administrator.setPassword(passwordEncoder.encode("z123."));
         administrator.setUsername("administrator");
         administrator.add(roles.get("administrator"));
@@ -140,7 +107,7 @@ public class DataInitializer implements CommandLineRunner {
 
         Consumer consumer = new Consumer();
         consumer.setNickname("consumer");
-        consumer.setAvatar("http://localhost:8080/smile.png");
+        consumer.setAvatar("/smile.png");
         consumer.setPassword(passwordEncoder.encode("z123."));
         consumer.setUsername("consumer");
         consumer.add(roles.get("consumer"));

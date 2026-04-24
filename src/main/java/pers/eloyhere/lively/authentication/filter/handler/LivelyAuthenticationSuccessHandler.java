@@ -40,7 +40,7 @@ public class LivelyAuthenticationSuccessHandler implements AuthenticationSuccess
         response.setContentType("application/json;charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpStatus.OK.value());
-
         repository.saveContext(context, request, response);
+        request.getRequestDispatcher("/authentication/identity").forward(request, response);
     }
 }

@@ -32,7 +32,7 @@ import * as echarts from "echarts";
 import {ElMessage} from "element-plus";
 import {onActivated, onDeactivated, onMounted, onUnmounted, type Reactive, reactive, ref, type Ref} from "vue";
 import {invalidate, type MaybeInvalid, validate} from "semantic-typescript";
-import {ConsumerService} from "@/interaction/service.ts";
+import {ConsumerService} from "../../hooks/service.ts";
 import {useTransition} from "@vueuse/core";
 interface Structure extends Record<string, number>{
   freeMemory: number;

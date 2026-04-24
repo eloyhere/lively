@@ -9,9 +9,15 @@ public class CrossOriginConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**").allowedOrigins(
-                "http://127.0.0.1:5173",
-                "http://localhost:5173"
-        ).allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS").allowCredentials(true);
+        registry.addMapping("/**")
+                .allowedOrigins("http://localhost")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
+                .allowedHeaders("Authorization", "Content-Type", "X-Requested-With",
+                        "Accept", "Origin", "Access-Control-Request-Method",
+                        "Access-Control-Request-Headers")
+                .exposedHeaders("Authorization", "Access-Control-Allow-Origin",
+                        "Access-Control-Allow-Credentials")
+                .allowCredentials(true)
+                .maxAge(3600);
     }
 }

@@ -7,6 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import pers.eloyhere.lively.entity.BaseEntity;
 
+import java.util.TreeMap;
+
 @Entity
 @Table(name = "invitation")
 public class Invitation extends BaseEntity {
@@ -28,5 +30,12 @@ public class Invitation extends BaseEntity {
 
     public void setCode(Long code){
         this.code = Long.toHexString(code);
+    }
+
+    @Override
+    public TreeMap<String, Object> properties() {
+        TreeMap<String, Object> map = super.properties();
+        map.put("code", this.getCode());
+        return map;
     }
 }

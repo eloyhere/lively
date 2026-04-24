@@ -3,6 +3,8 @@ package pers.eloyhere.lively.entity.book;
 import jakarta.persistence.*;
 import pers.eloyhere.lively.entity.BaseEntity;
 
+import java.util.TreeMap;
+
 @Entity
 @Table(name = "chapter")
 public class Chapter extends BaseEntity {
@@ -65,5 +67,15 @@ public class Chapter extends BaseEntity {
 
     public void setBook(Book book) {
         this.book = book;
+    }
+
+    @Override
+    public TreeMap<String, Object> properties() {
+        TreeMap<String, Object> map = super.properties();
+        map.put("title", this.title);
+        map.put("content", this.content);
+        map.put("index", this.index);
+        map.put("summary", this.summary);
+        return map;
     }
 }

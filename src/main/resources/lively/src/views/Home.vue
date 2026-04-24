@@ -29,7 +29,7 @@ onMounted((): void => {
 <style scoped>
 
 .home-container{
-  background: url("http://localhost:8080/background.jpeg") no-repeat fixed;
+  background: url("/background.jpeg") no-repeat fixed;
   background-size: 100% 100%;
   width: 100%;
   height: 100%

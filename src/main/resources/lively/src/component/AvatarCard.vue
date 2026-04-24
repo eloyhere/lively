@@ -40,9 +40,9 @@ import {type Router, useRouter} from "vue-router";
 import {computed, type ComputedRef, onMounted, reactive} from "vue";
 import {type Consumer, type MaybeInvalid, validate} from "semantic-typescript";
 import type {Announcement, Authentication} from "@/declaration/entity.ts";
-import {useAuthenticationStore} from "@/stores/authentication.ts";
+import {authenticationStore} from "@/stores/authentication.ts";
 import {ElMessage, ElMessageBox, ElNotification} from "element-plus";
-import {AnnouncementService, ConsumerService} from "@/interaction/service.ts";
+import {AnnouncementService, ConsumerService} from "../hooks/service.ts";
 
 const router:Router = useRouter();
 
@@ -55,16 +55,16 @@ authenticationWebsocket.addEventListener("message", (event: MessageEvent) => {
 });
 const consumerService: ConsumerService = new ConsumerService();
 const authentication: ComputedRef<MaybeInvalid<Authentication>> = computed<MaybeInvalid<Authentication>>((): MaybeInvalid<Authentication> => {
-  return useAuthenticationStore().authentication;
+  return authenticationStore().authentication;
 });
 const nickname: ComputedRef<string> = computed<string>((): string => {
-  return useAuthenticationStore().nickname.get("游客");
+  return authenticationStore().nickname.get("游客");
 })
 const isAuthenticated: ComputedRef<boolean> = computed<boolean>((): boolean => {
-  return useAuthenticationStore().authenticated;
+  return authenticationStore().authenticated;
 });
 const avatar: ComputedRef<string> = computed<string>((): string => {
-  let authentication = useAuthenticationStore().authentication;
+  let authentication = authenticationStore().authentication;
   if(validate(authentication)){
     if(validate(authentication.principal)){
       return authentication.principal.avatar;

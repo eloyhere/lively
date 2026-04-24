@@ -34,7 +34,7 @@
 <script setup lang="ts">
 
 import Modulize from "@/component/Modulize.vue";
-import {AuthorityService} from "@/interaction/service.ts";
+import {AuthorityService} from "../../../hooks/service.ts";
 import type {Authority, Query} from "@/declaration/entity.ts";
 import {reactive, type Reactive} from "vue";
 import type {Insert, Update} from "@/declaration/modulize.ts";
@@ -57,9 +57,6 @@ const update: Reactive<Update<Authority>> = reactive<Update<Authority>>({
 });
 const data: Reactive<Array<Authority>> = reactive<Array<Authority>>([]);
 </script>
-
-
-
 <style scoped>
 
 </style>

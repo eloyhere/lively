@@ -45,11 +45,7 @@ class AuthenticationController {
 
     private final ConsumerService consumerService;
 
-    private final TokenService tokenService;
-
     private final InvitationService invitationService;
-
-    private final AuthenticationManager authenticationManager;
 
     private final HttpServletRequest request;
 
@@ -60,20 +56,10 @@ class AuthenticationController {
     AuthenticationController(SecurityContextRepository repository, ConsumerService consumerService, TokenService tokenService, InvitationService invitationService, AuthenticationManager authenticationManager, HttpServletRequest request, HttpServletResponse response, LivelyPersistentTokenBasedRememberMeServices livelyPersistentTokenBasedRememberMeServices) {
         this.repository = repository;
         this.consumerService = consumerService;
-        this.tokenService = tokenService;
         this.invitationService = invitationService;
-        this.authenticationManager = authenticationManager;
         this.request = request;
         this.response = response;
         this.livelyPersistentTokenBasedRememberMeServices = livelyPersistentTokenBasedRememberMeServices;
-    }
-
-    @Everyone
-    @GetMapping("success")
-    public ResponseEntity<Authentication> success(){
-        SecurityContext context = SecurityContextHolder.getContext();
-        Authentication authentication = context.getAuthentication();
-        return ResponseEntity.ok(authentication);
     }
 
     @Everyone
@@ -94,16 +80,8 @@ class AuthenticationController {
         }
     }
 
-    @Everyone
-    @GetMapping("failure")
-    public ResponseEntity<Authentication> failure(){
-        SecurityContext context = SecurityContextHolder.getContext();
-        Authentication authentication = context.getAuthentication();
-        return ResponseEntity.ok(authentication);
-    }
-
     @Authenticated
-    @GetMapping("identity")
+    @RequestMapping("identity")
     public ResponseEntity<Authentication> identity(){
         SecurityContext context = SecurityContextHolder.getContext();
         Authentication authentication = context.getAuthentication();

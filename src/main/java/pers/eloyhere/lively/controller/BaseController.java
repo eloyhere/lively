@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import pers.eloyhere.lively.annotation.Administrator;
 import pers.eloyhere.lively.annotation.Authenticated;
 import pers.eloyhere.lively.annotation.Everyone;
+import pers.eloyhere.lively.annotation.Unauthenticated;
 import pers.eloyhere.lively.entity.BaseEntity;
 import pers.eloyhere.lively.entity.consumer.Consumer;
 import pers.eloyhere.lively.repository.BaseRepository;
@@ -89,12 +90,13 @@ public class BaseController<E extends BaseEntity, R extends BaseRepository<E>, S
         return ResponseEntity.ok(this.service.findAllByIdentifiers(identifiers));
     }
 
+    @Administrator
     @GetMapping("findAll")
     public ResponseEntity<Collection<E>> findAll(){
         return ResponseEntity.ok(this.service.findAll());
     }
 
-    @Administrator
+    @Authenticated
     @GetMapping("findAllBy")
     public ResponseEntity<Collection<E>> findAllBy(@Nonnull final E entity){
         return ResponseEntity.ok(this.service.findAllBy(entity));

@@ -1,5 +1,5 @@
 <template>
-  <ElContainer class="container">
+  <ElContainer class="container" v-loading="load">
     <div>
       <div class="cartoon">
         <div style="grid-area: 1/1;">
@@ -248,26 +248,22 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, reactive, ref, type Ref} from "vue";
+import {onMounted, reactive, ref, type Ref, onUnmounted} from "vue";
 import { Picture } from "@element-plus/icons-vue";
 import { fetchPicture } from "@/hooks/picture";
 import {useGet, usePost} from "@/hooks/network";
 import {ElLoading, ElMessage, type FormInstance} from "element-plus";
-import {useAuthenticationStore} from "@/stores/authentication";
+import {authenticationStore} from "@/stores/authentication";
 import {useSerialization} from "@/hooks/serialization";
 import type {Authentication, Consumer} from "@/declaration/entity";
 import {type Router, useRouter} from "vue-router";
 import {type MaybeInvalid, type Runnable, validate,} from "semantic-typescript";
 import {Optional} from "semantic-typescript";
 import {useDataUrl, useOrigin} from "@/hooks/url";
-import {ConsumerService} from "@/interaction/service.ts";
+import {ConsumerService} from "../../hooks/service.ts";
 
 const router: Router = useRouter();
-const load = ElLoading.service({
-  lock: true,
-  text: "加载中...",
-  background: "rgba(0, 0, 0, 0.7)",
-});
+const load: Ref<boolean> = ref<boolean>(true);
 const consumerService: ConsumerService = new ConsumerService();
 
 type Title = "UsernameAndPasswordLogin" | "CheckCodeLogin" | "QRLogin" | "register";
@@ -303,7 +299,7 @@ const performUsernamePasswordLogin: () => void = async (): Promise<void> => {
       if(valid){
         consumerService.login(usernamePasswordLoginFormData.username,
         usernamePasswordLoginFormData.password,
-        usernamePasswordLoginFormData.remember).then(() => {
+        usernamePasswordLoginFormData.remember).then((authentication: Authentication): void => {
           ElMessage({
             message: "登录成功",
             type: "success"
@@ -312,18 +308,10 @@ const performUsernamePasswordLogin: () => void = async (): Promise<void> => {
             path: "/"
           });
         }, (reason) => {
+          console.log(reason)
           ElMessage({
             message: "登录失败",
             type: "info"
-          });
-        }).then((): void => {
-          consumerService.identity().then((authentication: Authentication): void => {
-            useAuthenticationStore().setAuthentication(authentication);
-          }).catch((): void => {
-            ElMessage({
-              message: "获取用户信息失败",
-              type: "info"
-            });
           });
         });
       }else{
@@ -360,7 +348,6 @@ const performCheckCodeLogin: () => void = async (): Promise<void> => {
         parameters.append("username", checkCodeLoginFormData.username);
         parameters.append("code", checkCodeLoginFormData.code);
         parameters.append("remember", String(checkCodeLoginFormData.remember));
-
       }else{
         ElMessage({
           message: "请完善信息",
@@ -442,14 +429,17 @@ const resetRegisterForm: Runnable = () => {
   }
 };
 onMounted(() => {
-  fetchPicture("http://localhost:8080/smile.png").then((value) => {
+  fetchPicture("/smile.png").then((value) => {
     smile.value = value;
     src.value = value;
-    load.close();
+    load.value = false;
   });
-  fetchPicture("http://localhost:8080/Close Eyes.png").then((value) => {
+  fetchPicture("/Close Eyes.png").then((value) => {
     closeEyes.value = value;
   });
+});
+onUnmounted(() => {
+  load.value = false;
 });
 </script>
 
@@ -474,7 +464,7 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
 
-  background: url(http://localhost:8080/background.jpeg) no-repeat fixed;
+  background: url("/background.jpeg") no-repeat fixed;
   background-size: 100% 100%;
 }
 

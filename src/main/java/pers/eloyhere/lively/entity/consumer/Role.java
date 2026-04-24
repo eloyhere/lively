@@ -32,23 +32,6 @@ public class Role extends BaseEntity implements GrantedAuthority, GrantedAuthori
     @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
     private Set<Authority> authorities = new LinkedHashSet<>();
 
-    @JoinTable(
-            name = "role_menus",
-            joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "menu_id")
-    )
-    @OrderBy("spawn ASC")
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private Set<Menu> menus = new LinkedHashSet<>();
-
-
-    @JoinTable(
-            name = "role_routes",
-            joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "route_id")
-    )
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private Set<Route> routes = new LinkedHashSet<>();
 
     public Role() {
 
@@ -73,22 +56,6 @@ public class Role extends BaseEntity implements GrantedAuthority, GrantedAuthori
 
     public void remove(Authority authority){
         this.authorities.remove(authority);
-    }
-
-    public void add(Route route){
-        this.routes.add(route);
-    }
-
-    public void remove(Route route){
-        this.routes.remove(route);
-    }
-
-    public void add(Menu menu){
-        this.menus.add(menu);
-    }
-
-    public void remove(Menu menu){
-        this.menus.remove(menu);
     }
 
     @Nonnull
@@ -116,19 +83,13 @@ public class Role extends BaseEntity implements GrantedAuthority, GrantedAuthori
         this.authorities = authorities;
     }
 
-    public Set<Menu> getMenus() {
-        return menus;
-    }
 
-    public void setMenus(LinkedHashSet<Menu> menus) {
-        this.menus = menus;
-    }
-
-    public Set<Route> getRoutes() {
-        return routes;
-    }
-
-    public void setRoutes(LinkedHashSet<Route> routes) {
-        this.routes = routes;
+    @Override
+    public TreeMap<String, Object> properties() {
+        TreeMap<String, Object> map = super.properties();
+        map.put("name", this.getName());
+        map.put("description", this.getDescription());
+        map.put("authority", this.getAuthority());
+        return map;
     }
 }

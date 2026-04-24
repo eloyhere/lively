@@ -177,4 +177,14 @@ public class Consumer extends BaseEntity implements UserDetails {
     public void setBlocks(Set<Consumer> blocks) {
         this.blocks = blocks;
     }
+
+    @Override
+    public TreeMap<String, Object> properties() {
+        TreeMap<String, Object> map = super.properties();
+        map.put("username", this.getUsername());
+        map.put("nickname", this.getNickname());
+        map.put("password", this.getPassword());
+        map.put("avatar", this.getAvatar());
+        return map;
+    }
 }

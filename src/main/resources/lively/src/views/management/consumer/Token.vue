@@ -9,7 +9,7 @@
 <script setup lang="ts">
 
 import Modulize from "@/component/Modulize.vue";
-import {TokenService} from "@/interaction/service.ts";
+import {TokenService} from "../../../hooks/service.ts";
 import {reactive, type Reactive} from "vue";
 import type {Query, Token} from "@/declaration/entity.ts";
 import type {Insert, Update} from "@/declaration/modulize.ts";

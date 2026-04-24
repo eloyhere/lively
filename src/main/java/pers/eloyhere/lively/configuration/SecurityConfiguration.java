@@ -62,11 +62,7 @@ public class SecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:5173",
-                "http://localhost:8080",
-                "http://localhost:80"
-        ));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost"));
         configuration.setAllowedMethods(Arrays.asList(
                 "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
         ));
@@ -110,8 +106,7 @@ public class SecurityConfiguration {
         livelyUsernamePasswordAuthenticationFilter.setRememberMeServices(rememberMeServices);
         livelyUsernamePasswordAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
         livelyUsernamePasswordAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
-        return security.cors((cors) -> cors.configurationSource(corsConfigurationSource))
-                .authorizeHttpRequests((request) -> request.requestMatchers("/websocket/**").authenticated().anyRequest().permitAll())
+        return security.authorizeHttpRequests((request) -> request.requestMatchers("/websocket/**").authenticated().anyRequest().permitAll())
                 .anonymous((anonymous) -> {
                     anonymous.key("anonymous").principal("guest").authorities("guest");
                   })
@@ -119,6 +114,7 @@ public class SecurityConfiguration {
                 .rememberMe((remember) -> remember.rememberMeServices(rememberMeServices))
                 .addFilterAt(livelyUsernamePasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class).exceptionHandling((exception) -> exception.authenticationEntryPoint(invalidateAuthenticationEntryPoint))
                 .formLogin(AbstractHttpConfigurer::disable)
+                .cors((cors) -> cors.configurationSource(corsConfigurationSource))
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                     .maximumSessions(4)
                     .maxSessionsPreventsLogin(false)

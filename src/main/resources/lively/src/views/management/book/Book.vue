@@ -1,6 +1,7 @@
 <template>
   <Modulize :service="bookService" v-model:query="query" v-model:data="data" v-model:update="update" v-model:insert="insert">
     <template #search="{search}">
+      
     </template>
     <template #column>
     </template>
@@ -9,7 +10,7 @@
 <script setup lang="ts">
 
 import Modulize from "@/component/Modulize.vue";
-import {BookService} from "@/interaction/service.ts";
+import {BookService} from "../../../hooks/service.ts";
 import {reactive, type Reactive} from "vue";
 import type {Query, Book} from "@/declaration/entity.ts";
 import type {Insert, Update} from "@/declaration/modulize.ts";

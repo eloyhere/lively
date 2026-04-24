@@ -10,10 +10,10 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Persistable;
 
+import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @MappedSuperclass
 public class BaseEntity implements Persistable<UUID>, Comparable<BaseEntity> {
@@ -53,14 +53,35 @@ public class BaseEntity implements Persistable<UUID>, Comparable<BaseEntity> {
     }
 
     @Override
-    public int compareTo(@NonNull BaseEntity o) {
-        if(Objects.isNull(this.getId())){
-            return Objects.isNull(o.getId()) ? 0 : -1;
+    public int compareTo(@Nullable BaseEntity other) {
+        if (this == other) {
+            return 0;
         }
-        if(Objects.isNull(o.getId())){
-            return Objects.isNull(this.getId()) ? 0 : 1;
+        if (other == null) {
+            return 1;
         }
-        return this.getId().compareTo(o.getId());
+        TreeMap<String, Object> current = this.properties();
+        TreeMap<String, Object> target = this.properties();
+        for(String name : current.keySet()){
+            Object c = current.get(name);
+            Object t = target.get(name);
+            if(c == t || Objects.equals(c, t)){
+                continue;
+            }
+            if(Objects.isNull(c)){
+                return -1;
+            }
+            if(Objects.isNull(t)){
+                return 1;
+            }
+            if(!c.getClass().equals(t.getClass())){
+                continue;
+            }
+            if(c instanceof Comparable<?>){
+                return ((Comparable)c).compareTo(t);
+            }
+        }
+        return 0;
     }
 
     @PrePersist
@@ -175,14 +196,25 @@ public class BaseEntity implements Persistable<UUID>, Comparable<BaseEntity> {
         if(this == o){
             return true;
         }
-        if(o instanceof BaseEntity other){
-            return Objects.equals(this.getId(), other.getId());
+        if(Objects.isNull(o) || !this.getClass().equals(o.getClass())){
+            return false;
         }
-        return false;
+        return Objects.equals(this.properties(), ((BaseEntity) o).properties());
     }
 
     @Override
     public final int hashCode() {
-        return Objects.hash(this.getId(), this.getBan(), this.getEdit(), this.getLock(), this.getVersion());
+        return Objects.hash(this.properties().values().toArray());
+    }
+
+    public TreeMap<String, Object> properties(){
+        TreeMap<String, Object> map = new TreeMap<>();
+        map.put("id", this.getId());
+        map.put("lock", this.getLock());
+        map.put("ban", this.getBan());
+        map.put("edit", this.getEdit());
+        map.put("spawn", this.getSpawn());
+        map.put("version", this.getVersion());
+        return map;
     }
 }

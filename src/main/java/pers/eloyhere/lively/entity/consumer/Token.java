@@ -10,6 +10,7 @@ import java.util.Date;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Objects;
+import java.util.TreeMap;
 
 @Entity
 @Table(name = "token")
@@ -70,6 +71,15 @@ public class Token extends BaseEntity {
             this.consumer = consumer;
             consumer.getTokens().add(this);
         }
+    }
+
+    @Override
+    public TreeMap<String, Object> properties() {
+        TreeMap<String, Object> map = super.properties();
+        map.put("token", this.getToken());
+        map.put("series", this.getSeries());
+        map.put("last", this.getLast());
+        return map;
     }
 
     public PersistentRememberMeToken toPersistentRememberMeToken() {

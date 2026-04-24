@@ -7,6 +7,7 @@ import pers.eloyhere.lively.entity.consumer.Consumer;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.TreeMap;
 
 @Entity
 @Table(name = "message")
@@ -70,5 +71,12 @@ public class Message extends BaseEntity {
 
     public void setSeen(Set<Consumer> seen) {
         this.seen = seen;
+    }
+
+    @Override
+    public TreeMap<String, Object> properties() {
+        TreeMap<String, Object> map = super.properties();
+        map.put("content", this.getContent());
+        return map;
     }
 }

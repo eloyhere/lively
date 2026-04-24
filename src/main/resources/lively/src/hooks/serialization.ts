@@ -52,7 +52,7 @@ export const useSerialization: UseSerialization = <E>(map?: MaybeInvalid<Map<Key
     if(validate(map) && map.size > 0){
         return {
             deserialize(text: string): E {
-                let regex: RegExp = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$/;
+                let regex: RegExp =/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\d{2})?$/;
                 return JSON.parse(text, (key, value) => {
                     if(map.has(key as K)){
                         let serializer: Serializer<V> = map.get(key as K)!;

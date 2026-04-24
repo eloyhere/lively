@@ -24,9 +24,9 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(new MonitorWebsocket(), "/websocket/monitor")
                 .addInterceptors(new HttpSessionHandshakeInterceptor())
-                .setAllowedOrigins("http://localhost:5173", "http://127.0.0.1:5173");
+                .setAllowedOrigins("http://localhost", "http://127.0.0.1");
         registry.addHandler(new AuthenticationWebsocket(), "/websocket/authentication")
                 .addInterceptors(new HttpSessionHandshakeInterceptor())
-                .setAllowedOrigins("http://localhost:5173", "http://127.0.0.1:5173");
+                .setAllowedOrigins("http://localhost", "http://127.0.0.1");
     }
 }

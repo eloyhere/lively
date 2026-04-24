@@ -1,7 +1,7 @@
-import {createRouter, createWebHistory, type RouteLocationNormalizedLoadedGeneric, type Router} from 'vue-router'
+import { createRouter, createWebHistory, type RouteLocationNormalizedLoadedGeneric, type Router } from 'vue-router'
 import Home from "@/views/Home.vue";
-import {useAuthenticationStore} from "@/stores/authentication.ts";
-import {ElMessage} from "element-plus";
+import { authenticationStore } from "@/stores/authentication.ts";
+import { ElMessage } from "element-plus";
 const router: Router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -9,7 +9,8 @@ const router: Router = createRouter({
       name: "Home",
       path: "/",
       meta: {
-        title: "首页"
+        title: "首页",
+        roles: ["guest", "consumer", "administrator"]
       },
       component: Home
     },
@@ -17,7 +18,8 @@ const router: Router = createRouter({
       name: "Management",
       path: "/management",
       meta: {
-        title: "管理"
+        title: "管理",
+        roles: ["consumer", "administrator"]
       },
       component: () => import("../views/Management.vue"),
       children: [
@@ -25,7 +27,8 @@ const router: Router = createRouter({
           name: "ManagementIndex",
           path: "/management",
           meta: {
-            title: "管理后台"
+            title: "管理后台",
+            roles: ["consumer", "administrator"]
           },
           component: () => import("../views/management/Index.vue"),
         },
@@ -33,7 +36,8 @@ const router: Router = createRouter({
           name: "ManagementAuthority",
           path: "/management/authority",
           meta: {
-            title: "权限管理"
+            title: "权限管理",
+            roles: ["consumer", "administrator"]
           },
           component: () => import("../views/management/consumer/Authority.vue"),
         },
@@ -41,7 +45,8 @@ const router: Router = createRouter({
           name: "ManagementConsumer",
           path: "/management/consumer",
           meta: {
-            title: "用户管理"
+            title: "用户管理",
+            roles: ["consumer", "administrator"]
           },
           component: () => import("../views/management/consumer/Consumer.vue"),
         },
@@ -49,15 +54,8 @@ const router: Router = createRouter({
           name: "ManagementInvitation",
           path: "/management/invitation",
           meta: {
-            title: "邀请管理"
-          },
-          component: () => import("../views/management/consumer/Invitation.vue"),
-        },
-        {
-          name: "ManagementMenu",
-          path: "/management/menu",
-          meta: {
-            title: "菜单管理"
+            title: "邀请管理",
+            roles: ["consumer", "administrator"]
           },
           component: () => import("../views/management/consumer/Invitation.vue"),
         },
@@ -65,7 +63,8 @@ const router: Router = createRouter({
           name: "ManagementRole",
           path: "/management/role",
           meta: {
-            title: "角色管理"
+            title: "角色管理",
+            roles: ["consumer", "administrator"]
           },
           component: () => import("../views/management/consumer/Role.vue"),
         },
@@ -73,7 +72,8 @@ const router: Router = createRouter({
           name: "ManagementRoute",
           path: "/management/route",
           meta: {
-            title: "路由管理"
+            title: "路由管理",
+            roles: ["consumer", "administrator"]
           },
           component: () => import("../views/management/consumer/Invitation.vue"),
         },
@@ -81,7 +81,8 @@ const router: Router = createRouter({
           name: "ManagementToken",
           path: "/management/token",
           meta: {
-            title: "凭据管理"
+            title: "凭据管理",
+            roles: ["consumer", "administrator"]
           },
           component: () => import("../views/management/consumer/Token.vue"),
         },
@@ -89,7 +90,8 @@ const router: Router = createRouter({
           name: "ManagementBook",
           path: "/management/book",
           meta: {
-            title: "书籍管理"
+            title: "书籍管理",
+            roles: ["consumer", "administrator"]
           },
           component: () => import("../views/management/book/Book.vue"),
         },
@@ -97,7 +99,8 @@ const router: Router = createRouter({
           name: "ManagementChapter",
           path: "/management/book/chapter",
           meta: {
-            title: "章节管理"
+            title: "章节管理",
+            roles: ["consumer", "administrator"]
           },
           component: () => import("../views/management/book/Chapter.vue"),
         },
@@ -105,7 +108,8 @@ const router: Router = createRouter({
           name: "ManagementChat",
           path: "/management/chat",
           meta: {
-            title: "聊天管理"
+            title: "聊天管理",
+            roles: ["consumer", "administrator"]
           },
           component: () => import("../views/management/chat/Chat.vue"),
         },
@@ -113,7 +117,8 @@ const router: Router = createRouter({
           name: "ManagementMessage",
           path: "/management/chat/message",
           meta: {
-            title: "消息管理"
+            title: "消息管理",
+            roles: ["consumer", "administrator"]
           },
           component: () => import("../views/management/chat/Message.vue"),
         },
@@ -121,7 +126,8 @@ const router: Router = createRouter({
           name: "ManagementAnnouncement",
           path: "/management/announcement",
           meta: {
-            title: "消息管理"
+            title: "公告管理",
+            roles: ["consumer", "administrator"]
           },
           component: () => import("../views/management/Announcement.vue"),
         },
@@ -129,7 +135,8 @@ const router: Router = createRouter({
           name: "ManagementOnline",
           path: "/management/online",
           meta: {
-            title: "在线日志"
+            title: "在线日志",
+            roles: ["consumer", "administrator"]
           },
           component: () => import("../views/management/Online.vue"),
         },
@@ -137,11 +144,12 @@ const router: Router = createRouter({
           name: "ManagementOperation",
           path: "/management/operation",
           meta: {
-            title: "操作日志"
+            title: "操作日志",
+            roles: ["consumer", "administrator"]
           },
           component: () => import("../views/management/Operation.vue"),
-        },
-      ]
+        }
+      ],
     },
     {
       name: "Authentication",
@@ -151,35 +159,38 @@ const router: Router = createRouter({
         {
           name: "Account",
           path: "/authentication/account",
+          meta: {
+            title: "账户",
+            roles: ["guest"]
+          },
           component: () => import("../views/authentication/Account.vue")
         },
         {
           name: "Profile",
           path: "/authentication/profile",
+          meta: {
+            title: "资料",
+            roles: ["consumer", "administrator"]
+          },
           component: () => import("../views/authentication/Profile.vue")
         }
       ]
     }
-  ],
+  ]
 })
 
 router.beforeEach((to: RouteLocationNormalizedLoadedGeneric, from) => {
-  let white = new Set(["/","/authentication/account"]);
-  if(useAuthenticationStore().authenticated){
-    if(to.path === "/authentication/account"){
-      return "/";
-    }
+  if(to.path === "/"){
     return true;
-  }else{
-    if(white.has(to.path)){
-      return true;
-    }else{
-      ElMessage({
-        message: "身份认证无效，请登录。",
-        type: "info"
-      });
-      return "/authentication/account";
-    }
   }
+  console.log(authenticationStore().roles)
+  let roles: Array<string> = (Array.isArray(to.meta.roles) ? to.meta.roles: []);
+  if(roles.some((name: string) => authenticationStore().roles.some((role) => name === role.name))){
+    return true;
+  }
+  return {
+    path: from.path,
+    replace: true
+  };
 });
 export default router;

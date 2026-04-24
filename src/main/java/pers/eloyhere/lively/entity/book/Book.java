@@ -7,6 +7,7 @@ import pers.eloyhere.lively.entity.BaseEntity;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.TreeMap;
 
 @Entity
 @Table(name = "book")
@@ -60,13 +61,22 @@ public class Book extends BaseEntity {
         this.chapters = chapters;
     }
 
-    public void addChapter(Chapter chapter) {
+    public void add(Chapter chapter) {
         chapters.add(chapter);
         chapter.setBook(this);
     }
 
-    public void removeChapter(Chapter chapter) {
+    public void remove(Chapter chapter) {
         chapters.remove(chapter);
         chapter.setBook(null);
+    }
+
+    @Override
+    public TreeMap<String, Object> properties() {
+        TreeMap<String, Object> map = super.properties();
+        map.put("name", this.name);
+        map.put("author", this.author);
+        map.put("publisher", this.publisher);
+        return map;
     }
 }

@@ -13,7 +13,7 @@
 <script setup lang="ts">
 
 import Modulize from "@/component/Modulize.vue";
-import {InvitationService} from "@/interaction/service.ts";
+import {InvitationService} from "../../../hooks/service.ts";
 import {reactive, type Reactive} from "vue";
 import type {Query, Invitation} from "@/declaration/entity.ts";
 import type {Insert, Update} from "@/declaration/modulize.ts";

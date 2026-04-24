@@ -10,6 +10,9 @@ import org.hibernate.annotations.NaturalIdCache;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import pers.eloyhere.lively.entity.BaseEntity;
+
+import java.util.TreeMap;
+
 @Entity
 @Table(name = "authority")
 @Cacheable
@@ -41,5 +44,13 @@ public class Authority extends BaseEntity implements GrantedAuthority {
     @Override
     public @Nullable String getAuthority() {
         return this.authority;
+    }
+
+    @Override
+    public TreeMap<String, Object> properties() {
+        TreeMap<String, Object> map = super.properties();
+        map.put("name", this.getAuthority());
+        map.put("description", this.getDescription());
+        return map;
     }
 }

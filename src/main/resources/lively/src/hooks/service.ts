@@ -1,19 +1,9 @@
-import type {
-    Authority,
-    BaseEntity,
-    Consumer,
-    Role,
-    Invitation,
-    Token,
-    Announcement,
-    Query,
-    Page, Book, Chapter, Authentication, Menu, Message, Route, Chat
-} from "@/declaration/entity";
+import type {Authority, BaseEntity, Consumer, Role, Invitation, Token, Announcement, Query, Page, Book, Chapter, Authentication, Menu, Message, Route, Chat} from "@/declaration/entity";
 import {useDelete, useGet, usePost, usePut} from "@/hooks/network";
 import {type Serializer} from "@/declaration/serialization";
 import {type Consumer as FConsumer, isObject, isString, type Optional} from "semantic-typescript";
 import {useSerialization} from "@/hooks/serialization";
-import {useAuthenticationStore} from "@/stores/authentication.ts";
+import {authenticationStore} from "@/stores/authentication.ts";
 
 export class BaseService<E extends BaseEntity>{
 
@@ -35,19 +25,7 @@ export class BaseService<E extends BaseEntity>{
         parameters.append("payload", this.serializer.serialize(entity));
         return new Promise<number>((resolve: FConsumer<number>, reject: FConsumer<unknown>) => {
             try{
-                useGet(url, parameters)
-                    .then((response: Response) => {
-                        if(response.status === 200){
-                            response.text().then((value: string) => {
-                                resolve(Number(value));
-                            });
-                        }else{
-                            if(response.status === 401){
-                                useAuthenticationStore().removeAuthentication();
-                            }
-                            reject(response);
-                        }
-                    })
+                useGet<number>(url, parameters).then(resolve, reject);
             }catch (e) {
                 reject(e);
             }
@@ -58,17 +36,7 @@ export class BaseService<E extends BaseEntity>{
         let url: string = `${this.prefix}/${this.module}/deleteAll`;
         return new Promise<void>((resolve: FConsumer<void>, reject: FConsumer<unknown>) => {
             try{
-                useDelete(url)
-                    .then((response: Response) => {
-                        if(response.status === 200){
-                            resolve();
-                        }else{
-                            if(response.status === 401){
-                                useAuthenticationStore().removeAuthentication();
-                            }
-                            reject(response);
-                        }
-                    });
+                useDelete<void>(url).then(resolve, reject);
             }catch (e) {
                 reject(e);
             }
@@ -81,17 +49,7 @@ export class BaseService<E extends BaseEntity>{
         parameters.append("identifier", identifier);
         return new Promise<void>((resolve: FConsumer<void>, reject: FConsumer<unknown>) => {
             try{
-                useDelete(url, parameters)
-                    .then((response: Response) => {
-                        if(response.status === 200){
-                            resolve();
-                        }else{
-                            if(response.status === 401){
-                                useAuthenticationStore().removeAuthentication();
-                            }
-                            reject(response);
-                        }
-                    });
+                useDelete<void>(url, parameters).then(resolve, reject);
             }catch (e) {
                 reject(e);
             }
@@ -106,17 +64,7 @@ export class BaseService<E extends BaseEntity>{
         parameters.append("payload", this.serializer.serialize(entity));
         return new Promise<void>((resolve: FConsumer<void>, reject: FConsumer<unknown>) => {
             try{
-                useDelete(url, parameters)
-                    .then((response: Response) => {
-                        if(response.status === 200){
-                            resolve();
-                        }else{
-                            if(response.status === 401){
-                                useAuthenticationStore().removeAuthentication();
-                            }
-                            reject(response);
-                        }
-                    });
+                useDelete<void>(url, parameters).then(resolve, reject);
             }catch (e) {
                 reject(e);
             }
@@ -129,17 +77,7 @@ export class BaseService<E extends BaseEntity>{
         parameters.append("payload", JSON.stringify(identifiers));
         return new Promise<void>((resolve: FConsumer<void>, reject: FConsumer<unknown>) => {
             try{
-                useDelete(url, parameters)
-                    .then((response: Response) => {
-                        if(response.status === 200){
-                            resolve();
-                        }else{
-                            if(response.status === 401){
-                                useAuthenticationStore().removeAuthentication();
-                            }
-                            reject(response);
-                        }
-                    });
+                useDelete<void>(url, parameters).then(resolve, reject);
             }catch (e) {
                 reject(e);
             }
@@ -154,17 +92,7 @@ export class BaseService<E extends BaseEntity>{
         parameters.append("payload", this.serializer.serialize(entity));
         return new Promise<boolean>((resolve: FConsumer<boolean>, reject: FConsumer<unknown>) => {
             try{
-                useGet(url, parameters)
-                    .then((response: Response) => {
-                        if(response.status === 200){
-                            response.json().then(resolve);
-                        }else{
-                            if(response.status === 401){
-                                useAuthenticationStore().removeAuthentication();
-                            }
-                            reject(response);
-                        }
-                    });
+                useGet<boolean>(url, parameters).then(resolve, reject);
             }catch (e) {
                 reject(e);
             }
@@ -177,19 +105,7 @@ export class BaseService<E extends BaseEntity>{
         parameters.append("identifier", identifier);
         return new Promise<E>((resolve: FConsumer<E>, reject: FConsumer<unknown>) => {
             try{
-                useGet(url, parameters)
-                    .then((response: Response) => {
-                        if(response.status === 200){
-                            response.text()
-                                .then(this.serializer.deserialize)
-                                .then(resolve);
-                        }else{
-                            if(response.status === 401){
-                                useAuthenticationStore().removeAuthentication();
-                            }
-                            reject(response);
-                        }
-                    })
+                useGet<E>(url, parameters).then(resolve, reject);
             }catch (e) {
                 reject(e);
             }
@@ -204,19 +120,7 @@ export class BaseService<E extends BaseEntity>{
         parameters.append("payload", this.serializer.serialize(entity));
         return new Promise<E>((resolve: FConsumer<E>, reject: FConsumer<unknown>) => {
             try{
-                useGet(url, parameters)
-                    .then((response: Response) => {
-                        if(response.status === 200){
-                            response.text()
-                                .then(this.serializer.deserialize)
-                                .then(resolve);
-                        }else{
-                            if(response.status === 401){
-                                useAuthenticationStore().removeAuthentication();
-                            }
-                            reject(response);
-                        }
-                    });
+                useGet<E>(url, parameters).then(resolve, reject);
             }catch (e) {
                 reject(e);
             }
@@ -230,19 +134,7 @@ export class BaseService<E extends BaseEntity>{
         let serializer: Serializer<Array<E>> = useSerialization();
         return new Promise<Array<E>>((resolve: FConsumer<Array<E>>, reject: FConsumer<unknown>) => {
             try{
-                useGet(url, parameters)
-                    .then((response: Response) => {
-                        if(response.status === 200){
-                            response.text()
-                                .then(serializer.deserialize)
-                                .then(resolve);
-                        }else{
-                            if(response.status === 401){
-                                useAuthenticationStore().removeAuthentication();
-                            }
-                            reject(response);
-                        }
-                    })
+                useGet<Array<E>>(url, parameters).then(resolve, reject);
             }catch (e) {
                 reject(e);
             }
@@ -253,19 +145,7 @@ export class BaseService<E extends BaseEntity>{
         let url: string = `${this.prefix}/${this.module}/findAll`;
         return new Promise<Array<E>>((resolve: FConsumer<Array<E>>, reject: FConsumer<unknown>) => {
             try {
-                let serializer: Serializer<Array<E>> = useSerialization();
-                useGet(url).then((response: Response) => {
-                    if(response.status === 200){
-                        response.text()
-                            .then(serializer.deserialize)
-                            .then(resolve);
-                    }else{
-                        if(response.status === 401){
-                            useAuthenticationStore().removeAuthentication();
-                        }
-                        reject(response);
-                    }
-                })
+                useGet<Array<E>>(url).then(resolve, reject);
             }catch (e) {
                 reject(e);
             }
@@ -278,19 +158,7 @@ export class BaseService<E extends BaseEntity>{
         let url: string = `${this.prefix}/${this.module}/findAllBy`;
         return new Promise<Array<E>>((resolve: FConsumer<Array<E>>, reject: FConsumer<unknown>) => {
             try {
-                let serializer: Serializer<Array<E>> = useSerialization();
-                useGet(url).then((response: Response) => {
-                    if(response.status === 200){
-                        response.text()
-                            .then(serializer.deserialize)
-                            .then(resolve);
-                    }else{
-                        if(response.status === 401){
-                            useAuthenticationStore().removeAuthentication();
-                        }
-                        reject(response);
-                    }
-                })
+                useGet<Array<E>>(url).then(resolve, reject);
             }catch (e) {
                 reject(e);
             }
@@ -306,19 +174,7 @@ export class BaseService<E extends BaseEntity>{
         parameters.append("page", String(Math.max(query.page - 1, 0)));
         return new Promise<Page<E>>((resolve: FConsumer<Page<E>>, reject: FConsumer<unknown>) => {
             try {
-                let serializer: Serializer<Page<E>> = useSerialization<Page<E>>();
-                useGet(url, parameters).then((response: Response) => {
-                    if(response.status === 200){
-                        response.text()
-                            .then(serializer.deserialize)
-                            .then(resolve);
-                    }else{
-                        if(response.status === 401){
-                            useAuthenticationStore().removeAuthentication();
-                        }
-                        reject(response);
-                    }
-                })
+                useGet<Page<E>>(url, parameters).then(resolve, reject);
             }catch (e) {
                 reject(e);
             }
@@ -334,18 +190,7 @@ export class BaseService<E extends BaseEntity>{
         parameters.append("payload", serializer.serialize(entity));
         return new Promise<E>((resolve: FConsumer<E>, reject: FConsumer<unknown>) => {
             try {
-                usePut(url, parameters).then((response: Response) => {
-                    if(response.status === 200){
-                        response.text()
-                            .then(serializer.deserialize)
-                            .then(resolve);
-                    }else{
-                        if(response.status === 401){
-                            useAuthenticationStore().removeAuthentication();
-                        }
-                        reject(response);
-                    }
-                })
+                usePut<E>(url, parameters).then(resolve, reject);
             }catch (e) {
                 reject(e);
             }
@@ -361,18 +206,7 @@ export class BaseService<E extends BaseEntity>{
         parameters.append("payload", serializer.serialize(entity));
         return new Promise<E>((resolve: FConsumer<E>, reject: FConsumer<unknown>) => {
             try {
-                usePut(url, parameters).then((response: Response) => {
-                    if(response.status === 200){
-                        response.text()
-                            .then(serializer.deserialize)
-                            .then(resolve);
-                    }else{
-                        if(response.status === 401){
-                            useAuthenticationStore().removeAuthentication();
-                        }
-                        reject(response);
-                    }
-                })
+                usePut<E>(url, parameters).then(resolve, reject);
             }catch (e) {
                 reject(e);
             }
@@ -406,96 +240,62 @@ export class ConsumerService extends BaseService<Consumer>{
     }
 
     public async identity():Promise<Authentication> {
-        let serializer: Serializer<Authentication> = useSerialization();
         return await new Promise<Authentication>((resolve, reject) => {
-            useGet("http://localhost:8080/authentication/identity")
-                .then((response: Response): void => {
-                    if(response.status === 200){
-                        response.text().then((text) => {
-                            let authentication: Authentication = serializer.deserialize(text);
-                            useAuthenticationStore().setAuthentication(authentication);
-                            resolve(authentication);
-                        });
-                    }else{
-                        if(response.status === 401){
-                            useAuthenticationStore().removeAuthentication();
-                        }
-                        reject(response);
-                    }
-                }, reject);
+            useGet<Authentication>("http://localhost:8080/authentication/identity").then((authentication: Authentication): void => {
+                authenticationStore().setAuthentication(authentication);
+                resolve(authentication);
+            }, reject);
         });
     }
 
-    public async login(consumer: AuthenticationForm): Promise<void>;
-    public async login(username: string, password: string, remember?: boolean): Promise<void>;
-    public async login(parameter1: string | AuthenticationForm, parameter2?: string, parameter3?: boolean): Promise<void>{
+    public async login(consumer: AuthenticationForm): Promise<Authentication>;
+    public async login(username: string, password: string, remember?: boolean): Promise<Authentication>;
+    public async login(parameter1: string | AuthenticationForm, parameter2?: string, parameter3?: boolean): Promise<Authentication>{
         if(isString(parameter1) && isString(parameter2)){
             let username: string = parameter1;
             let password: string = parameter2;
             let remember: boolean = parameter3 === true;
-            return await new Promise<void>((resolve, reject) => {
+            return await new Promise<Authentication>((resolve, reject) => {
                 let parameters: URLSearchParams = new URLSearchParams();
                 parameters.append("username", username);
                 parameters.append("password", password);
                 parameters.append("remember", String(remember));
-                usePost("http://localhost:8080/authentication/login", parameters)
-                    .then((response: Response): void => {
-                        if(response.status === 200){
-                            resolve();
-                        }else{
-                            reject(response);
-                        }
-                    }, reject);
+                usePost<Authentication>("http://localhost:8080/authentication/login", parameters).then((authentication: Authentication): void => {
+                    authenticationStore().setAuthentication(authentication);
+                    resolve(authentication);
+                }, reject);
             });
         }
         if(isObject(parameter1) && isString(parameter1.username) && isString(parameter1.password)){
-            return await new Promise<void>((resolve, reject) => {
+            return await new Promise<Authentication>((resolve, reject) => {
                 let parameters: URLSearchParams = new URLSearchParams();
                 parameters.append("username", parameter1.username);
                 parameters.append("password", parameter1.password);
                 parameters.append("remember", parameter1.remember? "true" : "false");
-                usePost(`http://localhost:8080/authentication/login`, parameters)
-                    .then((response: Response): void => {
-                        if(response.status === 200){
-                            resolve();
-                        }else{
-                            reject(response);
-                        }
-                    }, reject);
+                usePost<Authentication>("http://localhost:8080/authentication/login", parameters).then((authentication: Authentication): void => {
+                    authenticationStore().setAuthentication(authentication);
+                    resolve(authentication);
+                }, reject);
             });
         }
         return Promise.reject();
     }
 
     public async auto(): Promise<Authentication> {
-        let serializer: Serializer<Authentication> = useSerialization();
         return new Promise<Authentication>((resolve, reject) => {
-            useGet(`http://localhost:8080/authentication/auto`)
-                .then((response: Response): Promise<string> => response.text())
-                .then((text: string): void => {
-                    if(isString(text) && text.length > 0){
-                        let authentication: Authentication = serializer.deserialize(text);
-                        useAuthenticationStore().setAuthentication(authentication);
-                        resolve(authentication);
-                    }else{
-                        reject(text);
-                    }
-                })
-                .catch(reject);
+            usePost<Authentication>("http://localhost:8080/authentication/auto").then((authentication: Authentication): void => {
+                authenticationStore().setAuthentication(authentication);
+                resolve(authentication);
+            }, reject);
         });
     }
 
     public async logout(): Promise<void> {
         return await new Promise<void>((resolve, reject) => {
-            usePost(`http://localhost:8080/authentication/logout`).then((response) => {
-                if(response.status === 200){
-                    useAuthenticationStore().removeAuthentication();
-                    window.localStorage.removeItem("authentication");
-                    resolve();
-                }else{
-                    reject(response);
-                }
-            });
+            usePost<Authentication>(`http://localhost:8080/authentication/logout`).then((authentication: Authentication): void => {
+                authenticationStore().removeAuthentication();
+                resolve();
+            }, reject);
         });
     }
 
@@ -514,18 +314,10 @@ export class ConsumerService extends BaseService<Consumer>{
                 parameters.append("nickname", nickname);
                 parameters.append("avatar", avatar);
                 parameters.append("invitation", invitation);
-                usePost("http://localhost:8080/authentication/login", parameters)
-                    .then((response: Response): void => {
-                        if(response.status === 200){
-                            response.text().then((text) => {
-                                let authentication: Authentication = serializer.deserialize(text);
-                                useAuthenticationStore().setAuthentication(authentication);
-                                resolve(authentication);
-                            });
-                        }else{
-                            reject(response);
-                        }
-                    }, reject);
+                usePost<Authentication>("http://localhost:8080/authentication/register", parameters).then((authentication: Authentication): void => {
+                    authenticationStore().setAuthentication(authentication);
+                    resolve(authentication);
+                }, reject);
             });
         }
         return Promise.reject();

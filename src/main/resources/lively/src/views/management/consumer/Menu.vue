@@ -9,7 +9,7 @@
 <script setup lang="ts">
 
 import Modulize from "@/component/Modulize.vue";
-import {MenuService} from "@/interaction/service.ts";
+import {MenuService} from "../../../hooks/service.ts";
 import {reactive, type Reactive} from "vue";
 import type {Query, Menu} from "@/declaration/entity.ts";
 import type {Insert, Update} from "@/declaration/modulize.ts";

@@ -1,41 +1,58 @@
-import {defineStore, type PiniaPluginContext, type StateTree} from "pinia";
-import {ref} from "vue";
-import {type MaybeInvalid, Optional, validate} from "semantic-typescript";
-import type {Authentication, Authority, Consumer, Role} from "@/declaration/entity";
-import {ElMessage} from "element-plus";
-import {useRouter} from "vue-router";
+import { defineStore } from "pinia";
+import { type Ref, ref } from "vue";
+import { type MaybeInvalid, Optional, validate } from "semantic-typescript";
+import type { Authentication, Authority, Consumer, Menu, Role, Route } from "@/declaration/entity";
+import { ElMessage } from "element-plus";
+import type { Router } from "vue-router";
+import router from "@/router";
 
-export const useAuthenticationStore = defineStore(
+interface AuthenticationStore {
+    authentication: Ref<MaybeInvalid<Authentication>>;
+}
+export const authenticationStore = defineStore(
     "authentication",
     {
-        state: () => ({
+        state: (): AuthenticationStore => ({
             authentication: ref<MaybeInvalid<Authentication>>()
         }),
         getters: {
             value(): Authentication {
-                if(validate(this.authentication)){
+                if (validate(this.authentication)) {
                     return this.authentication;
                 }
+                let now: Date = new Date();
                 return {
                     authorities: [],
                     credentials: null,
-                    name: "",
+                    name: "guest",
                     principal: {
                         ban: new Date(),
                         edit: new Date(),
                         id: "",
                         lock: new Date(),
                         nickname: "游客",
-                        roles: [],
+                        roles: [
+                            {
+                                name: "guest",
+                                routes: [
+                                ],
+                                menus: [],
+                                authorities: [],
+                                id: "",
+                                lock: now,
+                                spawn: now,
+                                ban: now,
+                                edit: now,
+                                version: 0n
+                            }
+                        ],
                         spawn: new Date(),
                         tokens: [],
                         username: "游客",
                         version: 0n,
                         avatar: ""
-
                     },
                     authenticated: false
-
                 };
             },
             authenticated(): boolean {
@@ -46,26 +63,41 @@ export const useAuthenticationStore = defineStore(
                 return Optional.of(this.authentication)
                     .flatMap<Consumer>((authentication): Optional<Consumer> => Optional.of(authentication.principal));
             },
-            avatar(): Optional<string>{
+            avatar(): Optional<string> {
                 return Optional.of(this.authentication)
                     .flatMap<Consumer>((authentication) => Optional.of(authentication.principal))
                     .map((consumer: Consumer): string => consumer.avatar);
             },
-            username(): Optional<string>{
+            username(): Optional<string> {
                 return Optional.of(this.authentication)
                     .flatMap<Consumer>((authentication) => Optional.of(authentication.principal))
                     .map((consumer: Consumer): string => consumer.username);
             },
-            nickname(): Optional<string>{
+            nickname(): Optional<string> {
                 return Optional.of(this.authentication)
                     .flatMap<Consumer>((authentication) => Optional.of(authentication.principal))
                     .map((consumer: Consumer): string => consumer.nickname);
             },
             roles(): Array<Role> {
+                let now: Date = new Date();
                 return Optional.of(this.authentication)
                     .flatMap<Consumer>((authentication) => Optional.of(authentication.principal))
                     .map((consumer: Consumer): Array<Role> => consumer.roles)
-                    .get(new Array<Role>());
+                    .get([
+                        {
+                            name: "guest",
+                            routes: [
+                            ],
+                            menus: [],
+                            authorities: [],
+                            id: "",
+                            lock: now,
+                            spawn: now,
+                            ban: now,
+                            edit: now,
+                            version: 0n
+                        }
+                    ]);
             },
             authorities(): Array<Authority> {
                 return Optional.of(this.authentication)
@@ -81,6 +113,20 @@ export const useAuthenticationStore = defineStore(
                         return authorities;
                     })
                     .get(new Array<Authority>());
+            },
+            routes(): Array<Route> {
+                return Optional.of(this.authentication).flatMap((authentication: Authentication): Optional<Consumer> => {
+                    return Optional.of(authentication.principal);
+                }).map((consumer: Consumer): Array<Route> => {
+                    return consumer.roles.flatMap((role) => role.routes);
+                }).get([]);
+            },
+            menu(): Array<Menu> {
+                return Optional.of(this.authentication).flatMap((authentication: Authentication): Optional<Consumer> => {
+                    return Optional.of(authentication.principal);
+                }).map((consumer: Consumer): Array<Menu> => {
+                    return consumer.roles.flatMap((role) => role.menus);
+                }).get([]);
             }
         },
         actions: {
@@ -90,11 +136,14 @@ export const useAuthenticationStore = defineStore(
             removeAuthentication(): void {
                 localStorage.removeItem("authentication");
                 this.authentication = null;
+            },
+            expire(): void {
+                localStorage.removeItem("authentication");
+                this.authentication = null;
                 ElMessage({
                     message: "身份信息已失效",
                     type: "info"
                 });
-                useRouter().push("/authentication");
             },
             hasAuthority(authority: string): boolean {
                 return false;

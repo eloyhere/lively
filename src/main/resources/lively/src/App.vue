@@ -4,10 +4,8 @@
 
 <script setup lang="ts">
 
-import {ElLoading, ElMessage} from "element-plus";
+import {ElLoading} from "element-plus";
 import {onMounted} from "vue";
-import {useAuthenticationStore} from "@/stores/authentication.ts";
-import {ConsumerService} from "@/interaction/service.ts";
 
 const load = ElLoading.service({
   lock: true,
@@ -16,7 +14,7 @@ const load = ElLoading.service({
 });
 onMounted((): void => {
   load.close();
-})
+});
 </script>
 
 <style scoped>

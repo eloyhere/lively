@@ -36,7 +36,7 @@
 <script setup lang="ts">
 
 import Modulize from "@/component/Modulize.vue";
-import {ConsumerService} from "@/interaction/service.ts";
+import {ConsumerService} from "../../../hooks/service.ts";
 import {reactive, type Reactive} from "vue";
 import type {Consumer, Query} from "@/declaration/entity.ts";
 import type {Insert, Update} from "@/declaration/modulize.ts";
