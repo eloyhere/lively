@@ -1,11 +1,11 @@
-import type {Authority, BaseEntity, Consumer, Role, Invitation, Token, Announcement, Query, Page, Book, Chapter, Authentication, Menu, Message, Route, Chat} from "@/declaration/entity";
-import {useDelete, useGet, usePost, usePut} from "@/hooks/network";
-import {type Serializer} from "@/declaration/serialization";
-import {type Consumer as FConsumer, isObject, isString, type Optional} from "semantic-typescript";
-import {useSerialization} from "@/hooks/serialization";
-import {authenticationStore} from "@/stores/authentication.ts";
+import type { Authority, BaseEntity, Consumer, Role, Invitation, Token, Announcement, Query, Page, Book, Chapter, Authentication, Menu, Message, Route, Chat } from "@/declaration/entity";
+import { useDelete, useGet, usePost, usePut } from "@/hooks/network";
+import { type Serializer } from "@/declaration/serialization";
+import { type Consumer as FConsumer, isObject, isString, type MaybeInvalid, type Optional } from "semantic-typescript";
+import { useSerialization } from "@/hooks/serialization";
+import { authenticationStore } from "@/stores/authentication.ts";
 
-export class BaseService<E extends BaseEntity>{
+export class BaseService<E extends BaseEntity> {
 
     private readonly prefix: string = "http://localhost:8080";
 
@@ -24,9 +24,9 @@ export class BaseService<E extends BaseEntity>{
         let parameters: URLSearchParams = new URLSearchParams();
         parameters.append("payload", this.serializer.serialize(entity));
         return new Promise<number>((resolve: FConsumer<number>, reject: FConsumer<unknown>) => {
-            try{
+            try {
                 useGet<number>(url, parameters).then(resolve, reject);
-            }catch (e) {
+            } catch (e) {
                 reject(e);
             }
         });
@@ -35,9 +35,9 @@ export class BaseService<E extends BaseEntity>{
     public async deleteAll(): Promise<void> {
         let url: string = `${this.prefix}/${this.module}/deleteAll`;
         return new Promise<void>((resolve: FConsumer<void>, reject: FConsumer<unknown>) => {
-            try{
+            try {
                 useDelete<void>(url).then(resolve, reject);
-            }catch (e) {
+            } catch (e) {
                 reject(e);
             }
         });
@@ -48,9 +48,9 @@ export class BaseService<E extends BaseEntity>{
         let parameters: URLSearchParams = new URLSearchParams();
         parameters.append("identifier", identifier);
         return new Promise<void>((resolve: FConsumer<void>, reject: FConsumer<unknown>) => {
-            try{
+            try {
                 useDelete<void>(url, parameters).then(resolve, reject);
-            }catch (e) {
+            } catch (e) {
                 reject(e);
             }
         });
@@ -63,9 +63,9 @@ export class BaseService<E extends BaseEntity>{
         let parameters: URLSearchParams = new URLSearchParams();
         parameters.append("payload", this.serializer.serialize(entity));
         return new Promise<void>((resolve: FConsumer<void>, reject: FConsumer<unknown>) => {
-            try{
+            try {
                 useDelete<void>(url, parameters).then(resolve, reject);
-            }catch (e) {
+            } catch (e) {
                 reject(e);
             }
         });
@@ -76,9 +76,9 @@ export class BaseService<E extends BaseEntity>{
         let parameters: URLSearchParams = new URLSearchParams();
         parameters.append("payload", JSON.stringify(identifiers));
         return new Promise<void>((resolve: FConsumer<void>, reject: FConsumer<unknown>) => {
-            try{
+            try {
                 useDelete<void>(url, parameters).then(resolve, reject);
-            }catch (e) {
+            } catch (e) {
                 reject(e);
             }
         });
@@ -91,9 +91,9 @@ export class BaseService<E extends BaseEntity>{
         let parameters: URLSearchParams = new URLSearchParams();
         parameters.append("payload", this.serializer.serialize(entity));
         return new Promise<boolean>((resolve: FConsumer<boolean>, reject: FConsumer<unknown>) => {
-            try{
+            try {
                 useGet<boolean>(url, parameters).then(resolve, reject);
-            }catch (e) {
+            } catch (e) {
                 reject(e);
             }
         });
@@ -104,9 +104,9 @@ export class BaseService<E extends BaseEntity>{
         let parameters: URLSearchParams = new URLSearchParams();
         parameters.append("identifier", identifier);
         return new Promise<E>((resolve: FConsumer<E>, reject: FConsumer<unknown>) => {
-            try{
+            try {
                 useGet<E>(url, parameters).then(resolve, reject);
-            }catch (e) {
+            } catch (e) {
                 reject(e);
             }
         });
@@ -119,9 +119,9 @@ export class BaseService<E extends BaseEntity>{
         let parameters: URLSearchParams = new URLSearchParams();
         parameters.append("payload", this.serializer.serialize(entity));
         return new Promise<E>((resolve: FConsumer<E>, reject: FConsumer<unknown>) => {
-            try{
+            try {
                 useGet<E>(url, parameters).then(resolve, reject);
-            }catch (e) {
+            } catch (e) {
                 reject(e);
             }
         });
@@ -133,20 +133,20 @@ export class BaseService<E extends BaseEntity>{
         parameters.append("identifiers", JSON.stringify(identifiers));
         let serializer: Serializer<Array<E>> = useSerialization();
         return new Promise<Array<E>>((resolve: FConsumer<Array<E>>, reject: FConsumer<unknown>) => {
-            try{
+            try {
                 useGet<Array<E>>(url, parameters).then(resolve, reject);
-            }catch (e) {
+            } catch (e) {
                 reject(e);
             }
         });
     }
 
-    public async findAll(): Promise<Array<E>>{
+    public async findAll(): Promise<Array<E>> {
         let url: string = `${this.prefix}/${this.module}/findAll`;
         return new Promise<Array<E>>((resolve: FConsumer<Array<E>>, reject: FConsumer<unknown>) => {
             try {
                 useGet<Array<E>>(url).then(resolve, reject);
-            }catch (e) {
+            } catch (e) {
                 reject(e);
             }
         });
@@ -154,18 +154,18 @@ export class BaseService<E extends BaseEntity>{
 
     public async findAllBy(entity: E): Promise<Array<E>>;
     public async findAllBy(entity: Partial<E>): Promise<Array<E>>
-    public async findAllBy(entity: E | Partial<E>): Promise<Array<E>>{
+    public async findAllBy(entity: E | Partial<E>): Promise<Array<E>> {
         let url: string = `${this.prefix}/${this.module}/findAllBy`;
         return new Promise<Array<E>>((resolve: FConsumer<Array<E>>, reject: FConsumer<unknown>) => {
             try {
                 useGet<Array<E>>(url).then(resolve, reject);
-            }catch (e) {
+            } catch (e) {
                 reject(e);
             }
         });
     }
 
-    public async findAllPagedBy(query: Query<E>): Promise<Page<E>>{
+    public async findAllPagedBy(query: Query<E>): Promise<Page<E>> {
         let url: string = `${this.prefix}/${this.module}/findAllPagedBy`;
         let serializer: Serializer<E> = useSerialization();
         let parameters: URLSearchParams = new URLSearchParams();
@@ -175,7 +175,7 @@ export class BaseService<E extends BaseEntity>{
         return new Promise<Page<E>>((resolve: FConsumer<Page<E>>, reject: FConsumer<unknown>) => {
             try {
                 useGet<Page<E>>(url, parameters).then(resolve, reject);
-            }catch (e) {
+            } catch (e) {
                 reject(e);
             }
         });
@@ -183,7 +183,7 @@ export class BaseService<E extends BaseEntity>{
 
     public async insert(entity: E): Promise<E>;
     public async insert(entity: Partial<E>): Promise<E>;
-    public async insert(entity: E | Partial<E>): Promise<E>{
+    public async insert(entity: E | Partial<E>): Promise<E> {
         let url: string = `${this.prefix}/${this.module}/insert`;
         let serializer: Serializer<E> = useSerialization();
         let parameters: URLSearchParams = new URLSearchParams();
@@ -191,7 +191,7 @@ export class BaseService<E extends BaseEntity>{
         return new Promise<E>((resolve: FConsumer<E>, reject: FConsumer<unknown>) => {
             try {
                 usePut<E>(url, parameters).then(resolve, reject);
-            }catch (e) {
+            } catch (e) {
                 reject(e);
             }
         });
@@ -199,7 +199,7 @@ export class BaseService<E extends BaseEntity>{
 
     public async update(entity: E): Promise<E>;
     public async update(entity: Partial<E>): Promise<E>;
-    public async update(entity: E | Partial<E>): Promise<E>{
+    public async update(entity: E | Partial<E>): Promise<E> {
         let url: string = `${this.prefix}/${this.module}/update`;
         let serializer: Serializer<E> = useSerialization();
         let parameters: URLSearchParams = new URLSearchParams();
@@ -207,39 +207,126 @@ export class BaseService<E extends BaseEntity>{
         return new Promise<E>((resolve: FConsumer<E>, reject: FConsumer<unknown>) => {
             try {
                 usePut<E>(url, parameters).then(resolve, reject);
-            }catch (e) {
+            } catch (e) {
                 reject(e);
             }
         });
     }
 }
 
-export class AuthorityService extends BaseService<Authority>{
+export class AuthorityService extends BaseService<Authority> {
 
     public constructor() {
         super("authority");
     }
 }
 
-export class RoleService extends BaseService<Role>{
+export class RoleService extends BaseService<Role> {
 
     public constructor() {
         super("role");
     }
 }
 
-interface AuthenticationForm{
+interface AuthenticationForm {
     username: string;
     password: string;
     remember: boolean;
 }
-export class ConsumerService extends BaseService<Consumer>{
+export class ConsumerService extends BaseService<Consumer> {
 
     public constructor() {
         super("consumer");
     }
+}
 
-    public async identity():Promise<Authentication> {
+export class InvitationService extends BaseService<Invitation> {
+
+    public constructor() {
+        super("invitation");
+    }
+}
+
+export class TokenService extends BaseService<Token> {
+
+    public constructor() {
+        super("token");
+    }
+}
+
+export class AnnouncementService extends BaseService<Announcement> {
+
+    public constructor() {
+        super("announcement");
+    }
+}
+
+export class BookService extends BaseService<Book> {
+
+    public constructor() {
+        super("book");
+    }
+}
+
+export class ChapterService extends BaseService<Chapter> {
+
+    public constructor() {
+        super("chapter");
+    }
+}
+
+export class MessageService extends BaseService<Message> {
+
+    public constructor() {
+        super("message");
+    }
+}
+
+export class ChatService extends BaseService<Chat> {
+
+    public constructor() {
+        super("chat");
+    }
+}
+
+export class MenuService extends BaseService<Menu> {
+
+    public constructor() {
+        super("menu");
+    }
+}
+
+
+export class RouteService extends BaseService<Route> {
+
+    public constructor() {
+        super("route");
+    }
+}
+
+export interface DeviceInformation {
+    method: "GET" | "PUT" | "DELETE" | "POST" | "OPTION";
+    os: string;
+    remoteHost: string;
+    timezone: MaybeInvalid<string>;
+    ip: string;
+    contextPath: string;
+    remotePort: number;
+    serverName: string;
+    serverPort: number;
+    locale: string;
+    platform: string;
+    protocol: string;
+    browser: string;
+    characterEncoding: string;
+    device: string;
+}
+export class AuthenticationService {
+
+    public constructor() {
+    }
+
+    public async identity(): Promise<Authentication> {
         return await new Promise<Authentication>((resolve, reject) => {
             useGet<Authentication>("http://localhost:8080/authentication/identity").then((authentication: Authentication): void => {
                 authenticationStore().setAuthentication(authentication);
@@ -250,8 +337,8 @@ export class ConsumerService extends BaseService<Consumer>{
 
     public async login(consumer: AuthenticationForm): Promise<Authentication>;
     public async login(username: string, password: string, remember?: boolean): Promise<Authentication>;
-    public async login(parameter1: string | AuthenticationForm, parameter2?: string, parameter3?: boolean): Promise<Authentication>{
-        if(isString(parameter1) && isString(parameter2)){
+    public async login(parameter1: string | AuthenticationForm, parameter2?: string, parameter3?: boolean): Promise<Authentication> {
+        if (isString(parameter1) && isString(parameter2)) {
             let username: string = parameter1;
             let password: string = parameter2;
             let remember: boolean = parameter3 === true;
@@ -266,12 +353,12 @@ export class ConsumerService extends BaseService<Consumer>{
                 }, reject);
             });
         }
-        if(isObject(parameter1) && isString(parameter1.username) && isString(parameter1.password)){
+        if (isObject(parameter1) && isString(parameter1.username) && isString(parameter1.password)) {
             return await new Promise<Authentication>((resolve, reject) => {
                 let parameters: URLSearchParams = new URLSearchParams();
                 parameters.append("username", parameter1.username);
                 parameters.append("password", parameter1.password);
-                parameters.append("remember", parameter1.remember? "true" : "false");
+                parameters.append("remember", parameter1.remember ? "true" : "false");
                 usePost<Authentication>("http://localhost:8080/authentication/login", parameters).then((authentication: Authentication): void => {
                     authenticationStore().setAuthentication(authentication);
                     resolve(authentication);
@@ -299,9 +386,8 @@ export class ConsumerService extends BaseService<Consumer>{
         });
     }
 
-    public async register(consumer: Pick<Consumer, "username" | "nickname" | "password" | "avatar"> & { invitation: string}): Promise<Authentication>{
-        let serializer: Serializer<Authentication> = useSerialization();
-        if(isString(consumer.username) && isString(consumer.nickname) && isString(consumer.password) && isString(consumer.avatar)){
+    public async register(consumer: Pick<Consumer, "username" | "nickname" | "password" | "avatar"> & { invitation: string }): Promise<Authentication> {
+        if (isString(consumer.username) && isString(consumer.nickname) && isString(consumer.password) && isString(consumer.avatar)) {
             let username: string = consumer.username;
             let password: string = consumer.password;
             let nickname: string = consumer.nickname;
@@ -322,68 +408,29 @@ export class ConsumerService extends BaseService<Consumer>{
         }
         return Promise.reject();
     }
-}
 
-export class InvitationService extends BaseService<Invitation>{
-
-    public constructor() {
-        super("invitation");
+    public async device(): Promise<DeviceInformation> {
+        return await new Promise<DeviceInformation>((resolve, reject): void => {
+            useGet<DeviceInformation>("http://localhost:8080/authentication/device").then(resolve, reject);
+        });
     }
 }
 
-export class TokenService extends BaseService<Token>{
-
-    public constructor() {
-        super("token");
-    }
+export interface ConsumerSpawnInformation{
+    hourly: Record<number, number>;
+  daily: Record<number, number>;
+  weekly: Record<number, number>;
+  monthly: Record<number, number>;
+    yearly: Record<number, number>;
 }
-
-export class AnnouncementService extends BaseService<Announcement>{
+export class StatisticService {
 
     public constructor() {
-        super("announcement");
     }
-}
 
-export class BookService extends BaseService<Book>{
-
-    public constructor() {
-        super("book");
-    }
-}
-
-export class ChapterService extends BaseService<Chapter>{
-
-    public constructor() {
-        super("chapter");
-    }
-}
-
-export class MessageService extends BaseService<Message>{
-
-    public constructor() {
-        super("message");
-    }
-}
-
-export class ChatService extends BaseService<Chat>{
-
-    public constructor() {
-        super("chat");
-    }
-}
-
-export class MenuService extends BaseService<Menu>{
-
-    public constructor() {
-        super("menu");
-    }
-}
-
-
-export class RouteService extends BaseService<Route>{
-
-    public constructor() {
-        super("route");
+    public async consumer(): Promise<ConsumerSpawnInformation> {
+        return await new Promise<ConsumerSpawnInformation>((resolve, reject): void => {
+            useGet<ConsumerSpawnInformation>("http://localhost:8080/statistic/consumer").then(resolve, reject);
+        });
     }
 }

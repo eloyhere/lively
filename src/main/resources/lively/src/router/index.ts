@@ -69,15 +69,6 @@ const router: Router = createRouter({
           component: () => import("../views/management/consumer/Role.vue"),
         },
         {
-          name: "ManagementRoute",
-          path: "/management/route",
-          meta: {
-            title: "路由管理",
-            roles: ["consumer", "administrator"]
-          },
-          component: () => import("../views/management/consumer/Invitation.vue"),
-        },
-        {
           name: "ManagementToken",
           path: "/management/token",
           meta: {
@@ -138,7 +129,7 @@ const router: Router = createRouter({
             title: "在线日志",
             roles: ["consumer", "administrator"]
           },
-          component: () => import("../views/management/Online.vue"),
+          component: () => import("../views/management/log/Online.vue"),
         },
         {
           name: "ManagementOperation",
@@ -147,7 +138,17 @@ const router: Router = createRouter({
             title: "操作日志",
             roles: ["consumer", "administrator"]
           },
-          component: () => import("../views/management/Operation.vue"),
+          component: () => import("../views/management/log/Operation.vue"),
+        }
+        ,
+        {
+          name: "ManagementVisit",
+          path: "/management/visit",
+          meta: {
+            title: "访问日志",
+            roles: ["consumer", "administrator"]
+          },
+          component: () => import("../views/management/log/Visit.vue"),
         }
       ],
     },
@@ -183,7 +184,6 @@ router.beforeEach((to: RouteLocationNormalizedLoadedGeneric, from) => {
   if(to.path === "/"){
     return true;
   }
-  console.log(authenticationStore().roles)
   let roles: Array<string> = (Array.isArray(to.meta.roles) ? to.meta.roles: []);
   if(roles.some((name: string) => authenticationStore().roles.some((role) => name === role.name))){
     return true;

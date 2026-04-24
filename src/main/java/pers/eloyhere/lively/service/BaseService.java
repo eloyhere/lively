@@ -3,6 +3,8 @@ package pers.eloyhere.lively.service;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.LockModeType;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -17,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import pers.eloyhere.lively.entity.BaseEntity;
 import pers.eloyhere.lively.repository.BaseRepository;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class BaseService <E extends BaseEntity, R extends BaseRepository<E>>{
@@ -307,6 +310,47 @@ public class BaseService <E extends BaseEntity, R extends BaseRepository<E>>{
             return this.repository.saveAllAndFlush(collection);
         }
         return List.of();
+    }
+
+    public List<E> findSpawnBetween(LocalDateTime start, LocalDateTime end) {
+        if (start == null || end == null || start.isAfter(end)) {
+            return new ArrayList<>();
+        }
+        Specification<E> specification = (root, query, criteriaBuilder) -> {
+            Path<LocalDateTime> spawnPath = root.get("spawn");
+            Predicate startCondition = criteriaBuilder.greaterThan(spawnPath, start);
+            Predicate endCondition = criteriaBuilder.lessThan(spawnPath, end);
+            return criteriaBuilder.and(startCondition, endCondition);
+        };
+        return new ArrayList<>(this.repository.findAll(specification));
+    }
+
+    public List<E> findLockBetween(LocalDateTime start, LocalDateTime end) {
+        if (start == null || end == null || start.isAfter(end)) {
+            return new ArrayList<>();
+        }
+        Specification<E> specification = (root, query, criteriaBuilder) -> {
+            Path<LocalDateTime> lockTimePath = root.get("lock");
+            Predicate startCondition = criteriaBuilder.greaterThan(lockTimePath, start);
+            Predicate endCondition = criteriaBuilder.lessThan(lockTimePath, end);
+
+            return criteriaBuilder.and(startCondition, endCondition);
+        };
+        return new ArrayList<>(this.repository.findAll(specification));
+    }
+
+    public List<E> findEditBetween(LocalDateTime start, LocalDateTime end) {
+        if (start == null || end == null || start.isAfter(end)) {
+            return new ArrayList<>();
+        }
+        Specification<E> specification = (root, query, criteriaBuilder) -> {
+            Path<LocalDateTime> editTimePath = root.get("edit");
+            Predicate startCondition = criteriaBuilder.greaterThan(editTimePath, start);
+            Predicate endCondition = criteriaBuilder.lessThan(editTimePath, end);
+
+            return criteriaBuilder.and(startCondition, endCondition);
+        };
+        return new ArrayList<>(this.repository.findAll(specification));
     }
 
     public R getRepository(){

@@ -32,23 +32,11 @@
                 </ElIcon>
                 <span>邀请管理</span>
               </ElMenuItem>
-              <ElMenuItem index="/management/menu">
-                <ElIcon>
-                  <Menu/>
-                </ElIcon>
-                <span>菜单管理</span>
-              </ElMenuItem>
               <ElMenuItem index="/management/role">
                 <ElIcon>
                   <User/>
                 </ElIcon>
                 <span>角色管理</span>
-              </ElMenuItem>
-              <ElMenuItem index="/management/route">
-                <ElIcon>
-                  <Paperclip/>
-                </ElIcon>
-                <span>路由管理</span>
               </ElMenuItem>
               <ElMenuItem index="/management/token">
                 <ElIcon>
@@ -90,6 +78,12 @@
                 </ElIcon>
                 <span>在线日志</span>
               </ElMenuItem>
+              <ElMenuItem index="/management/visit">
+                <ElIcon>
+                  <Coffee/>
+                </ElIcon>
+                <span>访问日志</span>
+              </ElMenuItem>
             </ElMenuItemGroup>
             <ElMenuItemGroup title="监控">
               <ElMenuItem index="/management/performance">
@@ -115,7 +109,9 @@
               :name="route.path"
               :key="route.path"
               :label="route.meta.title">
-            <RouterView/>
+            <ElScrollbar height="100%">
+              <RouterView/>
+            </ElScrollbar>
           </ElTabPane>
         </ElTabs>
       </ElMain>
@@ -144,6 +140,7 @@ import {
 import type { Link } from "@/declaration/component.ts";
 import Toolbar from "@/component/Toolbar.vue";
 import type {Consumer} from "semantic-typescript";
+import { ElScrollbar } from "element-plus";
 
 const router: Router = useRouter();
 const current: WritableComputedRef<RouteLocationNormalizedLoadedGeneric> = computed<RouteLocationNormalizedLoadedGeneric, RouteLocationNormalizedLoadedGeneric>({

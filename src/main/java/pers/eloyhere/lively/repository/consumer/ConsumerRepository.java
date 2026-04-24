@@ -7,8 +7,10 @@ import org.springframework.stereotype.Repository;
 import pers.eloyhere.lively.entity.consumer.Consumer;
 import pers.eloyhere.lively.projection.consumer.AuthenticationConsumer;
 import pers.eloyhere.lively.projection.consumer.AuthorizationConsumer;
+import pers.eloyhere.lively.projection.consumer.BaseConsumerProjection;
 import pers.eloyhere.lively.repository.BaseRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

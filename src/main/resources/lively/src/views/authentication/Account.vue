@@ -260,11 +260,11 @@ import {type Router, useRouter} from "vue-router";
 import {type MaybeInvalid, type Runnable, validate,} from "semantic-typescript";
 import {Optional} from "semantic-typescript";
 import {useDataUrl, useOrigin} from "@/hooks/url";
-import {ConsumerService} from "../../hooks/service.ts";
+import {AuthenticationService, ConsumerService} from "../../hooks/service.ts";
 
 const router: Router = useRouter();
 const load: Ref<boolean> = ref<boolean>(true);
-const consumerService: ConsumerService = new ConsumerService();
+const authenticationService: AuthenticationService = new AuthenticationService();
 
 type Title = "UsernameAndPasswordLogin" | "CheckCodeLogin" | "QRLogin" | "register";
 const title: Ref<Title> = ref("UsernameAndPasswordLogin");
@@ -297,7 +297,7 @@ const performUsernamePasswordLogin: () => void = async (): Promise<void> => {
   if(validate(usernamePasswordLoginForm.value)){
     await usernamePasswordLoginForm.value.validate((valid: boolean) => {
       if(valid){
-        consumerService.login(usernamePasswordLoginFormData.username,
+        authenticationService.login(usernamePasswordLoginFormData.username,
         usernamePasswordLoginFormData.password,
         usernamePasswordLoginFormData.remember).then((authentication: Authentication): void => {
           ElMessage({
@@ -399,7 +399,7 @@ const performRegister: () => void = async (): Promise<void> => {
   if(validate(registerForm.value)){
     await registerForm.value.validate((valid: boolean) => {
       if(valid){
-        consumerService.register(registerFormData).then((): void => {
+        authenticationService.register(registerFormData).then((): void => {
           ElMessage({
             message: "注册成功",
             type: "success"

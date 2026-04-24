@@ -8,7 +8,6 @@ import org.springframework.web.servlet.ModelAndView;
 import pers.eloyhere.lively.annotation.Everyone;
 
 @Controller
-@RequestMapping("/")
 class ResourcesController {
 
     @Everyone
