@@ -7,7 +7,7 @@
             <ElImage :src="smile" v-if="src === smile" fit="fill" style="width: 200px; height: 160px">
               <template #error>
                 <ElIcon>
-                  <Picture/>
+                  <Picture />
                 </ElIcon>
               </template>
             </ElImage>
@@ -18,7 +18,7 @@
             <ElImage :src="closeEyes" v-if="src === closeEyes" fit="fill" style="width: 200px; height: 160px">
               <template #error>
                 <ElIcon>
-                  <Picture/>
+                  <Picture />
                 </ElIcon>
               </template>
             </ElImage>
@@ -50,49 +50,42 @@
         <el-tab-pane label="用户名密码登录" name="UsernameAndPasswordLogin">
           <ElForm ref="usernamePasswordLoginForm" :model="usernamePasswordLoginFormData">
             <ElFormItem label="用户名" prop="username" :rules="[
-                {
-                  required: true,
-                  message: '请输入用户名',
-                  trigger: 'blur'
-                },
-                {
-                  min: 3,
-                  max: 20,
-                  message: '3-20个字符',
-                  trigger: 'blur'
-                },
+              {
+                required: true,
+                message: '请输入用户名',
+                trigger: 'blur'
+              },
+              {
+                min: 3,
+                max: 20,
+                message: '3-20个字符',
+                trigger: 'blur'
+              },
             ]">
-              <ElInput
-                  placeholder="请输入用户名"
-                  clearable
-                  v-model="usernamePasswordLoginFormData.username"></ElInput>
+              <ElInput placeholder="请输入用户名" clearable v-model="usernamePasswordLoginFormData.username"></ElInput>
             </ElFormItem>
             <ElFormItem label="密码" prop="password" :rules="[
-                {
-                  required: true,
-                  message: '请输入密码',
-                  trigger: 'blur'
-                },
-                {
-                  min: 5,
-                  max: 20,
-                  message: '5-20个字符',
-                  trigger: 'blur'
-                },
+              {
+                required: true,
+                message: '请输入密码',
+                trigger: 'blur'
+              },
+              {
+                min: 5,
+                max: 20,
+                message: '5-20个字符',
+                trigger: 'blur'
+              },
             ]">
-              <ElInput
-                  placeholder="请输入密码"
-                  clearable show-password
-                  @focus="toCloseEyes()"
-                  @blur="toSmile()"
-                  v-model="usernamePasswordLoginFormData.password"
-              ></ElInput>
+              <ElInput placeholder="请输入密码" clearable show-password @focus="toCloseEyes()" @blur="toSmile()"
+                v-model="usernamePasswordLoginFormData.password"></ElInput>
             </ElFormItem>
             <ElFormItem label="记住我" prop="remember">
               <el-switch v-model="usernamePasswordLoginFormData.remember" />
             </ElFormItem>
             <ElFormItem>
-              <div style="height: 100%; width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: center">
+              <div
+                style="height: 100%; width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: center">
                 <ElButton plain type="primary" icon="checked" @click="performUsernamePasswordLogin()">登录</ElButton>
                 <ElButton plain type="info" icon="refresh" @click="resetUsernamePasswordLoginForm()">重置</ElButton>
               </div>
@@ -102,49 +95,42 @@
         <el-tab-pane label="认证码登录" name="CheckCodeLogin">
           <ElForm ref="checkCodeLoginForm" :model="checkCodeLoginFormData">
             <ElFormItem label="用户名" prop="username" :rules="[
-                {
-                  required: true,
-                  message: '请输入用户名',
-                  trigger: 'blur'
-                },
-                {
-                  min: 3,
-                  max: 20,
-                  message: '3-20个字符',
-                  trigger: 'blur'
-                },
+              {
+                required: true,
+                message: '请输入用户名',
+                trigger: 'blur'
+              },
+              {
+                min: 3,
+                max: 20,
+                message: '3-20个字符',
+                trigger: 'blur'
+              },
             ]">
-              <ElInput
-                  placeholder="请输入用户名"
-                  clearable
-                  v-model="checkCodeLoginFormData.username"></ElInput>
+              <ElInput placeholder="请输入用户名" clearable v-model="checkCodeLoginFormData.username"></ElInput>
             </ElFormItem>
             <ElFormItem label="认证码" prop="code" :rules="[
-                {
-                  required: true,
-                  message: '请输入认证码',
-                  trigger: 'blur'
-                },
-                {
-                  min: 5,
-                  max: 20,
-                  message: '5-20个字符',
-                  trigger: 'blur'
-                },
+              {
+                required: true,
+                message: '请输入认证码',
+                trigger: 'blur'
+              },
+              {
+                min: 5,
+                max: 20,
+                message: '5-20个字符',
+                trigger: 'blur'
+              },
             ]">
-              <ElInput
-                  placeholder="请输入认证码"
-                  clearable show-password
-                  @focus="toCloseEyes()"
-                  @blur="toSmile()"
-                  v-model="checkCodeLoginFormData.code"
-              ></ElInput>
+              <ElInput placeholder="请输入认证码" clearable show-password @focus="toCloseEyes()" @blur="toSmile()"
+                v-model="checkCodeLoginFormData.code"></ElInput>
             </ElFormItem>
             <ElFormItem label="记住我" prop="remember">
               <el-switch v-model="checkCodeLoginFormData.remember" />
             </ElFormItem>
             <ElFormItem>
-              <div style="height: 100%; width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: center">
+              <div
+                style="height: 100%; width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: center">
                 <ElButton plain type="primary" icon="checked" @click="performCheckCodeLogin()">登录</ElButton>
                 <ElButton plain type="info" icon="refresh" @click="resetCheckCodeLoginForm()">重置</ElButton>
               </div>
@@ -154,88 +140,78 @@
         <el-tab-pane label="注册" name="register">
           <ElForm ref="registerForm" :model="registerFormData">
             <ElFormItem label="用户名" prop="username" :rules="[
-                {
-                  required: true,
-                  message: '请输入用户名',
-                  trigger: 'blur'
-                },
-                {
-                  min: 3,
-                  max: 20,
-                  message: '3-20个字符',
-                  trigger: 'blur'
-                },
+              {
+                required: true,
+                message: '请输入用户名',
+                trigger: 'blur'
+              },
+              {
+                min: 3,
+                max: 20,
+                message: '3-20个字符',
+                trigger: 'blur'
+              },
             ]">
-              <ElInput
-                  placeholder="请输入用户名"
-                  clearable
-                  v-model="registerFormData.username"></ElInput>
+              <ElInput placeholder="请输入用户名" clearable v-model="registerFormData.username"></ElInput>
             </ElFormItem>
             <ElFormItem label="密码" prop="password" :rules="[
-                {
-                  required: true,
-                  message: '请输入密码',
-                  trigger: 'blur'
-                },
-                {
-                  min: 3,
-                  max: 20,
-                  message: '3-20个字符',
-                  trigger: 'blur'
-                },
+              {
+                required: true,
+                message: '请输入密码',
+                trigger: 'blur'
+              },
+              {
+                min: 3,
+                max: 20,
+                message: '3-20个字符',
+                trigger: 'blur'
+              },
             ]">
-              <ElInput
-                  placeholder="请输入密码"
-                  clearable show-password
-                  @focus="toCloseEyes()"
-                  @blur="toSmile()"
-                  v-model="registerFormData.password"
-              ></ElInput>
+              <ElInput placeholder="请输入密码" clearable show-password @focus="toCloseEyes()" @blur="toSmile()"
+                v-model="registerFormData.password"></ElInput>
             </ElFormItem>
             <ElFormItem label="昵称" prop="nickname" :rules="[
-                {
-                  required: true,
-                  message: '请输入昵称',
-                  trigger: 'blur'
-                },
-                {
-                  min: 5,
-                  max: 20,
-                  message: '5-20个字符',
-                  trigger: 'blur'
-                },
+              {
+                required: true,
+                message: '请输入昵称',
+                trigger: 'blur'
+              },
+              {
+                min: 5,
+                max: 20,
+                message: '5-20个字符',
+                trigger: 'blur'
+              },
             ]">
-              <ElInput
-                  placeholder="请输入昵称"
-                  clearable
-                  v-model="registerFormData.nickname"></ElInput>
+              <ElInput placeholder="请输入昵称" clearable v-model="registerFormData.nickname"></ElInput>
             </ElFormItem>
             <ElFormItem label="头像" prop="avatar" :rules="[
-                {
-                  required: true,
-                  message: '请选择头像',
-                  trigger: 'blur'
-                }
+              {
+                required: true,
+                message: '请选择头像',
+                trigger: 'blur'
+              }
             ]">
-              <input type="file" id="filePicker" @change="pick()" hidden="hidden"/>
+              <input type="file" id="filePicker" @change="pick()" hidden="hidden" />
               <ElAvatar :src="registerFormData.avatar" @click="pick()" style="cursor: pointer">
                 <template #default>
                   <ElIcon>
-                    <Picture/>
+                    <Picture />
                   </ElIcon>
                 </template>
               </ElAvatar>
             </ElFormItem>
             <ElFormItem label="邀请码" prop="invitation" :rules="[
-                {
-                  required: true,
-                  message: '请输入邀请码'
-                }
+              {
+                required: true,
+                message: '请输入邀请码'
+              }
             ]">
-              <ElInput placeholder="请输入邀请码" clearable v-model="registerFormData.invitation"/>
+              <ElInput placeholder="请输入邀请码" clearable v-model="registerFormData.invitation" />
             </ElFormItem>
             <ElFormItem labelPosition="left">
-              <div style="height: 100%; width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: center">
+              <div
+                style="height: 100%; width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: center">
                 <ElButton plain type="primary" icon="checked" @click="performRegister()">注册</ElButton>
                 <ElButton plain type="info" icon="refresh" @click="resetRegisterForm()">重置</ElButton>
               </div>
@@ -248,19 +224,17 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, reactive, ref, type Ref, onUnmounted} from "vue";
+import { onMounted, reactive, ref, type Ref, onUnmounted } from "vue";
 import { Picture } from "@element-plus/icons-vue";
 import { fetchPicture } from "@/hooks/picture";
-import {useGet, usePost} from "@/hooks/network";
-import {ElLoading, ElMessage, type FormInstance} from "element-plus";
-import {authenticationStore} from "@/stores/authentication";
-import {useSerialization} from "@/hooks/serialization";
-import type {Authentication, Consumer} from "@/declaration/entity";
-import {type Router, useRouter} from "vue-router";
-import {type MaybeInvalid, type Runnable, validate,} from "semantic-typescript";
-import {Optional} from "semantic-typescript";
-import {useDataUrl, useOrigin} from "@/hooks/url";
-import {AuthenticationService, ConsumerService} from "../../hooks/service.ts";
+import { ElMessage, type FormInstance } from "element-plus";
+import type { Authentication, Consumer } from "@/declaration/entity";
+import { type Router, useRouter } from "vue-router";
+import { type MaybeInvalid, type Runnable, validate, } from "semantic-typescript";
+import { Optional } from "semantic-typescript";
+import { useDataUrl, useOrigin } from "@/hooks/url";
+import { AuthenticationService, ConsumerService } from "../../hooks/service.ts";
+import { eventStore } from "@/stores/event.ts";
 
 const router: Router = useRouter();
 const load: Ref<boolean> = ref<boolean>(true);
@@ -282,7 +256,7 @@ const toCloseEyes: Runnable = (): void => {
 };
 
 const usernamePasswordLoginForm: Ref<MaybeInvalid<FormInstance>> = ref();
-interface LoginFormData extends Record<string, string | number | boolean>{
+interface LoginFormData extends Record<string, string | number | boolean> {
   username: string;
   password: string;
   remember: boolean;
@@ -294,43 +268,40 @@ const usernamePasswordLoginFormData: LoginFormData = reactive<LoginFormData>({
 });
 let count = 0n;
 const performUsernamePasswordLogin: () => void = async (): Promise<void> => {
-  if(validate(usernamePasswordLoginForm.value)){
+  if (validate(usernamePasswordLoginForm.value)) {
     await usernamePasswordLoginForm.value.validate((valid: boolean) => {
-      if(valid){
+      if (valid) {
         authenticationService.login(usernamePasswordLoginFormData.username,
-        usernamePasswordLoginFormData.password,
-        usernamePasswordLoginFormData.remember).then((authentication: Authentication): void => {
-          ElMessage({
-            message: "登录成功",
-            type: "success"
+          usernamePasswordLoginFormData.password,
+          usernamePasswordLoginFormData.remember).then((authentication: Authentication): void => {
+            eventStore().dispatch("Login", authentication);
+          }, (reason) => {
+            ElMessage({
+              message: "登录失败",
+              type: "info",
+              plain: true,
+              grouping: true
+            });
           });
-          router.replace({
-            path: "/"
-          });
-        }, (reason) => {
-          console.log(reason)
-          ElMessage({
-            message: "登录失败",
-            type: "info"
-          });
-        });
-      }else{
+      } else {
         ElMessage({
           message: "请完善信息",
-          type: "info"
+          type: "info",
+          plain: true,
+          grouping: true
         });
       }
     });
   }
 };
 const resetUsernamePasswordLoginForm: Runnable = () => {
-  if(validate(usernamePasswordLoginForm.value)){
+  if (validate(usernamePasswordLoginForm.value)) {
     usernamePasswordLoginForm.value.resetFields();
   }
 };
 
 const checkCodeLoginForm: Ref<MaybeInvalid<FormInstance>> = ref();
-interface CheckCodeLoginFormData extends Record<string, string | number | boolean>{
+interface CheckCodeLoginFormData extends Record<string, string | number | boolean> {
   username: string;
   code: string;
   remember: boolean;
@@ -341,30 +312,32 @@ const checkCodeLoginFormData: CheckCodeLoginFormData = reactive<CheckCodeLoginFo
   remember: false
 });
 const performCheckCodeLogin: () => void = async (): Promise<void> => {
-  if(validate(checkCodeLoginForm.value)){
+  if (validate(checkCodeLoginForm.value)) {
     await checkCodeLoginForm.value.validate((valid: boolean) => {
-      if(valid){
+      if (valid) {
         let parameters: URLSearchParams = new URLSearchParams();
         parameters.append("username", checkCodeLoginFormData.username);
         parameters.append("code", checkCodeLoginFormData.code);
         parameters.append("remember", String(checkCodeLoginFormData.remember));
-      }else{
+      } else {
         ElMessage({
           message: "请完善信息",
-          type: "info"
+          type: "info",
+          plain: true,
+          grouping: true
         });
       }
     });
   }
 };
 const resetCheckCodeLoginForm: Runnable = () => {
-  if(validate(checkCodeLoginForm.value)){
+  if (validate(checkCodeLoginForm.value)) {
     checkCodeLoginForm.value.resetFields();
   }
 };
 
 const registerForm: Ref<MaybeInvalid<FormInstance>> = ref();
-interface RegisterFormData extends Record<string, string | number | boolean>{
+interface RegisterFormData extends Record<string, string | number | boolean> {
   username: string;
   password: string;
   nickname: string;
@@ -381,10 +354,10 @@ const registerFormData: RegisterFormData = reactive<RegisterFormData>({
 const pick: Runnable = () => {
   let filePicker: Optional<HTMLInputElement> = Optional.of<HTMLInputElement>(document.getElementById("filePicker") as HTMLInputElement);
   filePicker.ifPresent((picker) => {
-    picker.addEventListener("change", ()=> {
-      if(validate(picker.files)){
+    picker.addEventListener("change", () => {
+      if (validate(picker.files)) {
         let files: FileList = picker.files;
-        if(files.length > 0){
+        if (files.length > 0) {
           let file: File = files.item(0) as File;
           useDataUrl(file).then((data) => {
             registerFormData.avatar = data;
@@ -396,14 +369,11 @@ const pick: Runnable = () => {
   })
 };
 const performRegister: () => void = async (): Promise<void> => {
-  if(validate(registerForm.value)){
+  if (validate(registerForm.value)) {
     await registerForm.value.validate((valid: boolean) => {
-      if(valid){
-        authenticationService.register(registerFormData).then((): void => {
-          ElMessage({
-            message: "注册成功",
-            type: "success"
-          });
+      if (valid) {
+        authenticationService.register(registerFormData).then((authentication: Authentication): void => {
+          eventStore().dispatch("Register", authentication);
           router.push({
             path: "/",
             replace: true
@@ -411,20 +381,24 @@ const performRegister: () => void = async (): Promise<void> => {
         }, (): void => {
           ElMessage({
             message: "注册失败",
-            type: "info"
+            type: "info",
+            plain: true,
+            grouping: true
           });
         });
-      }else{
+      } else {
         ElMessage({
           message: "请完善信息",
-          type: "info"
+          type: "info",
+          plain: true,
+          grouping: true
         });
       }
     });
   }
 }
 const resetRegisterForm: Runnable = () => {
-  if(validate(registerForm.value)){
+  if (validate(registerForm.value)) {
     registerForm.value.resetFields();
   }
 };
@@ -444,7 +418,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.panel{
+.panel {
   width: 600px;
   height: 360px;
   padding: 16px;
@@ -456,7 +430,7 @@ onUnmounted(() => {
   z-index: inherit;
 }
 
-.container{
+.container {
   width: 100%;
   height: 100%;
   display: flex;
@@ -468,7 +442,7 @@ onUnmounted(() => {
   background-size: 100% 100%;
 }
 
-.cartoon{
+.cartoon {
   display: grid;
   width: 200px;
   height: 160px;
@@ -478,7 +452,7 @@ onUnmounted(() => {
   pointer-events: none;
 }
 
-.cloud{
+.cloud {
   position: absolute;
   z-index: 2;
   margin-left: 600px;
@@ -487,7 +461,7 @@ onUnmounted(() => {
   pointer-events: none;
 }
 
-.cloud5{
+.cloud5 {
   position: absolute;
   margin-top: -250px;
   margin-left: 30px;

@@ -1,20 +1,4 @@
-import type {
-    Authority,
-    BaseEntity,
-    Consumer,
-    Role,
-    Invitation,
-    Token,
-    Announcement,
-    Query,
-    Page,
-    Book,
-    Chapter,
-    Authentication,
-    Message,
-    Chat,
-    Question, Choice, Answer
-} from "@/declaration/entity";
+import type {Authority,BaseEntity,Consumer, Role, Invitation,Token, Announcement,Query,Page,Book, Chapter, Authentication, Message,Chat,Question, Choice, Answer} from "@/declaration/entity";
 import { useDelete, useGet, usePost, usePut } from "@/hooks/network";
 import { type Serializer } from "@/declaration/serialization";
 import { type Consumer as FConsumer, isObject, isString, type MaybeInvalid, type Optional } from "semantic-typescript";
@@ -325,6 +309,8 @@ export class AnswerService extends BaseService<Answer>{
         super("answer");
     }
 }
+
+
 
 export interface DeviceInformation {
     method: "GET" | "PUT" | "DELETE" | "POST" | "OPTION";

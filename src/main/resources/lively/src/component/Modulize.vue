@@ -175,7 +175,9 @@ const search: Runnable = (): void => {
           load.value = false;
           ElMessage({
             message: "操作失败",
-            type: "warning"
+            type: "warning",
+            plain: true,
+            grouping: true
           });
         });
       }else{
@@ -239,21 +241,27 @@ const insertOperator: Operator<E> = {
           resolve();
           ElMessage({
             message: "操作成功",
-            type: "success"
+            type: "success",
+            plain: true,
+            grouping: true
           });
           insertOperator.dismiss();
         }, (): void => {
           reject();
           ElMessage({
             message: "操作失败",
-            type: "warning"
+            type: "warning",
+            plain: true,
+            grouping: true
           });
         });
       }, (): void => {
         reject();
         ElMessage({
           message: "操作失败",
-          type: "warning"
+          type: "warning",
+          plain: true,
+          grouping: true
         });
       });
     });
@@ -300,13 +308,17 @@ const updateOperator: Operator<E> = {
           search();
           ElMessage({
             message: "操作成功",
-            type: "success"
+            type: "success",
+            plain: true,
+            grouping: true
           });
           updateOperator.dismiss();
         }, (): void => {
           ElMessage({
             message: "操作失败",
-            type: "warning"
+            type: "warning",
+            plain: true,
+            grouping: true
           });
         })
       }, reject);
@@ -340,18 +352,24 @@ const lockOrUnlock: Consumer<E | Partial<E>> = (entity: E | Partial<E>): void =>
       property.service.update(entity).then((): void => {
         ElMessage({
           message: "操作成功，已解除锁定。",
-          type: "success"
+          type: "success",
+          plain: true,
+          grouping: true
         });
       }, (): void => {
         ElMessage({
           message: "操作失败，无法解除锁定。",
-          type: "warning"
+          type: "warning",
+          plain: true,
+          grouping: true
         });
       });
     }, (): void => {
       ElMessage({
         message: "操作取消",
-        type: "warning"
+        type: "warning",
+        plain: true,
+        grouping: true
       });
     });
   }else{
@@ -370,13 +388,17 @@ const lockOrUnlock: Consumer<E | Partial<E>> = (entity: E | Partial<E>): void =>
       }, (): void => {
         ElMessage({
           message: "操作失败，无法锁定。",
-          type: "warning"
+          type: "warning",
+          plain: true,
+          grouping: true
         });
       });
     }, (): void => {
       ElMessage({
         message: "操作取消",
-        type: "warning"
+        type: "warning",
+        plain: true,
+        grouping: true
       });
     });
   }
@@ -395,18 +417,24 @@ const disableOrEnable: Consumer<E | Partial<E>> = (entity: E | Partial<E>): void
       property.service.update(entity).then((): void => {
         ElMessage({
           message: "操作成功，已启用。",
-          type: "success"
+          type: "success",
+          plain: true,
+          grouping: true
         });
       }, (): void => {
         ElMessage({
           message: "操作失败，无法解除禁用。",
-          type: "warning"
+          type: "warning",
+          plain: true,
+          grouping: true
         });
       });
     }, (): void => {
       ElMessage({
         message: "操作取消",
-        type: "warning"
+        type: "warning",
+        plain: true,
+        grouping: true
       });
     });
   }else{
@@ -420,18 +448,24 @@ const disableOrEnable: Consumer<E | Partial<E>> = (entity: E | Partial<E>): void
       property.service.update(entity).then((): void => {
         ElMessage({
           message: "操作成功，已禁用。",
-          type: "success"
+          type: "success",
+          plain: true,
+          grouping: true
         });
       }, (): void => {
         ElMessage({
           message: "操作失败，无法禁用。",
-          type: "warning"
+          type: "warning",
+          plain: true,
+          grouping: true
         });
       });
     }, (): void => {
       ElMessage({
         message: "操作取消",
-        type: "warning"
+        type: "warning",
+        plain: true,
+        grouping: true
       });
     });
   }
@@ -458,12 +492,16 @@ const multipleDelete: Runnable = (): void => {
         search();
         ElMessage({
           message: "操作成功",
-          type: "success"
+          type: "success",
+          plain: true,
+          grouping: true
         });
       }, (): void => {
         ElMessage({
           message: "操作失败",
-          type: "error"
+          type: "error",
+          plain: true,
+          grouping: true
         });
       });
     });
@@ -491,19 +529,25 @@ const deleteBy: Consumer<E> = (entity: E) : void => {
       search();
       ElMessage({
         message: "操作成功",
-        type: "success"
+        type: "success",
+        plain: true,
+        grouping: true
       });
     }, (): void => {
       search();
       ElMessage({
         message: "操作失败",
-        type: "success"
+        type: "success",
+        plain: true,
+        grouping: true
       });
     });
   }, (): void => {
     ElMessage({
       message: "操作取消",
-      type: "info"
+      type: "info",
+      plain: true,
+      grouping: true
     });
   })
 };

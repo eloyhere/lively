@@ -120,10 +120,6 @@ export const authenticationStore = defineStore(
             expire(): void {
                 localStorage.removeItem("authentication");
                 this.authentication = null;
-                ElMessage({
-                    message: "身份信息已失效",
-                    type: "info"
-                });
             },
             hasAuthority(authority: string): boolean {
                 return false;

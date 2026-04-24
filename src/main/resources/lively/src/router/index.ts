@@ -211,4 +211,6 @@ router.beforeEach((to: RouteLocationNormalizedLoadedGeneric, from) => {
     replace: true
   };
 });
+
+
 export default router;

@@ -43,6 +43,7 @@ import type {Announcement, Authentication} from "@/declaration/entity.ts";
 import {authenticationStore} from "@/stores/authentication.ts";
 import {ElMessage, ElMessageBox, ElNotification} from "element-plus";
 import {AnnouncementService, AuthenticationService, ConsumerService} from "../hooks/service.ts";
+import { eventStore } from "@/stores/event.ts";
 
 const router:Router = useRouter();
 
@@ -88,17 +89,13 @@ const handle: Consumer<string> = (command: string): void => {
         cancelButtonText: "取消"
       }).then((): void => {
         authenticationService.logout().then((): void =>{
-          router.push({
-            path: "/"
-          });
-          ElMessage({
-            message: "操作成功，正在返回首页",
-            type: "success"
-          });
+          eventStore().dispatch("Logout", null);
         }, (): void => {
           ElMessage({
             message: "操作失败",
-            type: "warning"
+            type: "warning",
+            plain: true,
+            grouping: true
           });
         });
       });
@@ -144,7 +141,9 @@ onMounted((): void => {
   }, (): void => {
     ElMessage({
       message: "加载公告失败",
-      type: "info"
+      type: "info",
+      plain: true,
+      grouping: true
     });
   });
 })
