@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { type Ref, ref } from "vue";
 import { type MaybeInvalid, Optional, validate } from "semantic-typescript";
-import type { Authentication, Authority, Consumer, Menu, Role, Route } from "@/declaration/entity";
+import type { Authentication, Authority, Consumer, Role} from "@/declaration/entity";
 import { ElMessage } from "element-plus";
 import type { Router } from "vue-router";
 import router from "@/router";
@@ -34,9 +34,6 @@ export const authenticationStore = defineStore(
                         roles: [
                             {
                                 name: "guest",
-                                routes: [
-                                ],
-                                menus: [],
                                 authorities: [],
                                 id: "",
                                 lock: now,
@@ -86,9 +83,6 @@ export const authenticationStore = defineStore(
                     .get([
                         {
                             name: "guest",
-                            routes: [
-                            ],
-                            menus: [],
                             authorities: [],
                             id: "",
                             lock: now,
@@ -114,20 +108,6 @@ export const authenticationStore = defineStore(
                     })
                     .get(new Array<Authority>());
             },
-            routes(): Array<Route> {
-                return Optional.of(this.authentication).flatMap((authentication: Authentication): Optional<Consumer> => {
-                    return Optional.of(authentication.principal);
-                }).map((consumer: Consumer): Array<Route> => {
-                    return consumer.roles.flatMap((role) => role.routes);
-                }).get([]);
-            },
-            menu(): Array<Menu> {
-                return Optional.of(this.authentication).flatMap((authentication: Authentication): Optional<Consumer> => {
-                    return Optional.of(authentication.principal);
-                }).map((consumer: Consumer): Array<Menu> => {
-                    return consumer.roles.flatMap((role) => role.menus);
-                }).get([]);
-            }
         },
         actions: {
             setAuthentication(authentication: Authentication): void {

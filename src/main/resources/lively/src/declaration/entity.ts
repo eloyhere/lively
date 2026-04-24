@@ -1,8 +1,4 @@
 import type {MaybeInvalid} from "semantic-typescript";
-import type {Serializer} from "@/declaration/serialization.ts";
-import {useSerialization} from "@/hooks/serialization.ts";
-import type {Reactive, Ref} from "vue";
-import type {RouteRecord, RouteRecordRaw} from "vue-router";
 export interface BaseEntity{
     id: string;
     lock: Date;
@@ -49,8 +45,6 @@ export interface Authority extends BaseEntity{
 
 export interface Role extends BaseEntity{
     name: string;
-    routes: Array<Route>;
-    menus: Array<Menu>;
     authorities: Array<Authority>;
 }
 
@@ -113,16 +107,17 @@ export interface Chat extends BaseEntity{
     owner: Consumer;
 }
 
-export interface Menu extends BaseEntity{
-    name: string;
-    path: string;
-    children: Array<Menu>;
+export interface Answer extends BaseEntity{
+    proper: boolean;
+    content: string;
 }
 
-export interface Route extends BaseEntity, Pick<RouteRecordRaw, "name" | "path">{
-    title: string;
-    component: string;
-    children: Array<Route>;
+export interface Choice extends BaseEntity{
+    question: string;
+    answers: Array<Answer>;
 }
 
-let a: Route;
+export interface Question extends BaseEntity{
+    question: string;
+    answer: string;
+}

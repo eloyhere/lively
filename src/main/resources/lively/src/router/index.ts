@@ -105,6 +105,24 @@ const router: Router = createRouter({
           component: () => import("../views/management/chat/Chat.vue"),
         },
         {
+          name: "ManagementQuestion",
+          path: "/management/question",
+          meta: {
+            title: "问答题管理",
+            roles: ["consumer", "administrator"]
+          },
+          component: () => import("../views/management/question/Question.vue"),
+        },
+        {
+          name: "ManagementChoice",
+          path: "/management/choice",
+          meta: {
+            title: "选择题管理",
+            roles: ["consumer", "administrator"]
+          },
+          component: () => import("../views/management/question/Choice.vue"),
+        },
+        {
           name: "ManagementMessage",
           path: "/management/chat/message",
           meta: {

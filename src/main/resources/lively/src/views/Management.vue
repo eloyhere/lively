@@ -64,6 +64,18 @@
                 </ElIcon>
                 <span>聊天管理</span>
               </ElMenuItem>
+              <ElMenuItem index="/management/question">
+                <ElIcon>
+                  <QuestionFilled/>
+                </ElIcon>
+                <span>问答题管理</span>
+              </ElMenuItem>
+              <ElMenuItem index="/management/choice">
+                <ElIcon>
+                  <SemiSelect/>
+                </ElIcon>
+                <span>选择题管理</span>
+              </ElMenuItem>
             </ElMenuItemGroup>
             <ElMenuItemGroup title="日志">
               <ElMenuItem index="/management/operation">
@@ -135,12 +147,13 @@ import {
   Ticket,
   User,
   UserFilled,
-  Notebook, Paperclip, Notification
+  Notebook, Paperclip, Notification, QuestionFilled, SemiSelect
 } from "@element-plus/icons-vue";
 import type { Link } from "@/declaration/component.ts";
 import Toolbar from "@/component/Toolbar.vue";
 import type {Consumer} from "semantic-typescript";
 import { ElScrollbar } from "element-plus";
+import Question from "@/views/management/question/Question.vue";
 
 const router: Router = useRouter();
 const current: WritableComputedRef<RouteLocationNormalizedLoadedGeneric> = computed<RouteLocationNormalizedLoadedGeneric, RouteLocationNormalizedLoadedGeneric>({

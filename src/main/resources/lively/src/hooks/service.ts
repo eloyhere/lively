@@ -1,4 +1,20 @@
-import type { Authority, BaseEntity, Consumer, Role, Invitation, Token, Announcement, Query, Page, Book, Chapter, Authentication, Menu, Message, Route, Chat } from "@/declaration/entity";
+import type {
+    Authority,
+    BaseEntity,
+    Consumer,
+    Role,
+    Invitation,
+    Token,
+    Announcement,
+    Query,
+    Page,
+    Book,
+    Chapter,
+    Authentication,
+    Message,
+    Chat,
+    Question, Choice, Answer
+} from "@/declaration/entity";
 import { useDelete, useGet, usePost, usePut } from "@/hooks/network";
 import { type Serializer } from "@/declaration/serialization";
 import { type Consumer as FConsumer, isObject, isString, type MaybeInvalid, type Optional } from "semantic-typescript";
@@ -289,18 +305,24 @@ export class ChatService extends BaseService<Chat> {
     }
 }
 
-export class MenuService extends BaseService<Menu> {
+export class QuestionService extends BaseService<Question>{
 
     public constructor() {
-        super("menu");
+        super("question");
     }
 }
 
-
-export class RouteService extends BaseService<Route> {
+export class ChoiceService extends BaseService<Choice>{
 
     public constructor() {
-        super("route");
+        super("choice");
+    }
+}
+
+export class AnswerService extends BaseService<Answer>{
+
+    public constructor() {
+        super("answer");
     }
 }
 

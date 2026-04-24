@@ -12,18 +12,17 @@ public class Question extends BaseEntity {
     @Column(name = "question", nullable = false, unique = true)
     private String question;
 
-    @OneToOne(cascade = CascadeType.ALL, optional = false, orphanRemoval = true)
-    @JoinColumn(name = "answer_id", nullable = false)
-    private Answer answer;
+    @Column(name = "answer", nullable = false)
+    private String answer;
 
     public Question() {
     }
 
-    public Answer getAnswer() {
+    public String getAnswer() {
         return answer;
     }
 
-    public void setAnswer(Answer answer) {
+    public void setAnswer(String answer) {
         this.answer = answer;
     }
 

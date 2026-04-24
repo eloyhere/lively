@@ -18,10 +18,19 @@ public class Answer extends BaseEntity {
     @Column(name = "proper", nullable = false)
     private Boolean proper = false;
 
+    @Column(name = "content", nullable = false)
+    private String content;
+
     public Answer() {
     }
 
+    public String getContent() {
+        return content;
+    }
 
+    public void setContent(String content) {
+        this.content = content;
+    }
 
     public Boolean getProper() {
         return proper;
