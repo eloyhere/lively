@@ -21,20 +21,20 @@ public class Message extends BaseEntity {
     @JoinColumn(name = "chat_id", nullable = false)
     private Chat chat;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "sender_id", nullable = false)
-    private Consumer sender;
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "message_seen",
-            joinColumns = @JoinColumn(name = "message_id"),
-            inverseJoinColumns = @JoinColumn(name = "consumer_id")
-    )
-    private Set<Consumer> seen = new LinkedHashSet<>();
+    @Enumerated
+    @Column(name = "role", nullable = false)
+    private ChatRole role;
 
     public Message() {
 
+    }
+
+    public ChatRole getRole() {
+        return role;
+    }
+
+    public void setRole(ChatRole role) {
+        this.role = role;
     }
 
     public String getContent() {
@@ -45,9 +45,6 @@ public class Message extends BaseEntity {
         this.content = content;
     }
 
-    public void see(Consumer consumer){
-        this.seen.add(consumer);
-    }
 
     public Chat getChat() {
         return chat;
@@ -57,21 +54,6 @@ public class Message extends BaseEntity {
         this.chat = chat;
     }
 
-    public Consumer getSender() {
-        return sender;
-    }
-
-    public void setSender(Consumer sender) {
-        this.sender = sender;
-    }
-
-    public Set<Consumer> getSeen() {
-        return seen;
-    }
-
-    public void setSeen(Set<Consumer> seen) {
-        this.seen = seen;
-    }
 
     @Override
     public TreeMap<String, Object> properties() {

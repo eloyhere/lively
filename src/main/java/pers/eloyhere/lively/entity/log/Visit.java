@@ -20,11 +20,8 @@ public class Visit extends BaseEntity {
     @Column(name = "platform", nullable = false)
     private String platform;
 
-    @Column(name = "system", nullable = false)
+    @Column(name = "`system`", nullable = false)
     private String system;
-
-    @Column(name = "os", nullable = false)
-    private String os;
 
     @Column(name = "client", nullable = false)
     private String client;
@@ -64,14 +61,6 @@ public class Visit extends BaseEntity {
         this.system = system;
     }
 
-    public String getOs() {
-        return os;
-    }
-
-    public void setOs(String os) {
-        this.os = os;
-    }
-
     public String getClient() {
         return client;
     }
@@ -87,7 +76,6 @@ public class Visit extends BaseEntity {
         map.put("device", this.getDevice());
         map.put("platform", this.getPlatform());
         map.put("system", this.getSystem());
-        map.put("os", this.getOs());
         map.put("client", this.getClient());
         return map;
     }

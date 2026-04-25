@@ -11,4 +11,5 @@ public class VisitService extends BaseService<Visit, VisitRepository> {
     public VisitService(VisitRepository repository) {
         super(repository);
     }
+
 }

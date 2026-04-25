@@ -9,7 +9,7 @@ import java.util.TreeMap;
 @Entity
 @Table(name = "operation")
 public class Operation extends BaseEntity {
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(cascade = {CascadeType.REFRESH}, orphanRemoval = true)
     @JoinColumn(name = "consumer_id")
     private Consumer consumer;
 

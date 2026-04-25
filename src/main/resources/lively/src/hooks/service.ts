@@ -1,15 +1,15 @@
-import type {Authority,BaseEntity,Consumer, Role, Invitation,Token, Announcement,Query,Page,Book, Chapter, Authentication, Message,Chat,Question, Choice, Answer} from "@/declaration/entity";
+import type {Authority,BaseEntity,Consumer, Role, Invitation,Token, Announcement,Query,Page,Book, Chapter, Authentication, Message,Chat,Question, Choice, Answer, Visit, Operation} from "@/declaration/entity";
 import { useDelete, useGet, usePost, usePut } from "@/hooks/network";
 import { type Serializer } from "@/declaration/serialization";
 import { type Consumer as FConsumer, isObject, isString, type MaybeInvalid, type Optional } from "semantic-typescript";
 import { useSerialization } from "@/hooks/serialization";
-import { authenticationStore } from "@/stores/authentication.ts";
+import { authenticationStore } from "@/stores/authentication";
 
 export class BaseService<E extends BaseEntity> {
 
-    private readonly prefix: string = "http://localhost:8080";
+    protected readonly prefix: string = "http://localhost:8080";
 
-    private readonly module: string;
+    protected readonly module: string;
 
     private readonly serializer: Serializer<E> = useSerialization<E>();
 
@@ -287,6 +287,28 @@ export class ChatService extends BaseService<Chat> {
     public constructor() {
         super("chat");
     }
+
+    public async create(content: string): Promise<Chat> {
+        let url: string = `${this.prefix}/${this.module}/create`;
+        let parameters: URLSearchParams = new URLSearchParams();
+        parameters.append("content", content);
+        return await new Promise<Chat>((resolve, reject): void => {
+            usePut<Chat>(url, parameters).then(resolve, reject);
+        });
+    }
+
+    public async chat(id: string, content: string): Promise<string>{
+        let url: string = `${this.prefix}/${this.module}/chat`;
+        let parameters: URLSearchParams = new URLSearchParams();
+        parameters.append("id", id);
+        parameters.append("content", content);
+        return await new Promise<string>((resolve, reject): void => {
+            usePut<string>(url, parameters).then((value) => {
+                console.log(value);
+                resolve(value);
+            }, reject);
+        });
+    }
 }
 
 export class QuestionService extends BaseService<Question>{
@@ -310,7 +332,19 @@ export class AnswerService extends BaseService<Answer>{
     }
 }
 
+export class VisitService extends BaseService<Visit>{
 
+    public constructor() {
+        super("visit");
+    }
+}
+
+export class OperationService extends BaseService<Operation>{
+
+    public constructor() {
+        super("operation");
+    }
+}
 
 export interface DeviceInformation {
     method: "GET" | "PUT" | "DELETE" | "POST" | "OPTION";

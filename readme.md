@@ -33,7 +33,10 @@ lively/                                           # Main project root directory
 │   │   │   ├── Guest.java                        # Annotation permitting access to both authenticated and non-authenticated (guest) users
 │   │   │   └── Unauthenticated.java              # Annotation restricting access exclusively to non-authenticated requests
 │   │   ├── aspect/
-│   │   │   └── ClientAspect.java                 # Aspect-oriented programming (AOP) aspect for client-side cross-cutting concerns
+│   │   │   ├── BaseAspect.java
+│   │   │   ├── ClientAspect.java                 # Aspect-oriented programming (AOP) aspect for client-side cross-cutting concerns
+│   │   │   ├── OperationAspect.java
+│   │   │   └── VisitAspect.java
 │   │   ├── authentication/                       # Complete Spring Security infrastructure, configuration, and custom extensions
 │   │   │   ├── entry/                            # Authentication entry point handlers for processing security exceptions
 │   │   │   │   └── InvalidateAuthenticationEntryPoint.java # Entry point for handling invalid or expired authentication attempts

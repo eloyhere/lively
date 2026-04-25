@@ -5,6 +5,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -19,8 +20,8 @@ import java.util.*;
 public class BaseEntity implements Persistable<UUID>, Comparable<BaseEntity> {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", unique = true, nullable = false)
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
+    @Column(name = "id", unique = true, nullable = false, columnDefinition = "binary(16)")
     protected UUID id;
 
     @NotNull(message = "Lock could not be null.")

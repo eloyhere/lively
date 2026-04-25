@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, type RouteLocationNormalizedLoadedGener
 import Home from "@/views/Home.vue";
 import { authenticationStore } from "@/stores/authentication.ts";
 import { ElMessage } from "element-plus";
+import role from '@/directives/role';
 const router: Router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -13,6 +14,15 @@ const router: Router = createRouter({
         roles: ["guest", "consumer", "administrator"]
       },
       component: Home
+    },
+    {
+      path: "/chat",
+      name: "Chat",
+      meta: {
+        title: "聊天",
+        roles: ["consumer", "administrator"]
+      },
+      component: () => import("../views/Chat.vue")
     },
     {
       name: "Management",
@@ -141,15 +151,6 @@ const router: Router = createRouter({
           component: () => import("../views/management/Announcement.vue"),
         },
         {
-          name: "ManagementOnline",
-          path: "/management/online",
-          meta: {
-            title: "在线日志",
-            roles: ["consumer", "administrator"]
-          },
-          component: () => import("../views/management/log/Online.vue"),
-        },
-        {
           name: "ManagementOperation",
           path: "/management/operation",
           meta: {
@@ -157,8 +158,7 @@ const router: Router = createRouter({
             roles: ["consumer", "administrator"]
           },
           component: () => import("../views/management/log/Operation.vue"),
-        }
-        ,
+        },
         {
           name: "ManagementVisit",
           path: "/management/visit",
@@ -167,6 +167,15 @@ const router: Router = createRouter({
             roles: ["consumer", "administrator"]
           },
           component: () => import("../views/management/log/Visit.vue"),
+        },
+        {
+          name: "ManagementLevel",
+          path: "/management/level",
+          meta: {
+            title: "访问日志",
+            roles: ["consumer", "administrator"]
+          },
+          component: () => import("../views/management/game/Level.vue"),
         }
       ],
     },

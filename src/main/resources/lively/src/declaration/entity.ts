@@ -121,3 +121,17 @@ export interface Question extends BaseEntity{
     question: string;
     answer: string;
 }
+
+export interface Operation extends BaseEntity{
+    consumer: Consumer;
+    url: string;
+}
+
+export interface Visit  extends BaseEntity{
+    ip: string;
+    device: string;
+    platform: string;
+    system: string;
+    os: string;
+    client: string;
+}

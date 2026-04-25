@@ -77,18 +77,20 @@
                 <span>选择题管理</span>
               </ElMenuItem>
             </ElMenuItemGroup>
+            <ElMenuItemGroup title="游戏">
+              <ElMenuItem index="/management/level">
+                <ElIcon>
+                  <Operation/>
+                </ElIcon>
+                <span>关卡管理</span>
+              </ElMenuItem>
+            </ElMenuItemGroup>
             <ElMenuItemGroup title="日志">
               <ElMenuItem index="/management/operation">
                 <ElIcon>
                   <Operation/>
                 </ElIcon>
                 <span>操作日志</span>
-              </ElMenuItem>
-              <ElMenuItem index="/management/online">
-                <ElIcon>
-                  <Coffee/>
-                </ElIcon>
-                <span>在线日志</span>
               </ElMenuItem>
               <ElMenuItem index="/management/visit">
                 <ElIcon>

@@ -21,50 +21,47 @@ public class Chat extends BaseEntity {
     @Column(name = "description", length = 500)
     private String description;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.REFRESH})
-    @JoinTable(
-            name = "chat_admins",
-            joinColumns = @JoinColumn(name = "chat_id"),
-            inverseJoinColumns = @JoinColumn(name = "consumer_id")
-    )
-    private Set<Consumer> administrators = new LinkedHashSet<>();
+
 
     @OneToMany(mappedBy = "chat", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("spawn ASC")
     private Set<Message> messages = new LinkedHashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.REFRESH})
-    @JoinTable(
-            name = "chat_members",
-            joinColumns = @JoinColumn(name = "chat_id"),
-            inverseJoinColumns = @JoinColumn(name = "member_id")
-    )
-    @OrderBy("username ASC")
-    private Set<Consumer> members = new LinkedHashSet<>();
-
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
-    @JoinColumn(name = "owner")
-    private Consumer owner;
+    @OneToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH}, optional = false, orphanRemoval = true)
+    @JoinColumn(name = "consumer_id", nullable = false)
+    private Consumer consumer;
 
     public Chat() {
     }
 
-    public void add(Consumer consumer){
-        this.members.add(consumer);
+    public Consumer getConsumer() {
+        return consumer;
     }
 
-    public void remove(Consumer consumer){
-        this.members.remove(consumer);
+    public void setConsumer(Consumer consumer) {
+        this.consumer = consumer;
+    }
+
+    public void add(Message message){
+        if(Objects.nonNull(message)){
+            this.messages.add(message);
+            message.setChat(this);
+        }
+    }
+
+    public void remove(Message message){
+        if(Objects.nonNull(message)){
+            this.messages.remove(message);
+        }
     }
 
     public void send(Consumer consumer, Message message){
         this.messages.add(message);
         message.setChat(this);
-        message.setSender(consumer);
     }
 
-    public void withdraw(Consumer consumer, Message message){
-        if(Objects.equals(consumer, message.getSender())){
+    public void withdraw(Message message){
+        if(Objects.nonNull(message)){
             LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Shanghai"));
             message.setLock(now.plusYears(100));
         }
@@ -86,14 +83,6 @@ public class Chat extends BaseEntity {
         this.name = name;
     }
 
-    public Set<Consumer> getAdministrators() {
-        return administrators;
-    }
-
-    public void setAdministrators(Set<Consumer> administrators) {
-        this.administrators = administrators;
-    }
-
     public Set<Message> getMessages() {
         return messages;
     }
@@ -101,23 +90,6 @@ public class Chat extends BaseEntity {
     public void setMessages(Set<Message> messages) {
         this.messages = messages;
     }
-
-    public Set<Consumer> getMembers() {
-        return members;
-    }
-
-    public void setMembers(Set<Consumer> members) {
-        this.members = members;
-    }
-
-    public Consumer getOwner() {
-        return owner;
-    }
-
-    public void setOwner(Consumer owner) {
-        this.owner = owner;
-    }
-
     @Override
     public TreeMap<String, Object> properties() {
         TreeMap<String, Object> map = super.properties();
