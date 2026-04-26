@@ -1,14 +1,22 @@
 import { createRouter, createWebHistory, type RouteLocationNormalizedLoadedGeneric, type Router } from 'vue-router'
 import Home from "@/views/Home.vue";
+import Splash from "@/views/Splash.vue";
 import { authenticationStore } from "@/stores/authentication.ts";
-import { ElMessage } from "element-plus";
-import role from '@/directives/role';
 const router: Router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      name: "Home",
+      name: "欢迎",
       path: "/",
+      meta: {
+        title: "首页",
+        roles: ["guest", "consumer", "administrator"]
+      },
+      component: Splash
+    },
+    {
+      name: "Home",
+      path: "/home",
       meta: {
         title: "首页",
         roles: ["guest", "consumer", "administrator"]
