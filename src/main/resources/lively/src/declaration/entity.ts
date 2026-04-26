@@ -102,9 +102,9 @@ export interface Message extends BaseEntity{
 
 export interface Chat extends BaseEntity{
     name: string;
-    administrators: Array<Consumer>;
     messages: Array<Message>;
-    owner: Consumer;
+    description: string;
+    consumer: Consumer;
 }
 
 export interface Answer extends BaseEntity{

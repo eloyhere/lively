@@ -93,7 +93,7 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public SecurityFilterChain http(
+    public SecurityFilterChain configure(
             final HttpSecurity security,
             ProviderManager providerManager,
             RememberMeServices rememberMeServices,
@@ -106,7 +106,7 @@ public class SecurityConfiguration {
         livelyUsernamePasswordAuthenticationFilter.setRememberMeServices(rememberMeServices);
         livelyUsernamePasswordAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
         livelyUsernamePasswordAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
-        return security.authorizeHttpRequests((request) -> request.requestMatchers("/websocket/**").authenticated().anyRequest().permitAll())
+        return security.authorizeHttpRequests((request) -> request.anyRequest().permitAll())
                 .anonymous((anonymous) -> {
                     anonymous.key("anonymous").principal("guest").authorities("guest");
                   })

@@ -1,14 +1,21 @@
 package pers.eloyhere.lively.controller.chat;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pers.eloyhere.lively.controller.BaseController;
 import pers.eloyhere.lively.entity.chat.Chat;
+import pers.eloyhere.lively.entity.consumer.Consumer;
 import pers.eloyhere.lively.repository.chat.ChatRepository;
 import pers.eloyhere.lively.service.chat.ChatService;
 
+import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,21 +27,8 @@ class ChatController extends BaseController<Chat, ChatRepository, ChatService> {
         super(service);
     }
 
-    @PostMapping("chat")
-    public ResponseEntity<String> chat(UUID identifier, String content){
-        return this.service.chat(identifier, content);
+    @GetMapping("myChats")
+    public ResponseEntity<List<Chat>> myChats(){
+        return ResponseEntity.ok(this.service.myChats());
     }
-
-    @PutMapping("create")
-    public ResponseEntity<Chat> create(String content){
-        Optional<Chat> optional = this.service.create(content);
-        return optional.map(ResponseEntity::ok).orElseGet(() -> new ResponseEntity<>(HttpStatus.UNAUTHORIZED));
-    }
-
-    @GetMapping("chats")
-    public ResponseEntity<List<Chat>> chats(){
-        return ResponseEntity.ok(this.service.chats());
-    }
-
-
 }

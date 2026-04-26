@@ -9,10 +9,10 @@
 <script setup lang="ts">
 
 import Modulize from "@/component/Modulize.vue";
-import {AnnouncementService} from "../../hooks/service.ts";
+import {AnnouncementService} from "@/hooks/service";
 import {reactive, type Reactive} from "vue";
-import type {Query, Announcement} from "@/declaration/entity.ts";
-import type {Insert, Update} from "@/declaration/modulize.ts";
+import type {Query, Announcement} from "@/declaration/entity";
+import type {Insert, Update} from "@/declaration/modulize";
 const announcementService: AnnouncementService = new AnnouncementService();
 const query: Reactive<Query<Announcement>> = reactive<Query<Announcement>>({
   page: 0,

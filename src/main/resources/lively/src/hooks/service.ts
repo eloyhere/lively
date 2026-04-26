@@ -288,26 +288,10 @@ export class ChatService extends BaseService<Chat> {
         super("chat");
     }
 
-    public async create(content: string): Promise<Chat> {
-        let url: string = `${this.prefix}/${this.module}/create`;
-        let parameters: URLSearchParams = new URLSearchParams();
-        parameters.append("content", content);
-        return await new Promise<Chat>((resolve, reject): void => {
-            usePut<Chat>(url, parameters).then(resolve, reject);
-        });
-    }
-
-    public async chat(id: string, content: string): Promise<string>{
-        let url: string = `${this.prefix}/${this.module}/chat`;
-        let parameters: URLSearchParams = new URLSearchParams();
-        parameters.append("id", id);
-        parameters.append("content", content);
-        return await new Promise<string>((resolve, reject): void => {
-            usePut<string>(url, parameters).then((value) => {
-                console.log(value);
-                resolve(value);
-            }, reject);
-        });
+    public async myChats(): Promise<Array<Chat>>{
+        return await new Promise((resolve, reject): void => {
+            useGet<Array<Chat>>("http://localhost:8080/chat/myChats").then(resolve, reject);
+        })
     }
 }
 

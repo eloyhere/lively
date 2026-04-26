@@ -5,11 +5,11 @@
 
     <header class="home-header">
       <div class="nav-links">
-        <el-link :icon="ChatDotRound" class="nav-item">聊天</el-link>
-        <el-link :icon="Guide" class="nav-item">关卡</el-link>
-        <el-link :icon="Reading" class="nav-item">书籍</el-link>
-        <el-link :icon="EditPen" class="nav-item">答题</el-link>
-        <el-link :icon="InfoFilled" class="nav-item">关于</el-link>
+        <el-link icon="ChatDotRound" href="/chat" class="nav-item">聊天</el-link>
+        <el-link icon="Guide" class="nav-item">关卡</el-link>
+        <el-link icon="Reading" class="nav-item">书籍</el-link>
+        <el-link icon="EditPen" class="nav-item">答题</el-link>
+        <el-link icon="InfoFilled" class="nav-item">关于</el-link>
       </div>
       <div class="avatar-area">
         <el-badge :value="bookShelf.length" :hidden="bookShelf.length === 0" class="shelf-badge">
@@ -926,7 +926,7 @@ onUnmounted(() => {
   backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-betwe1en;
   padding: 0 2rem;
   border-bottom: 1px solid rgba(255,255,255,0.15);
   z-index: 10;

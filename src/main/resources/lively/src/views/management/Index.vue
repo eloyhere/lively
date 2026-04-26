@@ -11,7 +11,7 @@
     </ElHeader>
     <ElMain style="width: calc(100vw - 180px); height: calc(100vh - 220px); user-select: none;">
       <ElScrollbar>
-        <div style="display: flex;flex-direction: column;align-items:safe;justify-content: center;gap: 10px;">
+        <div style="display: flex;flex-direction: column;align-items: start;justify-content: center;gap: 10px;">
 
           <ElDescriptions title="设备信息" border>
             <ElDescriptionsItem label="操作系统">
@@ -107,7 +107,7 @@ import { ElContainer, ElDescriptions, ElDescriptionsItem, ElMain, ElMessage, ElS
 import { onActivated, onDeactivated, onMounted, onUnmounted, type Reactive, reactive, ref, type Ref } from "vue";
 import { invalidate, isNumber, type MaybeInvalid, validate } from "semantic-typescript";
 import { AuthenticationService, ConsumerService, StatisticService, type ConsumerSpawnInformation, type DeviceInformation } from "../../hooks/service.ts";
-import { useTransition } from "@vueuse/core";
+import {useTransition, useWebSocket} from "@vueuse/core";
 import type { Consumer } from "@/declaration/entity.ts";
 interface Structure extends Record<string, number> {
   freeMemory: number;
@@ -306,36 +306,25 @@ const handler: Handler = {
     }
   },
 };
-const websocket: Ref<WebSocket> = ref<WebSocket>(new WebSocket(`ws://localhost:8080/websocket/monitor`));
-websocket.value.addEventListener("open", (event): void => {
-  websocket.value.send("Created.");
-  if (invalidate(interval.value)) {
-    interval.value = setInterval(() => {
-      if (websocket.value.readyState === WebSocket.OPEN) {
-        websocket.value.send("monitor");
+useWebSocket(`ws://localhost:8080/websocket/monitor`, {
+  heartbeat: {
+    message: "ping",
+    interval: 5000,
+    pongTimeout: 5000
+  },
+  onMessage: (websocket: WebSocket, event: MessageEvent): void => {
+    if (event.data !== "Created.") {
+      const structure: Structure = JSON.parse(event.data);
+      structures.push(structure);
+      processors.value = structure.processors;
+      if (structures.length > 20) {
+        let temporary: Array<Structure> = [...structures.filter((s, index) => index > 1)];
+        structures.length = 0;
+        structures.push(...temporary);
       }
-    }, 5000);
-  }
-});
-websocket.value.addEventListener("message", (event: MessageEvent) => {
-  if (event.data !== "Created.") {
-    const structure: Structure = JSON.parse(event.data);
-    structures.push(structure);
-    processors.value = structure.processors;
-    if (structures.length > 20) {
-      let temporary: Array<Structure> = [...structures.filter((s, index) => index > 1)];
-      structures.length = 0;
-      structures.push(...temporary);
     }
+    handler.draw();
   }
-  handler.draw();
-});
-websocket.value.addEventListener("error", (event: Event) => {
-  handler.dispose();
-  ElMessage({
-    message: "连接服务器出现问题。",
-    type: "warning"
-  });
 });
 onMounted((): void => {
   handler.create();
@@ -512,9 +501,6 @@ onDeactivated((): void => {
 });
 onUnmounted((): void => {
   handler.dispose();
-  if (websocket.value.readyState === WebSocket.OPEN) {
-    websocket.value.close();
-  }
 });
 </script>
 

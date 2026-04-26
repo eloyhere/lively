@@ -5,11 +5,14 @@
 <script setup lang="ts">
 
 import { ElLoading, ElMessage } from "element-plus";
-import { onMounted } from "vue";
+import {onMounted, shallowRef} from "vue";
 import { eventStore } from "./stores/event";
 import type { Authentication } from "./declaration/entity";
 import { useRouter } from "vue-router";
 import { authenticationStore } from "./stores/authentication";
+import { Client } from "@stomp/stompjs";
+import Cookies from "js-cookie";
+import {useWebSocket} from "@vueuse/core";
 
 const router = useRouter();
 const load = ElLoading.service({
@@ -18,16 +21,16 @@ const load = ElLoading.service({
   background: "rgba(0, 0, 0, 0.7)",
 });
 onMounted((): void => {
-  eventStore().subscribe("Register", (authenticaiton: unknown) => {
+  eventStore().subscribe("Register", (authentication: unknown) => {
     ElMessage({
       message: "注册成功",
       type: "success",
       plain: true,
       grouping: true
     });
-    authenticationStore().setAuthentication(authenticaiton as Authentication);
+    authenticationStore().setAuthentication(authentication as Authentication);
     router.replace({
-      path: "/"
+      path: "/home"
     });
   });
   eventStore().subscribe("Login", (authenticaiton: unknown) => {
@@ -39,7 +42,7 @@ onMounted((): void => {
     });
     authenticationStore().setAuthentication(authenticaiton as Authentication);
     router.replace({
-      path: "/"
+      path: "/home"
     });
   });
   eventStore().subscribe("Logout", () => {
@@ -63,10 +66,11 @@ onMounted((): void => {
     });
     authenticationStore().expire();
     router.replace({
-      path: "/"
+      path: "/home"
     });
   });
   load.close();
+
 });
 
 </script>

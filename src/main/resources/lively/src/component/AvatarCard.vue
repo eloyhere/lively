@@ -1,7 +1,7 @@
 <template>
   <div style="padding-right: 20px">
     <ElSpace wrap>
-      <span style="user-select: none">
+      <span>
           {{nickname}}
       </span>
       <ElDropdown @command="handle">
@@ -37,23 +37,18 @@
 
 import {User} from "@element-plus/icons-vue";
 import {type Router, useRouter} from "vue-router";
-import {computed, type ComputedRef, onMounted, reactive} from "vue";
+import {computed, type ComputedRef, onMounted, reactive, ref, type Ref} from "vue";
 import {type Consumer, type MaybeInvalid, validate} from "semantic-typescript";
 import type {Announcement, Authentication} from "@/declaration/entity.ts";
 import {authenticationStore} from "@/stores/authentication.ts";
 import {ElMessage, ElMessageBox, ElNotification} from "element-plus";
 import {AnnouncementService, AuthenticationService, ConsumerService} from "../hooks/service.ts";
 import { eventStore } from "@/stores/event.ts";
+import {useWebSocket} from "@vueuse/core";
+import {useSerialization} from "@/hooks/serialization.ts";
 
 const router:Router = useRouter();
 
-const authenticationWebsocket: WebSocket = new WebSocket("ws://localhost:8080/websocket/authentication");
-authenticationWebsocket.addEventListener("open", () => {
-  authenticationWebsocket.send("1");
-});
-authenticationWebsocket.addEventListener("message", (event: MessageEvent) => {
-  
-});
 const authenticationService: AuthenticationService = new AuthenticationService();
 const nickname: ComputedRef<string> = computed<string>((): string => {
   return authenticationStore().nickname.get("游客");
@@ -145,6 +140,22 @@ onMounted((): void => {
       plain: true,
       grouping: true
     });
+  });
+  useWebSocket("ws://localhost:8080/websocket/authentication", {
+    autoClose: true,
+    immediate: true,
+    heartbeat: {
+      interval: 5000,
+      message: "ping"
+    },
+    onMessage: (websocket, message) =>{
+      let serialization = useSerialization<Authentication>();
+      let authentication: Authentication = serialization.deserialize(message.data);
+      if(!authentication.authenticated){
+        eventStore().dispatch("Expire", authentication);
+      }
+      authenticationStore().setAuthentication(serialization.deserialize(message.data));
+    }
   });
 })
 </script>

@@ -281,6 +281,7 @@ public class BaseService <E extends BaseEntity, R extends BaseRepository<E>>{
     }
 
     @Nonnull
+    @Transactional
     public E insert(@Nullable final E entity){
         if(Objects.nonNull(entity)){
             return this.repository.saveAndFlush(entity);
@@ -289,6 +290,7 @@ public class BaseService <E extends BaseEntity, R extends BaseRepository<E>>{
     }
 
     @Nonnull
+    @Transactional
     public Collection<E> insertAll(@Nullable final Collection<E> collection){
         if(Objects.nonNull(collection) && !collection.isEmpty()){
             return this.repository.saveAllAndFlush(collection);
@@ -297,6 +299,7 @@ public class BaseService <E extends BaseEntity, R extends BaseRepository<E>>{
     }
 
     @Nonnull
+    @Transactional
     public E update(@Nullable final E entity){
         if(Objects.nonNull(entity)){
             return this.repository.saveAndFlush(entity);
@@ -305,6 +308,7 @@ public class BaseService <E extends BaseEntity, R extends BaseRepository<E>>{
     }
 
     @Nonnull
+    @Transactional
     public Collection<E> updateAll(@Nullable final Collection<E> collection){
         if(Objects.nonNull(collection) && !collection.isEmpty()){
             return this.repository.saveAllAndFlush(collection);

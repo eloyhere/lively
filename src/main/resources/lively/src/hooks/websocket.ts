@@ -2,6 +2,7 @@ import Cookies from "js-cookie";
 import {validate} from "semantic-typescript";
 
 interface Handler{
+    closeLater(): void;
     close(): void;
     send(data: BufferSource): void;
     send(data: string): void;
@@ -36,7 +37,14 @@ export const useWebsocket = (address: string, listeners?: Partial<WebSocketEvent
     })
 
     return {
-        close: () => shutdown = true,
+        closeLater: () => {
+            shutdown = true;
+        },
+        close: () => {
+            if(validate(websocket) && websocket.readyState === WebSocket.OPEN){
+                websocket.close(0, "exit");
+            }
+        },
         send: (data: BufferSource | string | Blob): void => {
             websocket.send(data);
         }

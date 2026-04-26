@@ -5,8 +5,12 @@ import jakarta.annotation.Nullable;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,6 +19,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.rememberme.CookieTheftException;
 import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
@@ -30,10 +36,15 @@ import pers.eloyhere.lively.service.consumer.ConsumerService;
 import pers.eloyhere.lively.service.consumer.InvitationService;
 import pers.eloyhere.lively.service.consumer.TokenService;
 
+import javax.security.auth.login.CredentialNotFoundException;
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -54,7 +65,7 @@ class AuthenticationController {
 
     private final LivelyPersistentTokenBasedRememberMeServices livelyPersistentTokenBasedRememberMeServices;
 
-    AuthenticationController(SecurityContextRepository repository, ConsumerService consumerService, TokenService tokenService, InvitationService invitationService, AuthenticationManager authenticationManager, HttpServletRequest request, HttpServletResponse response, LivelyPersistentTokenBasedRememberMeServices livelyPersistentTokenBasedRememberMeServices) {
+    AuthenticationController(SecurityContextRepository repository, ConsumerService consumerService, InvitationService invitationService, HttpServletRequest request, HttpServletResponse response, LivelyPersistentTokenBasedRememberMeServices livelyPersistentTokenBasedRememberMeServices) {
         this.repository = repository;
         this.consumerService = consumerService;
         this.invitationService = invitationService;
@@ -69,7 +80,7 @@ class AuthenticationController {
         try{
             Authentication authentication = livelyPersistentTokenBasedRememberMeServices.autoLogin(request, response);
             SecurityContextHolderStrategy strategy = SecurityContextHolder.getContextHolderStrategy();
-            SecurityContext context = strategy.getContext();
+            SecurityContext context = strategy.createEmptyContext();
             context.setAuthentication(authentication);
             strategy.setContext(context);
             repository.saveContext(context, request, response);
@@ -79,6 +90,12 @@ class AuthenticationController {
         }catch (Exception exception){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @MessageMapping("heartbeat")
+    @SendTo("/queue/authentication")
+    public Principal heartbeat(Principal principal){
+        return principal;
     }
 
     @Authenticated

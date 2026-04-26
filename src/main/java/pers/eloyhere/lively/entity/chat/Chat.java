@@ -21,8 +21,6 @@ public class Chat extends BaseEntity {
     @Column(name = "description", length = 500)
     private String description;
 
-
-
     @OneToMany(mappedBy = "chat", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("spawn ASC")
     private Set<Message> messages = new LinkedHashSet<>();
