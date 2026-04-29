@@ -1,19 +1,12 @@
 package pers.eloyhere.lively.repository.consumer;
 
 import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pers.eloyhere.lively.entity.consumer.Consumer;
-import pers.eloyhere.lively.projection.consumer.AuthenticationConsumer;
-import pers.eloyhere.lively.projection.consumer.AuthorizationConsumer;
-import pers.eloyhere.lively.projection.consumer.BaseConsumerProjection;
 import pers.eloyhere.lively.repository.BaseRepository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository("consumerRepository")
 public interface ConsumerRepository extends BaseRepository<Consumer> {

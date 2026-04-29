@@ -30,14 +30,14 @@ public class BaseController<E extends BaseEntity, R extends BaseRepository<E>, S
         this.service = service;
     }
 
-    @Everyone
+    @Administrator
     @GetMapping("countBy")
     public ResponseEntity<Long> countBy(@Nonnull final E entity){
         return ResponseEntity.ok(this.service.countBy(entity));
     }
 
     @Administrator
-    @GetMapping("deleteAll")
+    @DeleteMapping("deleteAll")
     public ResponseEntity<String> deleteAll(){
         this.service.deleteAll();
         return ResponseEntity.ok("ok");
@@ -64,7 +64,7 @@ public class BaseController<E extends BaseEntity, R extends BaseRepository<E>, S
         return ResponseEntity.ok("ok");
     }
 
-    @Authenticated
+    @Administrator
     @GetMapping("existsBy")
     public ResponseEntity<Boolean> existsBy(@Nonnull final E entity){
         return ResponseEntity.ok(this.service.existBy(entity));
@@ -96,7 +96,7 @@ public class BaseController<E extends BaseEntity, R extends BaseRepository<E>, S
         return ResponseEntity.ok(this.service.findAll());
     }
 
-    @Authenticated
+    @Administrator
     @GetMapping("findAllBy")
     public ResponseEntity<Collection<E>> findAllBy(@Nonnull final E entity){
         return ResponseEntity.ok(this.service.findAllBy(entity));

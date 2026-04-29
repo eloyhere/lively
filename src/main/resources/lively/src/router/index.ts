@@ -21,7 +21,10 @@ const router: Router = createRouter({
         title: "首页",
         roles: ["guest", "consumer", "administrator"]
       },
-      component: Home
+      component: Home,
+      children: [
+
+      ],
     },
     {
       path: "/chat",

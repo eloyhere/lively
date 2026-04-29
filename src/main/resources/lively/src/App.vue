@@ -10,9 +10,6 @@ import { eventStore } from "./stores/event";
 import type { Authentication } from "./declaration/entity";
 import { useRouter } from "vue-router";
 import { authenticationStore } from "./stores/authentication";
-import { Client } from "@stomp/stompjs";
-import Cookies from "js-cookie";
-import {useWebSocket} from "@vueuse/core";
 
 const router = useRouter();
 const load = ElLoading.service({

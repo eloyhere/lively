@@ -9,11 +9,9 @@ import pers.eloyhere.lively.projection.BaseProjection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public interface AuthorizationConsumer extends BaseProjection, UserDetails {
+public interface AuthorityProjection extends BaseProjection, UserDetails {
 
     public String getUsername();
-
-    public String getPassword();
 
     public Set<Role> getRoles();
 

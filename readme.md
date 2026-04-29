@@ -47,7 +47,7 @@ lively/                                           # Main project root directory
 │   │   │   │   ├── LivelyAuthenticationDetailsSource.java # Provides additional authentication request details
 │   │   │   │   └── LivelyUsernamePasswordAuthenticationFilter.java # Custom username/password authentication filter
 │   │   │   ├── granter/                          # Custom authentication grant providers for extended authentication mechanisms
-│   │   │   │   └── Granter.java                  # Base interface/class for custom authentication granters
+│   │   │   │   └── Granter.java                  # Granter class for custom authentication granters
 │   │   │   ├── provider/                         # Authentication provider implementations
 │   │   │   │   └── UsernamePasswordAuthenticationProvider.java # Custom provider for username/password authentication
 │   │   │   └── strategy/                         # Strategies for session management and invalidation
@@ -72,14 +72,22 @@ lively/                                           # Main project root directory
 │   │   │   │   ├── AuthorityController.java
 │   │   │   │   ├── ConsumerController.java
 │   │   │   │   ├── InvitationController.java
-│   │   │   │   ├── MenuControllerController.java
-│   │   │   │   ├── RoleControllerController.java
-│   │   │   │   ├── RouteControllerController.java
-│   │   │   │   └── TokenControllerController.java
+│   │   │   │   ├── RoleController.java
+│   │   │   │   └── TokenController.java
+│   │   │   ├── game/
+│   │   │   │   └── LevelController
+│   │   │   ├── log/
+│   │   │   │   ├── OperationController.java
+│   │   │   │   └── VisitController.java
+│   │   │   ├── question/
+│   │   │   │   ├── AnswerController.java
+│   │   │   │   ├── ChoiceController.java
+│   │   │   │   └── QuestionController.java
 │   │   │   ├── AnnouncementController.java       # Endpoints for publishing and managing system-wide announcements
 │   │   │   ├── AuthenticationController.java    # Orchestrates authentication flows (login, logout, registration)
 │   │   │   ├── BaseController.java               # Common controller utilities, constants, and base class for other controllers
-│   │   │   └── ResourcesController.java         # Controller for serving application resources
+│   │   │   ├── ResourcesController.java         # Controller for serving application resources
+│   │   │   └── StatisticController.java         
 │   │   ├── converter/                            # Custom type converters for Spring MVC data binding
 │   │   │   └── StringBlobConverter.java          # Converter utilities for String to SQL BLOB type conversion
 │   │   ├── entity/                               # JPA entity class definitions representing the domain model
@@ -88,15 +96,23 @@ lively/                                           # Main project root directory
 │   │   │   │   └── Chapter.java
 │   │   │   ├── chat/                             # Conversation and AI interaction domain entities
 │   │   │   │   ├── Chat.java
+│   │   │   │   ├── ChatRole.java   #Enumberation for agent chat with value User, Assistant, System included.
 │   │   │   │   └── Message.java
 │   │   │   ├── consumer/                         # User, authentication, and authorisation domain entities
 │   │   │   │   ├── Authority.java
 │   │   │   │   ├── Consumer.java
 │   │   │   │   ├── Invitation.java
-│   │   │   │   ├── Menu.java
 │   │   │   │   ├── Role.java
-│   │   │   │   ├── Route.java
 │   │   │   │   └── Token.java
+│   │   │   ├── game/                         # User, authentication, and authorisation domain entities
+│   │   │   │   └── Level.java
+│   │   │   ├── log/                           
+│   │   │   │   ├── Operation.java
+│   │   │   │   └── Visit.java
+│   │   │   ├── question/                           
+│   │   │   │   ├── Question.java
+│   │   │   │   ├── Answer.java
+│   │   │   │   └── Choice.java
 │   │   │   ├── Announcement.java                 # Entity for persisting system announcements
 │   │   │   └── BaseEntity.java                   # Abstract base entity defining common properties (ID, timestamps) and behaviour
 │   │   ├── projection/                           # Spring Data JPA projection interfaces for repository queries

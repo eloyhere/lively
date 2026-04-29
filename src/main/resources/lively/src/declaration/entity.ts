@@ -96,7 +96,7 @@ export interface Book extends BaseEntity{
 
 export interface Message extends BaseEntity{
     content: string;
-    sender: Consumer;
+    role: "User" | "Assistant" | "System";
     seen: Array<Consumer>;
 }
 

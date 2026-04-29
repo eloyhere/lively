@@ -25,6 +25,9 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.ObjectWriter;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service("chatService")
@@ -47,85 +50,23 @@ public class ChatService extends BaseService<Chat, ChatRepository> {
         this.client = WebClient.builder().baseUrl("https://api.deepseek.com").defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer "+bearer).build();
     }
 
-    @Transactional
-    public Chat insert(Authentication authentication, String name, String description) {
+    public Optional<Chat> create(){
         Chat chat = new Chat();
-        Consumer consumer = (Consumer) authentication.getPrincipal();
-        chat.setConsumer(consumer);
-        chat.setChatName(name);
-        chat.setDescription(description);
-        return repository.saveAndFlush(chat);
-    }
 
-
-    private String extract(String sseLine) {
-        try {
-            if (sseLine.startsWith("data: ")) {
-                String json = sseLine.substring(6).trim();
-                if ("[DONE]".equals(json)) {
-                    return null;
-                }
-                ObjectMapper mapper = new ObjectMapper();
-                JsonNode node = mapper.readTree(json);
-                JsonNode choices = node.path("choices");
-                if (choices.isArray() && !choices.isEmpty()) {
-                    JsonNode delta = choices.get(0).path("delta").path("content");
-                    return delta.asText(null);
-                }
-            }
-        } catch (Exception e) {
-
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        if(Objects.isNull(authentication) || Objects.isNull(authentication.getPrincipal())){
+            return Optional.empty();
         }
-        return null;
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Shanghai"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.ss");
+        chat.setChatName(formatter.format(now));
+        chat.setDescription(formatter.format(now));
+        chat.setConsumer((Consumer) authentication.getPrincipal());
+        return Optional.of(this.repository.saveAndFlush(chat));
     }
 
-    public void stream(Chat chat, String userMessage, WebSocketSession session) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("model", "deepseek-chat");
-        body.put("messages", List.of(Map.of("role", "user", "content", userMessage)));
-        body.put("stream", true);
 
-        StringBuffer buffer = new StringBuffer();
-        client.post()
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(body)
-                .accept(MediaType.TEXT_EVENT_STREAM)
-                .retrieve()
-                .bodyToFlux(String.class)
-                .subscribe(
-                        (sse) -> {
-                            try{
-                                String token = extract(sse);
-                                if (Objects.nonNull(token) && session.isOpen()) {
-                                    buffer.append(token);
-                                    TextMessage message = new TextMessage(token);
-                                    session.sendMessage(message);
-                                }
-                            }catch (Exception ignored){
-
-                            }
-                        },
-                        (error) -> {
-                            try{
-                                TextMessage message = new TextMessage(error.getMessage());
-                                session.sendMessage(message);
-                            }catch (Exception ignored){
-
-                            }
-                        },
-                        () -> {
-                            try{
-                                Message message = new Message();
-                                message.setRole(ChatRole.Assistant);
-                                message.setContent(buffer.toString());
-                                chat.add(message);
-                                session.sendMessage(new TextMessage("done"));
-                            }catch (Exception ignored){
-
-                            }
-                        }
-                );
-    }
 
     public List<Chat> myChats(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

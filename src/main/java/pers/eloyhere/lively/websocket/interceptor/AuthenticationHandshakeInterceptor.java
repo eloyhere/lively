@@ -1,4 +1,4 @@
-package pers.eloyhere.lively.component.websocket;
+package pers.eloyhere.lively.websocket.interceptor;
 
 import org.jspecify.annotations.Nullable;
 import org.springframework.http.server.ServerHttpRequest;
@@ -6,6 +6,7 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.DeferredSecurityContext;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -39,15 +40,25 @@ public class AuthenticationHandshakeInterceptor  implements HandshakeInterceptor
 
     public boolean process(ServletServerHttpRequest request, ServletServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
         try{
+            DeferredSecurityContext exist = repository.loadDeferredContext(request.getServletRequest());
+            Authentication test = exist.get().getAuthentication();
+            if(Objects.nonNull(test) && test.isAuthenticated()){
+                attributes.put("authentication", test);
+                return true;
+            }
             Authentication authentication = livelyPersistentTokenBasedRememberMeServices.autoLogin(request.getServletRequest(), response.getServletResponse());
             SecurityContextHolderStrategy strategy = SecurityContextHolder.getContextHolderStrategy();
             SecurityContext context = strategy.createEmptyContext();
             context.setAuthentication(authentication);
             strategy.setContext(context);
             repository.saveContext(context, request.getServletRequest(), response.getServletResponse());
-            attributes.put("authentication", authentication);
-            return Objects.nonNull(authentication) && authentication.isAuthenticated();
+            if(Objects.nonNull(authentication) && authentication.isAuthenticated()){
+                attributes.put("authentication", authentication);
+                return true;
+            }
+            return false;
         } catch (Exception exception){
+            System.out.println("                         "+exception.getMessage());
             return false;
         }
     }

@@ -141,23 +141,25 @@ onMounted((): void => {
       grouping: true
     });
   });
-  useWebSocket("ws://localhost:8080/websocket/authentication", {
-    autoClose: true,
-    immediate: true,
-    heartbeat: {
-      interval: 5000,
-      message: "ping"
-    },
-    onMessage: (websocket, message) =>{
-      let serialization = useSerialization<Authentication>();
-      let authentication: Authentication = serialization.deserialize(message.data);
-      if(!authentication.authenticated){
-        eventStore().dispatch("Expire", authentication);
+  if(authenticationStore().authenticated){
+    useWebSocket("ws://localhost:8080/websocket/authentication", {
+      autoClose: true,
+      immediate: true,
+      heartbeat: {
+        interval: 5000,
+        message: "authentication"
+      },
+      onMessage: (websocket, message) =>{
+        let serialization = useSerialization<Authentication>();
+        let authentication: Authentication = serialization.deserialize(message.data);
+        if(!authentication.authenticated){
+          eventStore().dispatch("Expire", authentication);
+        }
+        authenticationStore().setAuthentication(serialization.deserialize(message.data));
       }
-      authenticationStore().setAuthentication(serialization.deserialize(message.data));
-    }
-  });
-})
+    });
+  }
+});
 </script>
 <style scoped>
 

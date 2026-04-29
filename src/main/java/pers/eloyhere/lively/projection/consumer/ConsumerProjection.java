@@ -2,7 +2,7 @@ package pers.eloyhere.lively.projection.consumer;
 
 import pers.eloyhere.lively.projection.BaseProjection;
 
-public interface BaseConsumerProjection extends BaseProjection {
+public interface ConsumerProjection extends BaseProjection {
 
     public String getUsername();
 

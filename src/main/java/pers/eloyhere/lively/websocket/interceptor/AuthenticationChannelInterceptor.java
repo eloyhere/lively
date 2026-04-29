@@ -1,4 +1,4 @@
-package pers.eloyhere.lively.component.websocket;
+package pers.eloyhere.lively.websocket.interceptor;
 
 import org.jspecify.annotations.Nullable;
 import org.springframework.messaging.Message;

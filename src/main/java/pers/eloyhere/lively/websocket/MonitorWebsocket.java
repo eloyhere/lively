@@ -27,7 +27,6 @@ public class MonitorWebsocket extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        String content = new String(message.asBytes());
         TreeMap<String, Long> map = new TreeMap<>();
         map.put("processors", (long) runtime.availableProcessors());
         map.put("maxMemory", runtime.maxMemory());
@@ -39,6 +38,6 @@ public class MonitorWebsocket extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        super.afterConnectionClosed(session, status);
+
     }
 }

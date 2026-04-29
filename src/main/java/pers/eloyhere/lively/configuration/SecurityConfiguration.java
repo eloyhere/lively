@@ -14,6 +14,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -23,6 +25,7 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
@@ -37,6 +40,7 @@ import pers.eloyhere.lively.service.consumer.ConsumerService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -62,7 +66,7 @@ public class SecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost"));
+        configuration.setAllowedOrigins(List.of("http://localhost"));
         configuration.setAllowedMethods(Arrays.asList(
                 "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
         ));
@@ -88,6 +92,16 @@ public class SecurityConfiguration {
     }
 
     @Bean
+    public HttpSessionEventPublisher httpSessionEventPublisher() {
+        return new HttpSessionEventPublisher();
+    }
+
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
+    }
+
+    @Bean
     InvalidateAuthenticationEntryPoint invalidateAuthenticationEntryPoint(){
         return new InvalidateAuthenticationEntryPoint();
     }
@@ -96,6 +110,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain configure(
             final HttpSecurity security,
             ProviderManager providerManager,
+            SessionRegistry sessionRegistry,
             RememberMeServices rememberMeServices,
             CorsConfigurationSource corsConfigurationSource,
             SecurityContextRepository securityContextRepository,
@@ -120,7 +135,7 @@ public class SecurityConfiguration {
                     .maxSessionsPreventsLogin(false)
                     .expiredSessionStrategy(event -> {
                         SecurityContextHolder.clearContext();
-                    })
+                    }).sessionRegistry(sessionRegistry)
                 )
                 .logout((logout) -> logout.logoutUrl("/authentication/logout")
                     .clearAuthentication(true)

@@ -7,6 +7,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,6 +20,7 @@ import pers.eloyhere.lively.repository.consumer.ConsumerRepository;
 import pers.eloyhere.lively.repository.consumer.RoleRepository;
 import pers.eloyhere.lively.service.BaseService;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,9 +30,30 @@ public class ConsumerService extends BaseService<Consumer, ConsumerRepository> i
 
     private final RoleRepository roleRepository;
 
-    public ConsumerService(ConsumerRepository repository, RoleRepository roleRepository) {
+    private final SessionRegistry sessionRegistry;
+
+    public ConsumerService(ConsumerRepository repository, SessionRegistry sessionRegistry, RoleRepository roleRepository) {
         super(repository);
+        this.sessionRegistry = sessionRegistry;
         this.roleRepository = roleRepository;
+    }
+
+    public void kickBy(final Consumer example){
+        if(Objects.nonNull(example)){
+            List<Object> principals = sessionRegistry.getAllPrincipals();
+            Optional<Consumer> optional = this.findOneBy(example);
+            optional.ifPresent((consumer) -> {
+                for(Object principal : principals){
+                    if(principal instanceof UserDetails u && Objects.equals(u.getUsername(), consumer.getUsername())){
+                        List<SessionInformation> sessions = sessionRegistry.getAllSessions(principal, false);
+                        for (SessionInformation session : sessions) {
+                            session.expireNow();
+                        }
+                    }
+                }
+            });
+
+        }
     }
 
     @Override
@@ -126,5 +150,7 @@ public class ConsumerService extends BaseService<Consumer, ConsumerRepository> i
     public void deleteAll() {
         super.deleteAll();
     }
+
+
 
 }

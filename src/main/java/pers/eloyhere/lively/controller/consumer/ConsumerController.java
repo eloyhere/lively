@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
+import pers.eloyhere.lively.annotation.Administrator;
 import pers.eloyhere.lively.controller.BaseController;
 import pers.eloyhere.lively.entity.consumer.Consumer;
 import pers.eloyhere.lively.repository.consumer.ConsumerRepository;
@@ -30,5 +31,12 @@ class ConsumerController extends BaseController<Consumer, ConsumerRepository, Co
     @SuppressWarnings("unchecked")
     public ResponseEntity<Consumer> removeRole(@Nonnull final UUID consumer, @Nonnull final UUID role){
         return this.service.removeRole(consumer, role).map(ResponseEntity::ok).orElse((ResponseEntity<Consumer>) ResponseEntity.notFound());
+    }
+
+    @Administrator
+    @PutMapping("kickBy")
+    public ResponseEntity<String> kickBy(@Nonnull final Consumer consumer){
+        this.service.kickBy(consumer);
+        return ResponseEntity.ok("");
     }
 }

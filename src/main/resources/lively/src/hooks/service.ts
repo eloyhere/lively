@@ -291,6 +291,12 @@ export class ChatService extends BaseService<Chat> {
     public async myChats(): Promise<Array<Chat>>{
         return await new Promise((resolve, reject): void => {
             useGet<Array<Chat>>("http://localhost:8080/chat/myChats").then(resolve, reject);
+        });
+    }
+
+    public async create(): Promise<Chat>{
+        return await new Promise<Chat>((resolve, reject): void => {
+            usePut<Chat>("http://localhost:8080/chat/create").then(resolve, reject);
         })
     }
 }
