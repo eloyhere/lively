@@ -67,6 +67,7 @@ import AvatarCard from "@/component/AvatarCard.vue"
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 
+// ----- 类型定义 -----
 interface BookItem {
   id: number
   term: string
@@ -74,22 +75,83 @@ interface BookItem {
 }
 const bookShelf = reactive<BookItem[]>([])
 
+interface BookSource {
+  id: number
+  term: string
+  desc: string
+}
+
+interface Book {
+  id: number
+  name: string
+  desc: string
+  x: number
+  y: number
+  flying: boolean
+  flyStartX: number
+  flyStartY: number
+  flyTargetX: number
+  flyTargetY: number
+  flyStartTime: number
+  collected: boolean
+}
+
+interface Trunk {
+  index: number
+  sky: string
+  ground: string
+}
+
+interface GroundItem {
+  symbol: string
+  x: number
+  y: number
+  trunkIndex: number
+}
+
+interface SkyItem {
+  symbol: string
+  x: number
+  y: number
+  baseY: number
+  vx: number
+  trunkIndex: number
+}
+
+interface StemDrop {
+  id: number
+  trunkIndex: number
+  x: number
+  y: number
+  vy: number
+  landY: number
+  landed: boolean
+  landTime: number
+  symbol: string
+  effectsActive: boolean
+}
+
 // ----- 常量 -----
 const HEADER_HEIGHT = 80
-const BOOK_EMOJI = "📖"
-const BOOK_SIZE = 38
 const CANVAS_PADDING = 10
 const FLY_DURATION = 700
 const WIND_DURATION = 1200
 const WIND_MAX_DIST = 300
 const WIND_MAX_PUSH = 45
-
 const SHELF_MARGIN = 20
 const SHELF_WIDTH = 130
 const SHELF_HEIGHT = 90
 
-// ----- 医书库 -----
-const bookPool = [
+// 书本文字样式
+const BOOK_FONT = 'bold 17px "KaiTi", "楷体", "STKaiti", "SimSun", "宋体", serif'
+const BOOK_COLOR = "#3e2723"
+const BOOK_SHADOW = "rgba(0,0,0,0.3)"
+
+// 用于计算文字宽度（缓存）
+let tempCtx: CanvasRenderingContext2D | null = null
+
+// ----- 医书库（大幅扩充至60本） -----
+const bookPool: BookSource[] = [
   { id: 1, term: "黄帝内经", desc: "中医理论奠基之作" },
   { id: 2, term: "伤寒论", desc: "张仲景著，六经辨证" },
   { id: 3, term: "金匮要略", desc: "杂病论治专著" },
@@ -119,15 +181,60 @@ const bookPool = [
   { id: 27, term: "本草经集注", desc: "陶弘景整理注释" },
   { id: 28, term: "雷公炮炙论", desc: "中药炮制学专著" },
   { id: 29, term: "银海精微", desc: "眼科专书" },
-  { id: 30, term: "伤寒明理论", desc: "成无己注解伤寒" }
-]
+  { id: 30, term: "伤寒明理论", desc: "成无己注解伤寒" },
+  { id: 31, term: "针灸大成", desc: "杨继洲集针灸之大成" },
+  { id: 32, term: "类经", desc: "张介宾类编《内经》" },
+  { id: 33, term: "张氏医通", desc: "张璐著，杂病专书" },
+  { id: 34, term: "本草备要", desc: "汪昂著，本草入门" },
+  { id: 35, term: "医林改错", desc: "王清任解剖革新" },
+  { id: 36, term: "温热经纬", desc: "王士雄温病学集成" },
+  { id: 37, term: "理虚元鉴", desc: "虚劳专著" },
+  { id: 38, term: "疡医大全", desc: "外科巨著" },
+  { id: 39, term: "济阴纲目", desc: "武之望妇科精要" },
+  { id: 40, term: "幼科发挥", desc: "万全儿科经验" },
+  { id: 41, term: "目经大成", desc: "黄庭镜眼科书" },
+  { id: 42, term: "喉科指掌", desc: "喉科专著" },
+  { id: 43, term: "正体类要", desc: "伤科名著" },
+  { id: 44, term: "仙授理伤续断秘方", desc: "现存最早伤科书" },
+  { id: 45, term: "经效产宝", desc: "现存最早产科书" },
+  { id: 46, term: "颅囟经", desc: "儿科古籍" },
+  { id: 47, term: "食医心鉴", desc: "食疗专书" },
+  { id: 48, term: "饮膳正要", desc: "营养学专著" },
+  { id: 49, term: "十四经发挥", desc: "滑寿经络学" },
+  { id: 50, term: "奇经八脉考", desc: "李时珍奇经专著" },
+  { id: 51, term: "本草拾遗", desc: "陈藏器补本草" },
+  { id: 52, term: "海药本草", desc: "李珣著海外药" },
+  { id: 53, term: "滇南本草", desc: "兰茂地方本草" },
+  { id: 54, term: "晶珠本草", desc: "藏药经典" },
+  { id: 55, term: "植物名实图考", desc: "吴其濬植物药图" },
+  { id: 56, term: "存存斋医话稿", desc: "赵晴初医话" },
+  { id: 57, term: "冷庐医话", desc: "陆以湉医话" },
+  { id: 58, term: "对山医话", desc: "毛对山医话" },
+  { id: 59, term: "客尘医话", desc: "计楠医话" },
+  { id: 60, term: "柳洲医话", desc: "魏之琇医话" },
+  { id: 61, term: "黄帝针灸甲乙经", desc: "皇甫谧撰，现存最早针灸学专著" },
+  { id: 62, term: "脉经", desc: "王叔和著，脉学规范之作" },
+  { id: 63, term: "刘涓子鬼遗方", desc: "现存最早外科方书" },
+  { id: 64, term: "集验方", desc: "姚僧垣经验方集" },
+  { id: 65, term: "新修本草", desc: "世界第一部药典" },
+  { id: 66, term: "海上方", desc: "孙思邈单验方集" },
+  { id: 67, term: "博济方", desc: "王衮验方汇编" },
+  { id: 68, term: "苏沈良方", desc: "苏轼、沈括经验方" },
+  { id: 69, term: "史载之方", desc: "史堪方的临证记录" },
+  { id: 70, term: "鸡峰普济方", desc: "张锐著方剂巨著" },
+  { id: 71, term: "圣济总录", desc: "宋徽宗敕编医学百科全书" },
+  { id: 72, term: "普济本事方", desc: "许叔微验方集" },
+  { id: 73, term: "仁斋直指方", desc: "杨士瀛著，内外妇儿兼收" },
+  { id: 74, term: "世医得效方", desc: "危亦林五世家传方" },
+  { id: 75, term: "玉机微义", desc: "徐用诚著，集明前医学精粹" },
+  { id: 76, term: "证治要诀", desc: "戴思恭临床心得" },
+  { id: 77, term: "万病回春", desc: "龚廷贤综合临证全书" },
+  { id: 78, term: "寿世保元", desc: "龚廷贤养生与治疗兼备" },
+  { id: 79, term: "明医杂著", desc: "王纶临床随笔" },
+  { id: 80, term: "古今医鉴", desc: "龚信辑古今名医经验" }
+];
 
 // ========== 天干系统 ==========
-interface Trunk {
-  index: number
-  sky: string
-  ground: string
-}
 const trunks: Trunk[] = [
   { index: 0, sky: "⛈️", ground: "🌳" },
   { index: 1, sky: "💨", ground: "🌿" },
@@ -144,45 +251,14 @@ const combine = (a: Trunk, b: Trunk): Trunk => {
   return trunks[(a.index + b.index) % trunks.length]!
 }
 
-// 地上物品
-interface GroundItem {
-  symbol: string
-  x: number
-  y: number
-  trunkIndex: number
-}
+// 地面、天空、掉落物
 const groundItems: GroundItem[] = []
-
-// 天上漂浮的天干符号
-interface SkyItem {
-  symbol: string
-  x: number
-  y: number
-  baseY: number
-  vx: number
-  trunkIndex: number
-}
 const skyItems: SkyItem[] = []
-
-// 天干掉落物
-interface StemDrop {
-  id: number
-  trunkIndex: number
-  x: number
-  y: number
-  vy: number
-  landY: number
-  landed: boolean
-  landTime: number
-  symbol: string
-  effectsActive: boolean
-}
-
 let dropIdCounter = 0
 let stemDrops: StemDrop[] = []
 
-// 全局效果变量
-const globalEffects = {
+// 全局效果
+const globalEffects = reactive({
   shakeIntensity: 0,
   glowAll: false,
   glowTargetX: 0,
@@ -191,9 +267,9 @@ const globalEffects = {
   blurOverlay: false,
   greyAll: false,
   darkTarget: null as { x: number; y: number } | null
-}
+})
 
-// 初始化天地
+// 初始化天地符号
 function initTrunkItems() {
   skyItems.length = 0
   groundItems.length = 0
@@ -206,10 +282,10 @@ function initTrunkItems() {
       vx: (Math.random() - 0.5) * 0.3,
       trunkIndex: item.index
     })
-    let x, y;
+    let x: number, y: number
     do {
-      x = Math.random() * (canvasWidth - BOOK_SIZE * 2) + BOOK_SIZE
-      y = Math.random() * (canvasHeight - BOOK_SIZE * 2) + BOOK_SIZE
+      x = Math.random() * (canvasWidth - 60) + 30
+      y = Math.random() * (canvasHeight - 60) + 30
     } while (isInsideShelf(x, y))
     groundItems.push({
       symbol: item.ground,
@@ -221,26 +297,10 @@ function initTrunkItems() {
 }
 
 // ---------- 书本系统 ----------
-interface Book {
-  id: number
-  name: string
-  desc: string
-  x: number
-  y: number
-  flying: boolean
-  flyStartX: number
-  flyStartY: number
-  flyTargetX: number
-  flyTargetY: number
-  flyStartTime: number
-  collected: boolean
-}
 const books: Book[] = []
 
 let windActive = false
-let windCenterX = 0
-let windCenterY = 0
-let windStartTime = 0
+let windCenterX = 0, windCenterY = 0, windStartTime = 0
 let windBooksBase: { book: Book | GroundItem | SkyItem; baseX: number; baseY: number; targetX: number; targetY: number }[] = []
 
 let canvasWidth = window.innerWidth
@@ -248,23 +308,47 @@ let canvasHeight = window.innerHeight - HEADER_HEIGHT
 let shelfX = canvasWidth - SHELF_WIDTH - SHELF_MARGIN
 let shelfY = SHELF_MARGIN
 
-let mouseX = 0
-let mouseY = 0
+let mouseX = 0, mouseY = 0
 let hoveredBook: Book | null = null
 
 let rafId: number | null = null
 let pageVisible = true
-
 let isPressing = false
-let pressX = 0
-let pressY = 0
-let pressStartTime = 0
+let pressX = 0, pressY = 0, pressStartTime = 0
 const PRESS_THRESHOLD = 300
 const MAX_FORCE_FACTOR = 2.5
 const FORCE_RISE_DURATION = 2000
 
+// 缓动函数
 function easeOutIn(t: number): number {
   return t < 0.5 ? 0.5 * (1 - Math.pow(1 - (t * 2), 2)) : 0.5 + 0.5 * Math.pow((t - 0.5) * 2, 2)
+}
+
+// 获取书本文字宽度
+function getBookTextWidth(ctx: CanvasRenderingContext2D, name: string): number {
+  ctx.font = BOOK_FONT
+  return ctx.measureText(`《${name}》`).width
+}
+
+// 绘制书本文字
+function drawBookText(ctx: CanvasRenderingContext2D, x: number, y: number, name: string, alpha = 1) {
+  ctx.save()
+  ctx.globalAlpha = alpha
+  ctx.font = BOOK_FONT
+  ctx.textAlign = "center"
+  ctx.textBaseline = "middle"
+  ctx.shadowColor = BOOK_SHADOW
+  ctx.shadowBlur = 2
+  ctx.fillStyle = BOOK_COLOR
+  ctx.fillText(`《${name}》`, x, y)
+  ctx.restore()
+}
+
+// 碰撞检测半径（基于文字宽度的一半）
+function getBookHitRadius(ctx: CanvasRenderingContext2D | null, book: Book): number {
+  if (!ctx) return 40 // 默认值
+  const w = getBookTextWidth(ctx, book.name)
+  return Math.max(w / 2 + 5, 30)
 }
 
 // ------ 绘制 -------
@@ -288,12 +372,11 @@ function drawShelf(ctx: CanvasRenderingContext2D) {
   ctx.shadowColor = "transparent"
   ctx.shadowBlur = 0
   if (bookShelf.length > 0) {
-    ctx.font = `${BOOK_SIZE}px "Segoe UI Emoji", "Apple Color Emoji", sans-serif`
+    ctx.font = "bold 12px 'KaiTi', serif"
     ctx.textAlign = "center"
     ctx.textBaseline = "middle"
-    ctx.fillStyle = "#000"
-    ctx.fillText(BOOK_EMOJI, x + w / 2 - 6, y + h / 2 - 4)
-    ctx.fillText(BOOK_EMOJI, x + w / 2 + 6, y + h / 2 + 4)
+    ctx.fillStyle = "#f5e6d3"
+    ctx.fillText(`已存${bookShelf.length}本`, x + w / 2, y + h / 2)
   }
 }
 
@@ -302,6 +385,7 @@ function draw() {
   if (!canvas || !pageVisible) return
   const ctx = canvas.getContext("2d")
   if (!ctx) return
+  tempCtx = ctx
 
   ctx.clearRect(0, 0, canvasWidth, canvasHeight)
   drawShelf(ctx)
@@ -309,6 +393,7 @@ function draw() {
   const shakeX = globalEffects.shakeIntensity * (Math.sin(performance.now() * 0.05) * 2 - 1)
   const shakeY = globalEffects.shakeIntensity * (Math.cos(performance.now() * 0.05 + 1) * 2 - 1)
 
+  // 绘制地面符号
   ctx.font = `28px "Segoe UI Emoji", "Apple Color Emoji", sans-serif`
   ctx.textAlign = "center"
   ctx.textBaseline = "middle"
@@ -320,7 +405,7 @@ function draw() {
     ctx.restore()
   }
 
-  ctx.font = `${BOOK_SIZE}px "Segoe UI Emoji", "Apple Color Emoji", sans-serif`
+  // 绘制书本（文字形式）
   for (let i = books.length - 1; i >= 0; i--) {
     const b = books[i]
     if (b.flying) {
@@ -329,63 +414,34 @@ function draw() {
       const eased = easeOutIn(progress)
       const curX = b.flyStartX + (b.flyTargetX - b.flyStartX) * eased
       const curY = b.flyStartY + (b.flyTargetY - b.flyStartY) * eased
-      ctx.save()
-      ctx.globalAlpha = 1 - eased * 0.5
-      ctx.translate(curX, curY)
-      ctx.scale(1 - eased * 0.4, 1 - eased * 0.4)
-      ctx.fillText(BOOK_EMOJI, 0, 0)
-      ctx.restore()
+      drawBookText(ctx, curX, curY, b.name, 1 - eased * 0.5)
       if (progress >= 1) {
         if (!b.collected) { b.collected = true; addToShelf(b) }
         books.splice(i, 1)
       }
     } else {
-      ctx.fillText(BOOK_EMOJI, b.x + shakeX, b.y + shakeY)
+      drawBookText(ctx, b.x + shakeX, b.y + shakeY, b.name)
+      // 悬停高亮
       if (hoveredBook === b) {
         ctx.save()
-        ctx.globalAlpha = 0.2
-        ctx.fillStyle = "#fff"
+        ctx.globalAlpha = 0.15
+        ctx.fillStyle = "#ffffff"
+        const r = getBookHitRadius(ctx, b)
         ctx.beginPath()
-        ctx.arc(b.x, b.y, BOOK_SIZE * 0.6, 0, Math.PI * 2)
+        ctx.arc(b.x, b.y, r, 0, Math.PI * 2)
         ctx.fill()
         ctx.restore()
       }
     }
   }
 
+  // 天空符号
   ctx.font = `32px "Segoe UI Emoji", "Apple Color Emoji", sans-serif`
   for (const s of skyItems) {
     ctx.fillText(s.symbol, s.x + shakeX, s.y + shakeY)
   }
 
-  if (hoveredBook && !hoveredBook.flying) {
-    const b = hoveredBook
-    const text = b.name
-    ctx.font = `bold 16px "Microsoft YaHei", sans-serif`
-    const textWidth = ctx.measureText(text).width
-    const boxWidth = textWidth + 20
-    const boxHeight = 28
-    let drawX = b.x - boxWidth / 2
-    let drawY = b.y - BOOK_SIZE * 0.8 - boxHeight
-    if (drawX < 0) drawX = 5
-    if (drawX + boxWidth > canvasWidth) drawX = canvasWidth - boxWidth - 5
-    if (drawY < 0) drawY = b.y + 10
-    ctx.save()
-    ctx.fillStyle = "rgba(0,0,0,0.8)"
-    ctx.strokeStyle = "#d88f3a"
-    ctx.lineWidth = 1.5
-    ctx.beginPath()
-    ctx.roundRect(drawX, drawY, boxWidth, boxHeight, 6)
-    ctx.fill()
-    ctx.stroke()
-    ctx.fillStyle = "#fff"
-    ctx.font = `bold 14px "Microsoft YaHei", sans-serif`
-    ctx.textAlign = "center"
-    ctx.textBaseline = "middle"
-    ctx.fillText(text, drawX + boxWidth / 2, drawY + boxHeight / 2)
-    ctx.restore()
-  }
-
+  // 掉落物
   ctx.font = `32px "Segoe UI Emoji", "Apple Color Emoji", sans-serif`
   for (const d of stemDrops) {
     let alpha = 1
@@ -408,6 +464,7 @@ function addToShelf(book: Book) {
 }
 
 function startFlyToShelf(book: Book) {
+  if (book.flying) return
   const targetX = shelfX + SHELF_WIDTH / 2
   const targetY = shelfY + SHELF_HEIGHT / 2
   book.flyStartX = book.x
@@ -420,23 +477,30 @@ function startFlyToShelf(book: Book) {
 }
 
 function handleCanvasClick(e: MouseEvent) {}
+
 function handleCanvasMouseMove(e: MouseEvent) {
   const canvas = canvasRef.value
-  if (!canvas) return
+  if (!canvas || !tempCtx) return
   const rect = canvas.getBoundingClientRect()
   const scaleX = canvasWidth / rect.width
   const scaleY = canvasHeight / rect.height
   mouseX = (e.clientX - rect.left) * scaleX
   mouseY = (e.clientY - rect.top) * scaleY
-  const hitRadius = BOOK_SIZE * 0.6
+
   hoveredBook = null
   for (let i = books.length - 1; i >= 0; i--) {
     const b = books[i]
     if (b.flying) continue
-    if (Math.hypot(mouseX - b.x, mouseY - b.y) <= hitRadius) { hoveredBook = b; break }
+    const hitRadius = getBookHitRadius(tempCtx, b)
+    if (Math.hypot(mouseX - b.x, mouseY - b.y) <= hitRadius) {
+      hoveredBook = b
+      break
+    }
   }
+
   if (isPressing) { pressX = mouseX; pressY = mouseY }
 }
+
 function clearHover() { hoveredBook = null }
 
 function onPressStart(e: MouseEvent | TouchEvent) {
@@ -454,6 +518,7 @@ function onPressStart(e: MouseEvent | TouchEvent) {
     pressY = (touch.clientY - rect.top) * sy
   }
 }
+
 function onPressEnd() {
   if (!isPressing) return
   isPressing = false
@@ -464,7 +529,6 @@ function onPressEnd() {
 }
 
 function triggerWind(cx: number, cy: number) {
-  // ... (保持不变)
   if (books.length === 0 && groundItems.length === 0 && skyItems.length === 0) return
   windCenterX = cx; windCenterY = cy; windStartTime = performance.now(); windActive = true
   windBooksBase = []
@@ -488,13 +552,12 @@ function triggerWind(cx: number, cy: number) {
   pushItems(skyItems, true)
 }
 
-function isInsideShelf(x: number, y: number) {
-  const m = BOOK_SIZE * 0.8
+function isInsideShelf(x: number, y: number): boolean {
+  const m = 20
   return x > shelfX - m && x < shelfX + SHELF_WIDTH + m && y > shelfY - m && y < shelfY + SHELF_HEIGHT + m
 }
 
 function updateWind(now: number) {
-  // ... (保持不变)
   if (!windActive) return
   const p = Math.min((now - windStartTime) / WIND_DURATION, 1)
   const eased = easeOutIn(p)
@@ -507,7 +570,6 @@ function updateWind(now: number) {
 }
 
 function applyContinuousWind(now: number) {
-  // ... (保持不变)
   if (!isPressing) return
   const duration = now - pressStartTime
   if (duration < PRESS_THRESHOLD) return
@@ -542,7 +604,7 @@ function updateSkyDrift() {
   }
 }
 
-// ========== 天干掉落与合成 ==========
+// ========== 天干掉落与合成 (保持不变) ==========
 function spawnStemDrop() {
   const idx = Math.floor(Math.random() * trunks.length)
   const drop: StemDrop = {
@@ -578,14 +640,14 @@ function onLand(drop: StemDrop) {
   const RADIUS = 100
   let consumed = false
   switch (drop.trunkIndex) {
-    case 0: { // 甲：与己合成
+    case 0: {
       const found = findNearestGroundItem(landX, landY, RADIUS, 5)
       if (found) {
         consumed = true
       }
       break
     }
-    case 1: { // 乙：与庚合成辛
+    case 1: {
       const found = findNearestGroundItem(landX, landY, RADIUS, 6)
       if (found) {
         const combined = combine(trunks[drop.trunkIndex]!, trunks[6]!)
@@ -595,7 +657,7 @@ function onLand(drop: StemDrop) {
       }
       break
     }
-    case 2: { // 丙：与辛合成癸
+    case 2: {
       const found = findNearestGroundItem(landX, landY, RADIUS, 7)
       if (found) {
         const combined = combine(trunks[drop.trunkIndex]!, trunks[7]!)
@@ -605,7 +667,7 @@ function onLand(drop: StemDrop) {
       }
       break
     }
-    case 3: { // 丁：与壬合成乙
+    case 3: {
       const found = findNearestGroundItem(landX, landY, RADIUS, 8)
       if (found) {
         const combined = combine(trunks[drop.trunkIndex]!, trunks[8]!)
@@ -615,7 +677,7 @@ function onLand(drop: StemDrop) {
       }
       break
     }
-    case 4: { // 戊：仅与癸合成丁，不砸毁，自身不消失
+    case 4: {
       const found = findNearestGroundItem(landX, landY, RADIUS, 9)
       if (found) {
         const combined = combine(trunks[drop.trunkIndex]!, trunks[9]!)
@@ -623,22 +685,18 @@ function onLand(drop: StemDrop) {
         groundItems.push({ symbol: combined.ground, x: landX, y: landY, trunkIndex: combined.index })
         consumed = true
       }
-      // 若无癸，则 consumed 保持 false，让戊自然闪烁后变为 ⛰️
       break
     }
-    case 5: { // 己：仅与甲合成己（甲消失，己留在地面）
+    case 5: {
       const found = findNearestGroundItem(landX, landY, RADIUS, 0)
       if (found) {
-        // 移除甲
         groundItems.splice(found.index, 1)
-        // 己自己变成地面图标
         groundItems.push({ symbol: trunks[5]!.ground, x: landX, y: landY, trunkIndex: 5 })
         consumed = true
       }
-      // 若无甲，则正常闪烁后变为 🌾
       break
     }
-    case 6: { // 庚：与乙合成辛
+    case 6: {
       const found = findNearestGroundItem(landX, landY, RADIUS, 1)
       if (found) {
         const combined = combine(trunks[drop.trunkIndex]!, trunks[1]!)
@@ -648,7 +706,7 @@ function onLand(drop: StemDrop) {
       }
       break
     }
-    case 7: { // 辛：与丙合成癸
+    case 7: {
       const found = findNearestGroundItem(landX, landY, RADIUS, 2)
       if (found) {
         const combined = combine(trunks[drop.trunkIndex]!, trunks[2]!)
@@ -658,7 +716,7 @@ function onLand(drop: StemDrop) {
       }
       break
     }
-    case 8: { // 壬：与丁合成乙
+    case 8: {
       const found = findNearestGroundItem(landX, landY, RADIUS, 3)
       if (found) {
         const combined = combine(trunks[drop.trunkIndex]!, trunks[3]!)
@@ -668,7 +726,7 @@ function onLand(drop: StemDrop) {
       }
       break
     }
-    case 9: { // 癸：与戊合成丁
+    case 9: {
       const found = findNearestGroundItem(landX, landY, RADIUS, 4)
       if (found) {
         const combined = combine(trunks[drop.trunkIndex]!, trunks[4]!)
@@ -811,15 +869,14 @@ function mainLoop(now: number) {
 }
 
 function scatterBooks() {
-  // ... (保持不变)
-  const count = Math.floor(Math.random() * 11) + 15
+  const count = Math.floor(Math.random() * 21) + 20 // 散落 20-40 本
   const shuffled = [...bookPool].sort(() => Math.random() - 0.5)
   const selected = shuffled.slice(0, count)
   selected.forEach(b => {
-    let x, y
+    let x: number, y: number
     do {
-      x = Math.random() * (canvasWidth - BOOK_SIZE * 2) + BOOK_SIZE
-      y = Math.random() * (canvasHeight - BOOK_SIZE * 2) + BOOK_SIZE
+      x = Math.random() * (canvasWidth - 80) + 40
+      y = Math.random() * (canvasHeight - 60) + 30
     } while (isInsideShelf(x, y))
     books.push({
       id: b.id,
@@ -840,7 +897,6 @@ function updateShelfPosition() {
 }
 
 function handleResize() {
-  // ... (保持不变)
   const ow = canvasWidth, oh = canvasHeight
   canvasWidth = window.innerWidth
   canvasHeight = window.innerHeight - HEADER_HEIGHT
@@ -851,8 +907,8 @@ function handleResize() {
     b.x = Math.min(Math.max(b.x, CANVAS_PADDING), canvasWidth - CANVAS_PADDING)
     b.y = Math.min(Math.max(b.y, CANVAS_PADDING), canvasHeight - CANVAS_PADDING)
     if (isInsideShelf(b.x, b.y)) {
-      if (b.x > shelfX && b.x < shelfX + SHELF_WIDTH) b.x = shelfX - BOOK_SIZE
-      if (b.y > shelfY && b.y < shelfY + SHELF_HEIGHT) b.y = shelfY - BOOK_SIZE
+      if (b.x > shelfX && b.x < shelfX + SHELF_WIDTH) b.x = shelfX - 40
+      if (b.y > shelfY && b.y < shelfY + SHELF_HEIGHT) b.y = shelfY - 40
     }
   })
   skyItems.forEach(s => {
@@ -889,8 +945,8 @@ onMounted(() => {
     canvas.height = canvasHeight
   }
   updateShelfPosition()
-  scatterBooks()
   initTrunkItems()
+  scatterBooks()
   stemInterval = window.setInterval(spawnStemDrop, 3000)
   rafId = requestAnimationFrame(mainLoop)
   window.addEventListener("resize", handleResize)
@@ -926,7 +982,7 @@ onUnmounted(() => {
   backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
-  justify-content: space-betwe1en;
+  justify-content: space-between;
   padding: 0 2rem;
   border-bottom: 1px solid rgba(255,255,255,0.15);
   z-index: 10;
