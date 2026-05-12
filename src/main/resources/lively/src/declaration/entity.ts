@@ -135,3 +135,15 @@ export interface Visit  extends BaseEntity{
     os: string;
     client: string;
 }
+
+// ========== 中医刷题 ==========
+export interface TcmQuestion extends BaseEntity {
+    subject: string;       // 科目: basic/diagnostics/herbology/prescriptions/acupuncture
+    type: string;          // 题型: single/multiple/judge
+    question: string;      // 题目内容
+    options: string;       // 选项 JSON 数组字符串
+    answer: string;        // 正确答案 JSON 数组字符串
+    explanation: string;   // 解析
+    keyPoint: string;      // 考点
+    difficulty: number;    // 难度: 1/2/3
+}

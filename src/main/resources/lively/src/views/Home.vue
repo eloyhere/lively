@@ -1,14 +1,19 @@
 <template>
   <div class="home">
     <!-- 背景模糊层（庚效果） -->
-    <div v-if="globalEffects.blurOverlay" class="blur-overlay"></div>
+    <div v-if="globalEffects.blurOverlay" class="blur-overlay">
+      <div class="blur-layer-1"></div>
+      <div class="blur-layer-2"></div>
+      <div class="blur-layer-3"></div>
+      <div class="fog-noise"></div>
+    </div>
 
     <header class="home-header">
       <div class="nav-links">
         <el-link icon="ChatDotRound" href="/chat" class="nav-item">聊天</el-link>
         <el-link icon="Guide" class="nav-item">关卡</el-link>
         <el-link icon="Reading" class="nav-item">书籍</el-link>
-        <el-link icon="EditPen" class="nav-item">答题</el-link>
+        <el-link icon="EditPen" class="nav-item" @click="goPractises">答题</el-link>
         <el-link icon="InfoFilled" class="nav-item">关于</el-link>
       </div>
       <div class="avatar-area">
@@ -55,6 +60,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, onUnmounted } from "vue"
+import { useRouter } from "vue-router"
 import {
   ChatDotRound,
   Guide,
@@ -64,6 +70,18 @@ import {
   Notebook
 } from "@element-plus/icons-vue"
 import AvatarCard from "@/component/AvatarCard.vue"
+import { authenticationStore } from "@/stores/authentication.ts"
+
+const router = useRouter()
+
+function goPractises() {
+  const auth = authenticationStore()
+  if (auth.authenticated) {
+    router.push("/practises")
+  } else {
+    router.push("/authentication/account")
+  }
+}
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 
@@ -107,6 +125,11 @@ interface GroundItem {
   x: number
   y: number
   trunkIndex: number
+  vx: number
+  vy: number
+  baseX: number
+  baseY: number
+  spawnTime: number
 }
 
 interface SkyItem {
@@ -146,6 +169,8 @@ const SHELF_HEIGHT = 90
 const BOOK_FONT = 'bold 17px "KaiTi", "楷体", "STKaiti", "SimSun", "宋体", serif'
 const BOOK_COLOR = "#3e2723"
 const BOOK_SHADOW = "rgba(0,0,0,0.3)"
+const BOOK_OUTLINE_COLOR = "#f5e6d3"
+const MIN_BOOK_SPACING = 60
 
 // 用于计算文字宽度（缓存）
 let tempCtx: CanvasRenderingContext2D | null = null
@@ -257,6 +282,9 @@ const skyItems: SkyItem[] = []
 let dropIdCounter = 0
 let stemDrops: StemDrop[] = []
 
+// 天干图标总数限制
+const MAX_TRUNK_ITEMS = 100
+
 // 全局效果
 const globalEffects = reactive({
   shakeIntensity: 0,
@@ -273,6 +301,7 @@ const globalEffects = reactive({
 function initTrunkItems() {
   skyItems.length = 0
   groundItems.length = 0
+  const now = performance.now()
   trunks.forEach((item) => {
     skyItems.push({
       symbol: item.sky,
@@ -291,7 +320,12 @@ function initTrunkItems() {
       symbol: item.ground,
       x,
       y,
-      trunkIndex: item.index
+      trunkIndex: item.index,
+      vx: (Math.random() - 0.5) * 0.2,
+      vy: (Math.random() - 0.5) * 0.15,
+      baseX: x,
+      baseY: y,
+      spawnTime: now
     })
   })
 }
@@ -328,6 +362,34 @@ function easeOutIn(t: number): number {
 function getBookTextWidth(ctx: CanvasRenderingContext2D, name: string): number {
   ctx.font = BOOK_FONT
   return ctx.measureText(`《${name}》`).width
+}
+
+// 绘制摊开书形状（棱角分明版）
+function drawOpenBookShape(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  const width = 80
+  const height = 55
+  const pageWidth = (width - 4) / 2
+  
+  ctx.beginPath()
+  
+  ctx.moveTo(x - width / 2 + 8, y - height / 2 + 5)
+  ctx.lineTo(x - pageWidth - 2, y - height / 2)
+  ctx.lineTo(x - 2, y - height / 2 + height * 0.35)
+  ctx.lineTo(x - 2, y + height / 2 - 10)
+  
+  ctx.quadraticCurveTo(x - pageWidth / 2, y + height / 2 + 8, x - width / 2, y + height / 2)
+  ctx.lineTo(x - width / 2 + 8, y + height / 2 - 5)
+  ctx.lineTo(x - width / 2 + 12, y - height / 2 + 5)
+  ctx.closePath()
+  
+  ctx.moveTo(x + 2, y - height / 2 + height * 0.35)
+  ctx.lineTo(x + pageWidth + 2, y - height / 2)
+  ctx.lineTo(x + width / 2 - 8, y - height / 2 + 5)
+  ctx.lineTo(x + width / 2 - 12, y + height / 2 - 5)
+  ctx.lineTo(x + width / 2, y + height / 2)
+  
+  ctx.quadraticCurveTo(x + pageWidth / 2, y + height / 2 + 8, x + 2, y + height / 2 - 10)
+  ctx.closePath()
 }
 
 // 绘制书本文字
@@ -421,15 +483,14 @@ function draw() {
       }
     } else {
       drawBookText(ctx, b.x + shakeX, b.y + shakeY, b.name)
-      // 悬停高亮
+      // 悬停高亮 - 书本图标
       if (hoveredBook === b) {
         ctx.save()
-        ctx.globalAlpha = 0.15
-        ctx.fillStyle = "#ffffff"
-        const r = getBookHitRadius(ctx, b)
-        ctx.beginPath()
-        ctx.arc(b.x, b.y, r, 0, Math.PI * 2)
-        ctx.fill()
+        ctx.globalAlpha = 0.3
+        ctx.font = "56px Segoe UI Emoji, Apple Color Emoji, sans-serif"
+        ctx.textAlign = "center"
+        ctx.textBaseline = "middle"
+        ctx.fillText("📖", b.x, b.y)
         ctx.restore()
       }
     }
@@ -597,10 +658,54 @@ function applyContinuousWind(now: number) {
 
 function updateSkyDrift() {
   if (windActive || isPressing) return
+  
   for (const s of skyItems) {
     s.x += s.vx
     if (s.x < 20 || s.x > canvasWidth - 20) { s.vx *= -1; s.x = Math.min(Math.max(s.x, 20), canvasWidth - 20) }
     s.y = s.baseY + Math.sin(performance.now() / 2000 + s.x) * 5
+  }
+  
+  for (const g of groundItems) {
+    g.x += g.vx
+    g.y += g.vy + Math.sin(performance.now() / 3000 + g.baseX) * 0.1
+    
+    if (g.x < CANVAS_PADDING || g.x > canvasWidth - CANVAS_PADDING) {
+      g.vx *= -1
+      g.x = Math.min(Math.max(g.x, CANVAS_PADDING), canvasWidth - CANVAS_PADDING)
+    }
+    if (g.y < CANVAS_PADDING || g.y > canvasHeight - CANVAS_PADDING) {
+      g.vy *= -1
+      g.y = Math.min(Math.max(g.y, CANVAS_PADDING), canvasHeight - CANVAS_PADDING)
+    }
+    if (isInsideShelf(g.x, g.y)) {
+      g.vx *= -1
+      g.vy *= -1
+    }
+  }
+}
+
+function checkAndLimitTrunkItems() {
+  const totalItems = groundItems.length + skyItems.length + stemDrops.length
+  if (totalItems > MAX_TRUNK_ITEMS) {
+    const excess = totalItems - MAX_TRUNK_ITEMS
+    
+    for (let i = 0; i < excess && groundItems.length > 10; i++) {
+      groundItems.sort((a, b) => a.spawnTime - b.spawnTime)
+      groundItems.shift()
+    }
+    
+    if (stemDrops.length > 0) {
+      const dropsToRemove = Math.min(excess, stemDrops.length)
+      stemDrops.sort((a, b) => a.id - b.id)
+      for (let i = 0; i < dropsToRemove; i++) {
+        const drop = stemDrops[i]
+        if (drop) {
+          drop.vy += 3
+          drop.vx += (Math.random() - 0.5) * 2
+        }
+      }
+      stemDrops.splice(0, dropsToRemove)
+    }
   }
 }
 
@@ -634,6 +739,20 @@ function findNearestGroundItem(x: number, y: number, radius: number, targetIndex
   return best ? { item: best, index: bestIdx } : null
 }
 
+function createGroundItem(symbol: string, x: number, y: number, trunkIndex: number) {
+  return {
+    symbol,
+    x,
+    y,
+    trunkIndex,
+    vx: (Math.random() - 0.5) * 0.2,
+    vy: (Math.random() - 0.5) * 0.15,
+    baseX: x,
+    baseY: y,
+    spawnTime: performance.now()
+  }
+}
+
 // 落地合成逻辑（已移除戊和己的砸毁，戊/己不再强制消费，允许自然转化为地支）
 function onLand(drop: StemDrop) {
   const landX = drop.x, landY = drop.y
@@ -652,7 +771,7 @@ function onLand(drop: StemDrop) {
       if (found) {
         const combined = combine(trunks[drop.trunkIndex]!, trunks[6]!)
         groundItems.splice(found.index, 1)
-        groundItems.push({ symbol: combined.ground, x: landX, y: landY, trunkIndex: combined.index })
+        groundItems.push(createGroundItem(combined.ground, landX, landY, combined.index))
         consumed = true
       }
       break
@@ -662,7 +781,7 @@ function onLand(drop: StemDrop) {
       if (found) {
         const combined = combine(trunks[drop.trunkIndex]!, trunks[7]!)
         groundItems.splice(found.index, 1)
-        groundItems.push({ symbol: combined.ground, x: landX, y: landY, trunkIndex: combined.index })
+        groundItems.push(createGroundItem(combined.ground, landX, landY, combined.index))
         consumed = true
       }
       break
@@ -672,7 +791,7 @@ function onLand(drop: StemDrop) {
       if (found) {
         const combined = combine(trunks[drop.trunkIndex]!, trunks[8]!)
         groundItems.splice(found.index, 1)
-        groundItems.push({ symbol: combined.ground, x: landX, y: landY, trunkIndex: combined.index })
+        groundItems.push(createGroundItem(combined.ground, landX, landY, combined.index))
         consumed = true
       }
       break
@@ -682,7 +801,7 @@ function onLand(drop: StemDrop) {
       if (found) {
         const combined = combine(trunks[drop.trunkIndex]!, trunks[9]!)
         groundItems.splice(found.index, 1)
-        groundItems.push({ symbol: combined.ground, x: landX, y: landY, trunkIndex: combined.index })
+        groundItems.push(createGroundItem(combined.ground, landX, landY, combined.index))
         consumed = true
       }
       break
@@ -691,7 +810,7 @@ function onLand(drop: StemDrop) {
       const found = findNearestGroundItem(landX, landY, RADIUS, 0)
       if (found) {
         groundItems.splice(found.index, 1)
-        groundItems.push({ symbol: trunks[5]!.ground, x: landX, y: landY, trunkIndex: 5 })
+        groundItems.push(createGroundItem(trunks[5]!.ground, landX, landY, 5))
         consumed = true
       }
       break
@@ -701,7 +820,7 @@ function onLand(drop: StemDrop) {
       if (found) {
         const combined = combine(trunks[drop.trunkIndex]!, trunks[1]!)
         groundItems.splice(found.index, 1)
-        groundItems.push({ symbol: combined.ground, x: landX, y: landY, trunkIndex: combined.index })
+        groundItems.push(createGroundItem(combined.ground, landX, landY, combined.index))
         consumed = true
       }
       break
@@ -711,7 +830,7 @@ function onLand(drop: StemDrop) {
       if (found) {
         const combined = combine(trunks[drop.trunkIndex]!, trunks[2]!)
         groundItems.splice(found.index, 1)
-        groundItems.push({ symbol: combined.ground, x: landX, y: landY, trunkIndex: combined.index })
+        groundItems.push(createGroundItem(combined.ground, landX, landY, combined.index))
         consumed = true
       }
       break
@@ -721,7 +840,7 @@ function onLand(drop: StemDrop) {
       if (found) {
         const combined = combine(trunks[drop.trunkIndex]!, trunks[3]!)
         groundItems.splice(found.index, 1)
-        groundItems.push({ symbol: combined.ground, x: landX, y: landY, trunkIndex: combined.index })
+        groundItems.push(createGroundItem(combined.ground, landX, landY, combined.index))
         consumed = true
       }
       break
@@ -731,7 +850,7 @@ function onLand(drop: StemDrop) {
       if (found) {
         const combined = combine(trunks[drop.trunkIndex]!, trunks[4]!)
         groundItems.splice(found.index, 1)
-        groundItems.push({ symbol: combined.ground, x: landX, y: landY, trunkIndex: combined.index })
+        groundItems.push(createGroundItem(combined.ground, landX, landY, combined.index))
         consumed = true
       }
       break
@@ -762,7 +881,7 @@ function updateStemDrops(now: number) {
       const elapsed = (now - drop.landTime) / 1000
       if (elapsed >= 3) {
         const trunk = trunks[drop.trunkIndex]!
-        groundItems.push({ symbol: trunk.ground, x: drop.x, y: drop.y, trunkIndex: drop.trunkIndex })
+        groundItems.push(createGroundItem(trunk.ground, drop.x, drop.y, drop.trunkIndex))
         stemDrops.splice(i, 1)
         resetEffect(drop)
       }
@@ -864,8 +983,19 @@ function mainLoop(now: number) {
   updateWind(now)
   applyContinuousWind(now)
   updateSkyDrift()
+  checkAndLimitTrunkItems()
   draw()
   rafId = requestAnimationFrame(mainLoop)
+}
+
+function isTooCloseToOtherBooks(newX: number, newY: number): boolean {
+  for (const book of books) {
+    const dist = Math.hypot(newX - book.x, newY - book.y)
+    if (dist < MIN_BOOK_SPACING) {
+      return true
+    }
+  }
+  return false
 }
 
 function scatterBooks() {
@@ -874,20 +1004,26 @@ function scatterBooks() {
   const selected = shuffled.slice(0, count)
   selected.forEach(b => {
     let x: number, y: number
+    let attempts = 0
+    const maxAttempts = 100
     do {
-      x = Math.random() * (canvasWidth - 80) + 40
-      y = Math.random() * (canvasHeight - 60) + 30
-    } while (isInsideShelf(x, y))
-    books.push({
-      id: b.id,
-      name: b.term,
-      desc: b.desc,
-      x, y,
-      flying: false,
-      flyStartX: 0, flyStartY: 0, flyTargetX: 0, flyTargetY: 0,
-      flyStartTime: 0,
-      collected: false
-    })
+      x = Math.random() * (canvasWidth - 100) + 50
+      y = Math.random() * (canvasHeight - 100) + 50
+      attempts++
+    } while ((isInsideShelf(x, y) || isTooCloseToOtherBooks(x, y)) && attempts < maxAttempts)
+    
+    if (attempts < maxAttempts) {
+      books.push({
+        id: b.id,
+        name: b.term,
+        desc: b.desc,
+        x, y,
+        flying: false,
+        flyStartX: 0, flyStartY: 0, flyTargetX: 0, flyTargetY: 0,
+        flyStartTime: 0,
+        collected: false
+      })
+    }
   })
 }
 
@@ -973,8 +1109,104 @@ onUnmounted(() => {
   position: absolute;
   inset: 0;
   z-index: 5;
-  backdrop-filter: blur(4px);
   pointer-events: none;
+  animation: blurFadeIn 0.5s ease-out forwards;
+}
+
+.blur-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 60% at 50% 50%,
+    rgba(200, 180, 150, 0.15) 0%,
+    rgba(150, 120, 100, 0.25) 40%,
+    rgba(100, 80, 60, 0.35) 70%,
+    rgba(80, 60, 40, 0.45) 100%
+  );
+  animation: fogPulse 2s ease-in-out infinite;
+}
+
+.blur-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(8px);
+  mask-image: radial-gradient(
+    ellipse 60% 40% at 50% 50%,
+    transparent 0%,
+    transparent 30%,
+    rgba(0, 0, 0, 0.3) 50%,
+    rgba(0, 0, 0, 0.6) 70%,
+    rgba(0, 0, 0, 0.8) 100%
+  );
+}
+
+.blur-layer-1 {
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(12px);
+  opacity: 0.4;
+  mask-image: radial-gradient(
+    circle at 30% 40%,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0.3) 30%,
+    transparent 60%
+  );
+}
+
+.blur-layer-2 {
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(6px);
+  opacity: 0.6;
+  mask-image: radial-gradient(
+    circle at 70% 60%,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.2) 40%,
+    transparent 70%
+  );
+}
+
+.blur-layer-3 {
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(3px);
+  opacity: 0.8;
+  mask-image: radial-gradient(
+    ellipse 90% 70% at 50% 80%,
+    rgba(0, 0, 0, 0.9) 0%,
+    rgba(0, 0, 0, 0.4) 50%,
+    transparent 80%
+  );
+}
+
+.fog-noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+@keyframes blurFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fogPulse {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
 }
 .home-header {
   height: 80px;

@@ -32,11 +32,11 @@ lively/                                           # Main project root directory
 │   │   │   ├── Everyone.java                     # Annotation permitting unrestricted public access, bypassing security checks
 │   │   │   ├── Guest.java                        # Annotation permitting access to both authenticated and non-authenticated (guest) users
 │   │   │   └── Unauthenticated.java              # Annotation restricting access exclusively to non-authenticated requests
-│   │   ├── aspect/
-│   │   │   ├── BaseAspect.java
-│   │   │   ├── ClientAspect.java                 # Aspect-oriented programming (AOP) aspect for client-side cross-cutting concerns
-│   │   │   ├── OperationAspect.java
-│   │   │   └── VisitAspect.java
+│   │   ├── aspect/                               # AOP aspects for cross-cutting concerns (logging, auditing)
+│   │   │   ├── BaseAspect.java                   # Base interface for all AOP aspects
+│   │   │   ├── ClientAspect.java                 # Aspect for client-side cross-cutting concerns
+│   │   │   ├── OperationAspect.java              # Aspect for recording user operation audit logs
+│   │   │   └── VisitAspect.java                  # Aspect for recording user visit/access logs
 │   │   ├── authentication/                       # Complete Spring Security infrastructure, configuration, and custom extensions
 │   │   │   ├── entry/                            # Authentication entry point handlers for processing security exceptions
 │   │   │   │   └── InvalidateAuthenticationEntryPoint.java # Entry point for handling invalid or expired authentication attempts
@@ -62,7 +62,7 @@ lively/                                           # Main project root directory
 │   │   │   ├── WebSocketConfiguration.java       # WebSocket endpoint registration and message broker configuration
 │   │   │   └── Vue3Configuration.java           # Frontend integration configuration for Vue 3, including routing and history mode fallback
 │   │   ├── controller/                           # RESTful API endpoint controllers (MVC)
-│   │   │   ├── book/                             # Traditional Chinese Medicine (TCM) literature management endpoints
+│   │   │   ├── book/                             # TCM literature management endpoints
 │   │   │   │   ├── BookController.java
 │   │   │   │   └── ChapterController.java
 │   │   │   ├── chat/                             # AI-powered conversational chat and messaging interface endpoints
@@ -74,20 +74,23 @@ lively/                                           # Main project root directory
 │   │   │   │   ├── InvitationController.java
 │   │   │   │   ├── RoleController.java
 │   │   │   │   └── TokenController.java
-│   │   │   ├── game/
-│   │   │   │   └── LevelController
-│   │   │   ├── log/
-│   │   │   │   ├── OperationController.java
-│   │   │   │   └── VisitController.java
-│   │   │   ├── question/
-│   │   │   │   ├── AnswerController.java
-│   │   │   │   ├── ChoiceController.java
-│   │   │   │   └── QuestionController.java
+│   │   │   ├── game/                             # Gamification and level system endpoints
+│   │   │   │   └── LevelController.java          # Endpoints for managing user levels and progression
+│   │   │   ├── log/                              # System logging and audit endpoints
+│   │   │   │   ├── OperationController.java      # Endpoints for querying operation audit logs
+│   │   │   │   └── VisitController.java          # Endpoints for querying visit/access logs
+│   │   │   ├── question/                         # Question bank management endpoints
+│   │   │   │   ├── AnswerController.java         # Endpoints for managing question answers
+│   │   │   │   ├── ChoiceController.java         # Endpoints for managing question choices
+│   │   │   │   └── QuestionController.java       # Endpoints for managing questions
+│   │   │   ├── tcm/                              # TCM quiz and learning endpoints
+│   │   │   │   ├── TcmPublicController.java      # Public TCM data endpoints (no authentication required)
+│   │   │   │   └── TcmQuestionController.java    # TCM question management endpoints (authenticated)
 │   │   │   ├── AnnouncementController.java       # Endpoints for publishing and managing system-wide announcements
 │   │   │   ├── AuthenticationController.java    # Orchestrates authentication flows (login, logout, registration)
 │   │   │   ├── BaseController.java               # Common controller utilities, constants, and base class for other controllers
 │   │   │   ├── ResourcesController.java         # Controller for serving application resources
-│   │   │   └── StatisticController.java         
+│   │   │   └── StatisticController.java          # Endpoints for learning statistics and analytics
 │   │   ├── converter/                            # Custom type converters for Spring MVC data binding
 │   │   │   └── StringBlobConverter.java          # Converter utilities for String to SQL BLOB type conversion
 │   │   ├── entity/                               # JPA entity class definitions representing the domain model
@@ -96,27 +99,42 @@ lively/                                           # Main project root directory
 │   │   │   │   └── Chapter.java
 │   │   │   ├── chat/                             # Conversation and AI interaction domain entities
 │   │   │   │   ├── Chat.java
-│   │   │   │   ├── ChatRole.java   #Enumberation for agent chat with value User, Assistant, System included.
+│   │   │   │   ├── ChatRole.java                 # Enumeration for chat agent roles (User, Assistant, System)
 │   │   │   │   └── Message.java
 │   │   │   ├── consumer/                         # User, authentication, and authorisation domain entities
 │   │   │   │   ├── Authority.java
+│   │   │   │   ├── Client.java                   # Entity representing client device/session information
 │   │   │   │   ├── Consumer.java
 │   │   │   │   ├── Invitation.java
 │   │   │   │   ├── Role.java
 │   │   │   │   └── Token.java
-│   │   │   ├── game/                         # User, authentication, and authorisation domain entities
-│   │   │   │   └── Level.java
-│   │   │   ├── log/                           
-│   │   │   │   ├── Operation.java
-│   │   │   │   └── Visit.java
-│   │   │   ├── question/                           
+│   │   │   ├── game/                             # Gamification domain entities
+│   │   │   │   └── Level.java                    # Entity representing user progression levels
+│   │   │   ├── log/                              # Logging and audit domain entities
+│   │   │   │   ├── Operation.java                # Entity for recording user operations
+│   │   │   │   └── Visit.java                    # Entity for recording user page visits
+│   │   │   ├── question/                         # Question bank domain entities
 │   │   │   │   ├── Question.java
 │   │   │   │   ├── Answer.java
 │   │   │   │   └── Choice.java
+│   │   │   ├── tcm/                              # TCM quiz domain entities
+│   │   │   │   └── TcmQuestion.java              # Entity for TCM-specific quiz questions
+│   │   │   ├── time/                             # Traditional Chinese timekeeping domain entities
+│   │   │   │   ├── Branch.java                   # Enumeration of the Twelve Earthly Branches (地支)
+│   │   │   │   ├── Climate.java                  # Entity for the Twenty-Four Solar Terms (节气)
+│   │   │   │   ├── God.java                      # Enumeration of the Ten Heavenly Stems deities (天干)
+│   │   │   │   ├── Month.java                    # Entity representing lunar months and their properties
+│   │   │   │   ├── Phase.java                    # Entity representing the Five Phases (Wu Xing / 五行)
+│   │   │   │   ├── Trunk.java                    # Enumeration of the Ten Heavenly Stems (天干)
+│   │   │   │   └── Year.java                     # Entity representing year cycles and stem-branch combinations
 │   │   │   ├── Announcement.java                 # Entity for persisting system announcements
 │   │   │   └── BaseEntity.java                   # Abstract base entity defining common properties (ID, timestamps) and behaviour
 │   │   ├── projection/                           # Spring Data JPA projection interfaces for repository queries
-│   │   │   └── BaseProjection.java               # Common base interface for projections
+│   │   │   ├── BaseProjection.java               # Common base interface for projections
+│   │   │   └── consumer/                         # Consumer-related projection interfaces
+│   │   │       ├── AuthenticationProjection.java # Projection for authentication query results
+│   │   │       ├── AuthorityProjection.java      # Projection for authority query results
+│   │   │       └── ConsumerProjection.java       # Projection for consumer query results
 │   │   ├── repository/                           # Spring Data JPA repository interfaces for data persistence
 │   │   │   ├── book/                             # Data access interfaces for TCM literature entities
 │   │   │   │   ├── BookRepository.java
@@ -126,16 +144,29 @@ lively/                                           # Main project root directory
 │   │   │   │   └── MessageRepository.java
 │   │   │   ├── consumer/                         # Data access interfaces for user and permission entities
 │   │   │   │   ├── AuthorityRepository.java
+│   │   │   │   ├── ClientRepository.java         # Repository for client device/session data
 │   │   │   │   ├── ConsumerRepository.java
 │   │   │   │   ├── InvitationRepository.java
-│   │   │   │   ├── MenuRepository.java
 │   │   │   │   ├── RoleRepository.java
-│   │   │   │   ├── RouteRepository.java
 │   │   │   │   └── TokenRepository.java
+│   │   │   ├── game/                             # Data access interfaces for gamification entities
+│   │   │   │   └── LevelRepository.java
+│   │   │   ├── log/                              # Data access interfaces for logging entities
+│   │   │   │   ├── OperationRepository.java
+│   │   │   │   └── VisitRepository.java
+│   │   │   ├── question/                         # Data access interfaces for question bank entities
+│   │   │   │   ├── AnswerRepository.java
+│   │   │   │   ├── ChoiceRepository.java
+│   │   │   │   └── QuestionRepository.java
+│   │   │   ├── tcm/                              # Data access interfaces for TCM quiz entities
+│   │   │   │   └── TcmQuestionRepository.java
 │   │   │   ├── AnnouncementRepository.java
 │   │   │   └── BaseRepository.java               # Common repository operations and base interface with generic types
 │   │   ├── resolver/                             # Custom Spring MVC handler method argument resolvers
+│   │   │   ├── CollectionArgumentResolver.java   # Resolves request parameters into Collection types
+│   │   │   ├── DirectionArgumentResolver.java    # Resolves and validates sort direction parameters
 │   │   │   ├── EntityArgumentResolver.java       # Resolves and injects entity instances directly from request parameters
+│   │   │   ├── IterableArgumentResolver.java     # Resolves request parameters into Iterable types
 │   │   │   └── UUIDArgumentResolver.java         # Resolves, converts, and validates UUID parameters from requests
 │   │   ├── service/                              # Business logic and service layer implementations
 │   │   │   ├── authentication/                   # Authentication-related business services
@@ -148,33 +179,63 @@ lively/                                           # Main project root directory
 │   │   │   │   └── MessageService.java
 │   │   │   ├── consumer/                         # Business logic services for user, role, and permission management
 │   │   │   │   ├── AuthorityService.java
+│   │   │   │   ├── ClientService.java            # Service for managing client device/session data
 │   │   │   │   ├── ConsumerService.java
 │   │   │   │   ├── InvitationService.java
-│   │   │   │   ├── MenuService.java
 │   │   │   │   ├── RoleService.java
-│   │   │   │   ├── RouteService.java
 │   │   │   │   └── TokenService.java
+│   │   │   ├── game/                             # Business logic services for gamification
+│   │   │   │   └── LevelService.java             # Service for managing user levels and progression
+│   │   │   ├── log/                              # Business logic services for logging and auditing
+│   │   │   │   ├── OperationService.java         # Service for querying operation logs
+│   │   │   │   └── VisitService.java             # Service for querying visit logs
+│   │   │   ├── question/                         # Business logic services for question bank management
+│   │   │   │   ├── AnswerService.java
+│   │   │   │   ├── ChoiceService.java
+│   │   │   │   └── QuestionService.java
+│   │   │   ├── tcm/                              # Business logic services for TCM quiz system
+│   │   │   │   └── TcmQuestionService.java       # Service for managing TCM questions and quiz data
 │   │   │   ├── AnnouncementService.java
 │   │   │   └── BaseService.java                  # Abstract base service providing common CRUD operations
+│   │   ├── websocket/                            # WebSocket endpoint handlers and interceptors
+│   │   │   ├── AuthenticationWebsocket.java      # WebSocket handler for authentication events
+│   │   │   ├── ChatWebSocket.java                # WebSocket handler for real-time chat messaging
+│   │   │   ├── MonitorWebsocket.java             # WebSocket handler for system monitoring events
+│   │   │   └── interceptor/                      # WebSocket channel and handshake interceptors
+│   │   │       ├── AuthenticationChannelInterceptor.java   # Channel interceptor for WebSocket authentication
+│   │   │       └── AuthenticationHandshakeInterceptor.java # Handshake interceptor for WebSocket authentication
 │   │   └── LivelyApplication.java                # Main Spring Boot application entry point and bootstrap class
 │   ├── resources/
 │   │   ├── lively/                               # Integrated Vue 3 single-page application (SPA) frontend project
 │   │   │   ├── public/                           # Static assets served directly without Vite processing
 │   │   │   ├── src/
-│   │   │   │   ├── component/
+│   │   │   │   ├── component/                    # Reusable Vue components
 │   │   │   │   │   ├── AvatarCard.vue            # User avatar display and dropdown menu component
+│   │   │   │   │   ├── ChatRoom.vue              # Real-time chat room interface component
+│   │   │   │   │   ├── List.vue                  # Generic list display component
+│   │   │   │   │   ├── Message.vue               # Chat message bubble component
 │   │   │   │   │   ├── Modulize.vue              # Abstract, reusable component for CRUD operations with integrated search, table, and forms
-│   │   │   │   │   └── Toolbar.vue               # Reusable toolbar component with common actions
+│   │   │   │   │   ├── Toolbar.vue               # Reusable toolbar component with common actions
+│   │   │   │   │   └── tcm/                      # TCM-specific reusable components
+│   │   │   │   │       ├── QuestionCard.vue      # TCM question display card component
+│   │   │   │   │       ├── SubjectSelector.vue   # TCM subject/category selector component
+│   │   │   │   │       └── TimerDisplay.vue      # Quiz countdown timer display component
+│   │   │   │   ├── data/                         # Static data and constants
+│   │   │   │   │   └── tcm-questions.ts          # TCM question bank data definitions
 │   │   │   │   ├── declaration/                  # TypeScript type and interface declarations
 │   │   │   │   │   ├── component.ts
 │   │   │   │   │   ├── entity.ts                 # Type declarations corresponding to backend JPA entities
 │   │   │   │   │   ├── modulize.ts               # Type declarations for the abstract CRUD component
 │   │   │   │   │   └── serialization.ts          # Type declarations for data serialisation and deserialisation
+│   │   │   │   ├── directives/                   # Custom Vue directives
+│   │   │   │   │   ├── authority.ts              # v-authority directive for permission-based element visibility
+│   │   │   │   │   └── role.ts                   # v-role directive for role-based element visibility
 │   │   │   │   ├── hooks/                        # Vue 3 Composition API custom hooks (composables)
 │   │   │   │   │   ├── datetime.ts               # Date and time formatting and manipulation utilities
 │   │   │   │   │   ├── network.ts                # HTTP client functions abstracting GET, POST, PUT, DELETE requests
 │   │   │   │   │   ├── picture.ts                # Image conversion, compression, and manipulation utilities
 │   │   │   │   │   ├── serialization.ts          # JSON serialisation and deserialisation utilities
+│   │   │   │   │   ├── service.ts                # Generic service layer utility functions
 │   │   │   │   │   ├── url.ts                    # URL construction, parsing, and manipulation utilities
 │   │   │   │   │   └── utility.ts                # General-purpose utility and helper functions
 │   │   │   │   ├── interaction/                  # Frontend data interaction and service abstraction layer
@@ -186,11 +247,19 @@ lively/                                           # Main project root directory
 │   │   │   │   │   └── index.ts                  # Route definitions, navigation guards, and router instance
 │   │   │   │   ├── stores/                       # Pinia state management stores
 │   │   │   │   │   ├── authentication.ts         # Store for managing user authentication state, tokens, and actions
-│   │   │   │   │   └── counter.ts                # Example demonstration store (may be replaced or removed)
+│   │   │   │   │   ├── counter.ts                # Example demonstration store (may be replaced or removed)
+│   │   │   │   │   ├── event.ts                  # Store for managing application-wide events and notifications
+│   │   │   │   │   └── tcm.ts                    # Store for managing TCM quiz state and user progress
 │   │   │   │   ├── views/                        # Page-level Vue components (routes)
 │   │   │   │   │   ├── authentication/           # User authentication and account management views
 │   │   │   │   │   │   ├── Account.vue           # User account management and settings view
 │   │   │   │   │   │   └── Profile.vue           # User profile viewing and editing interface
+│   │   │   │   │   ├── content/                  # Content and gamification views
+│   │   │   │   │   │   ├── About.vue             # About page with system introduction
+│   │   │   │   │   │   └── Level.vue             # User level and progression display view
+│   │   │   │   │   ├── error/                    # Error and exception pages
+│   │   │   │   │   │   ├── Forbidden.vue         # 403 Forbidden error page
+│   │   │   │   │   │   └── NotFound.vue          # 404 Not Found error page
 │   │   │   │   │   ├── management/               # Administrative and system management views
 │   │   │   │   │   │   ├── book/                 # TCM literature management interface
 │   │   │   │   │   │   │   ├── Book.vue
@@ -202,17 +271,35 @@ lively/                                           # Main project root directory
 │   │   │   │   │   │   │   ├── Authority.vue
 │   │   │   │   │   │   │   ├── Consumer.vue
 │   │   │   │   │   │   │   ├── Invitation.vue
-│   │   │   │   │   │   │   ├── Menu.vue
 │   │   │   │   │   │   │   ├── Role.vue
-│   │   │   │   │   │   │   ├── Route.vue
 │   │   │   │   │   │   │   └── Token.vue
+│   │   │   │   │   │   ├── game/                 # Gamification management interface
+│   │   │   │   │   │   │   └── Level.vue          # Level configuration and management view
+│   │   │   │   │   │   ├── log/                  # Log management views
+│   │   │   │   │   │   │   ├── Operation.vue     # Operation audit log viewer
+│   │   │   │   │   │   │   └── Visit.vue         # Visit/access log viewer
+│   │   │   │   │   │   ├── question/             # Question bank management interface
+│   │   │   │   │   │   │   ├── Choice.vue
+│   │   │   │   │   │   │   └── Question.vue
+│   │   │   │   │   │   ├── tcm/                  # TCM quiz management interface
+│   │   │   │   │   │   │   ├── TcmDashboard.vue  # TCM quiz statistics dashboard
+│   │   │   │   │   │   │   └── TcmQuestion.vue   # TCM question management view
 │   │   │   │   │   │   ├── Announcement.vue      # Interface for viewing and managing system announcements
-│   │   │   │   │   │   ├── Index.vue             # Index or landing page for the management section
-│   │   │   │   │   │   ├── Online.vue            # View for monitoring user online status and session logs
-│   │   │   │   │   │   └── Operation.vue         # View for inspecting system operation and audit logs
+│   │   │   │   │   │   └── Index.vue             # Index or landing page for the management section
+│   │   │   │   │   ├── tcm/                      # TCM learning and quiz views
+│   │   │   │   │   │   ├── TcmFavorites.vue      # User's favourite TCM questions collection
+│   │   │   │   │   │   ├── TcmHome.vue           # TCM quiz home page with subject selection
+│   │   │   │   │   │   ├── TcmQuiz.vue           # TCM quiz examination interface
+│   │   │   │   │   │   ├── TcmResult.vue         # TCM quiz result and review page
+│   │   │   │   │   │   ├── TcmStats.vue          # TCM learning statistics and analytics
+│   │   │   │   │   │   └── TcmWrongBook.vue      # TCM wrong answer notebook for review
 │   │   │   │   │   ├── Authentication.vue        # Login and user registration page
+│   │   │   │   │   ├── Chat.vue                  # Real-time chat interface
+│   │   │   │   │   ├── Generation.vue            # AI content generation interface
 │   │   │   │   │   ├── Home.vue                  # Main application dashboard post-authentication
-│   │   │   │   │   └── Management.vue            # Central administrative dashboard
+│   │   │   │   │   ├── Management.vue            # Central administrative dashboard
+│   │   │   │   │   ├── Splash.vue                # Application splash/loading screen
+│   │   │   │   │   └── practises.vue             # Practice and exercise interface
 │   │   │   │   ├── App.vue                       # Root Vue application component and layout wrapper
 │   │   │   │   ├── main.ts                       # Frontend application entry point, mounting the Vue app
 │   │   │   │   └── style.css                     # Global CSS styles and theming

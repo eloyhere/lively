@@ -27,6 +27,71 @@ const router: Router = createRouter({
       ],
     },
     {
+      name: "Practises",
+      path: "/practises",
+      meta: {
+        title: "中医题库",
+        roles: ["consumer", "administrator"]
+      },
+      component: () => import("../views/Practises.vue"),
+      children: [
+        {
+          name: "PractisesHome",
+          path: "",
+          meta: {
+            title: "中医刷题",
+            roles: ["consumer", "administrator"]
+          },
+          component: () => import("../views/tcm/TcmHome.vue")
+        },
+        {
+          name: "PractisesQuiz",
+          path: "quiz",
+          meta: {
+            title: "答题中",
+            roles: ["consumer", "administrator"]
+          },
+          component: () => import("../views/tcm/TcmQuiz.vue")
+        },
+        {
+          name: "PractisesResult",
+          path: "result",
+          meta: {
+            title: "答题结果",
+            roles: ["consumer", "administrator"]
+          },
+          component: () => import("../views/tcm/TcmResult.vue")
+        },
+        {
+          name: "PractisesWrongBook",
+          path: "wrong-book",
+          meta: {
+            title: "错题本",
+            roles: ["consumer", "administrator"]
+          },
+          component: () => import("../views/tcm/TcmWrongBook.vue")
+        },
+        {
+          name: "PractisesFavorites",
+          path: "favorites",
+          meta: {
+            title: "收藏夹",
+            roles: ["consumer", "administrator"]
+          },
+          component: () => import("../views/tcm/TcmFavorites.vue")
+        },
+        {
+          name: "PractisesStats",
+          path: "stats",
+          meta: {
+            title: "学习统计",
+            roles: ["consumer", "administrator"]
+          },
+          component: () => import("../views/tcm/TcmStats.vue")
+        }
+      ]
+    },
+    {
       path: "/chat",
       name: "Chat",
       meta: {
@@ -187,6 +252,24 @@ const router: Router = createRouter({
             roles: ["consumer", "administrator"]
           },
           component: () => import("../views/management/game/Level.vue"),
+        },
+        {
+          name: "ManagementTcmDashboard",
+          path: "/management/tcm/dashboard",
+          meta: {
+            title: "题库统计",
+            roles: ["administrator"]
+          },
+          component: () => import("../views/management/tcm/TcmDashboard.vue"),
+        },
+        {
+          name: "ManagementTcmQuestion",
+          path: "/management/tcm/question",
+          meta: {
+            title: "中医题库管理",
+            roles: ["administrator"]
+          },
+          component: () => import("../views/management/tcm/TcmQuestion.vue"),
         }
       ],
     },
@@ -226,8 +309,11 @@ router.beforeEach((to: RouteLocationNormalizedLoadedGeneric, from) => {
   if(roles.some((name: string) => authenticationStore().roles.some((role) => name === role.name))){
     return true;
   }
+  if(roles.includes("guest")){
+    return true;
+  }
   return {
-    path: from.path,
+    path: from.path || "/",
     replace: true
   };
 });

@@ -32,8 +32,11 @@ lively/                                           # 主项目根目录
 │   │   │   ├── Everyone.java                     # 允许无限制公开访问、绕过安全检查的注解
 │   │   │   ├── Guest.java                        # 允许已认证和未认证（访客）用户访问的注解
 │   │   │   └── Unauthenticated.java              # 限制访问，仅允许未认证请求的注解
-│   │   ├── aspect/
-│   │   │   └── ClientAspect.java                 # 用于处理客户端横切关注点的面向切面编程（AOP）切面
+│   │   ├── aspect/                               # AOP切面，用于处理横切关注点（日志记录、审计）
+│   │   │   ├── BaseAspect.java                   # 所有AOP切面的基础接口
+│   │   │   ├── ClientAspect.java                 # 用于处理客户端横切关注点的切面
+│   │   │   ├── OperationAspect.java              # 用于记录用户操作审计日志的切面
+│   │   │   └── VisitAspect.java                  # 用于记录用户访问日志的切面
 │   │   ├── authentication/                       # 完整的Spring Security基础设施、配置和自定义扩展
 │   │   │   ├── entry/                            # 用于处理安全异常的身份验证入口点处理器
 │   │   │   │   └── InvalidateAuthenticationEntryPoint.java # 处理无效或过期身份验证尝试的入口点
@@ -69,14 +72,25 @@ lively/                                           # 主项目根目录
 │   │   │   │   ├── AuthorityController.java
 │   │   │   │   ├── ConsumerController.java
 │   │   │   │   ├── InvitationController.java
-│   │   │   │   ├── MenuControllerController.java
-│   │   │   │   ├── RoleControllerController.java
-│   │   │   │   ├── RouteControllerController.java
-│   │   │   │   └── TokenControllerController.java
+│   │   │   │   ├── RoleController.java
+│   │   │   │   └── TokenController.java
+│   │   │   ├── game/                             # 游戏化和等级系统端点
+│   │   │   │   └── LevelController.java          # 管理用户等级和进度的端点
+│   │   │   ├── log/                              # 系统日志和审计端点
+│   │   │   │   ├── OperationController.java      # 查询操作审计日志的端点
+│   │   │   │   └── VisitController.java          # 查询访问日志的端点
+│   │   │   ├── question/                         # 题库管理端点
+│   │   │   │   ├── AnswerController.java         # 管理问题答案的端点
+│   │   │   │   ├── ChoiceController.java         # 管理问题选项的端点
+│   │   │   │   └── QuestionController.java       # 管理问题的端点
+│   │   │   ├── tcm/                              # 中医测验和学习端点
+│   │   │   │   ├── TcmPublicController.java      # 公开中医数据端点（无需认证）
+│   │   │   │   └── TcmQuestionController.java    # 中医题目管理端点（需认证）
 │   │   │   ├── AnnouncementController.java       # 发布和管理全系统公告的端点
 │   │   │   ├── AuthenticationController.java    # 协调认证流程（登录、注销、注册）的控制器
 │   │   │   ├── BaseController.java               # 通用控制器工具、常量和其他控制器的基类
-│   │   │   └── ResourcesController.java         # 用于提供应用程序资源的控制器
+│   │   │   ├── ResourcesController.java         # 用于提供应用程序资源的控制器
+│   │   │   └── StatisticController.java          # 学习统计和分析端点
 │   │   ├── converter/                            # 用于Spring MVC数据绑定的自定义类型转换器
 │   │   │   └── StringBlobConverter.java          # 用于String到SQL BLOB类型转换的转换器工具
 │   │   ├── entity/                               # 代表领域模型的JPA实体类定义
@@ -85,19 +99,42 @@ lively/                                           # 主项目根目录
 │   │   │   │   └── Chapter.java
 │   │   │   ├── chat/                             # 对话和AI交互领域实体
 │   │   │   │   ├── Chat.java
+│   │   │   │   ├── ChatRole.java                 # 聊天代理角色枚举（User、Assistant、System）
 │   │   │   │   └── Message.java
 │   │   │   ├── consumer/                         # 用户、认证和授权领域实体
 │   │   │   │   ├── Authority.java
+│   │   │   │   ├── Client.java                   # 表示客户端设备/会话信息的实体
 │   │   │   │   ├── Consumer.java
 │   │   │   │   ├── Invitation.java
-│   │   │   │   ├── Menu.java
 │   │   │   │   ├── Role.java
-│   │   │   │   ├── Route.java
 │   │   │   │   └── Token.java
+│   │   │   ├── game/                             # 游戏化领域实体
+│   │   │   │   └── Level.java                    # 表示用户进度等级的实体
+│   │   │   ├── log/                              # 日志和审计领域实体
+│   │   │   │   ├── Operation.java                # 记录用户操作的实体
+│   │   │   │   └── Visit.java                    # 记录用户页面访问的实体
+│   │   │   ├── question/                         # 题库领域实体
+│   │   │   │   ├── Question.java
+│   │   │   │   ├── Answer.java
+│   │   │   │   └── Choice.java
+│   │   │   ├── tcm/                              # 中医测验领域实体
+│   │   │   │   └── TcmQuestion.java              # 中医专用测验题目实体
+│   │   │   ├── time/                             # 中国传统历法领域实体
+│   │   │   │   ├── Branch.java                   # 十二地支枚举
+│   │   │   │   ├── Climate.java                  # 二十四节气实体
+│   │   │   │   ├── God.java                      # 十天干神枚举
+│   │   │   │   ├── Month.java                    # 表示农历月份及其属性的实体
+│   │   │   │   ├── Phase.java                    # 表示五行（Wu Xing）的实体
+│   │   │   │   ├── Trunk.java                    # 十天干枚举
+│   │   │   │   └── Year.java                     # 表示年周期和干支组合的实体
 │   │   │   ├── Announcement.java                 # 用于持久化系统公告的实体
 │   │   │   └── BaseEntity.java                   # 定义公共属性（ID、时间戳）和行为的抽象基实体
 │   │   ├── projection/                           # 用于存储库查询的Spring Data JPA投影接口
-│   │   │   └── BaseProjection.java               # 投影的通用基础接口
+│   │   │   ├── BaseProjection.java               # 投影的通用基础接口
+│   │   │   └── consumer/                         # 用户相关的投影接口
+│   │   │       ├── AuthenticationProjection.java # 认证查询结果投影
+│   │   │       ├── AuthorityProjection.java      # 权限查询结果投影
+│   │   │       └── ConsumerProjection.java       # 用户查询结果投影
 │   │   ├── repository/                           # 用于数据持久化的Spring Data JPA存储库接口
 │   │   │   ├── book/                             # 中医文献实体的数据访问接口
 │   │   │   │   ├── BookRepository.java
@@ -107,16 +144,29 @@ lively/                                           # 主项目根目录
 │   │   │   │   └── MessageRepository.java
 │   │   │   ├── consumer/                         # 用户和权限实体的数据访问接口
 │   │   │   │   ├── AuthorityRepository.java
+│   │   │   │   ├── ClientRepository.java         # 客户端设备/会话数据存储库
 │   │   │   │   ├── ConsumerRepository.java
 │   │   │   │   ├── InvitationRepository.java
-│   │   │   │   ├── MenuRepository.java
 │   │   │   │   ├── RoleRepository.java
-│   │   │   │   ├── RouteRepository.java
 │   │   │   │   └── TokenRepository.java
+│   │   │   ├── game/                             # 游戏化实体的数据访问接口
+│   │   │   │   └── LevelRepository.java
+│   │   │   ├── log/                              # 日志实体的数据访问接口
+│   │   │   │   ├── OperationRepository.java
+│   │   │   │   └── VisitRepository.java
+│   │   │   ├── question/                         # 题库实体的数据访问接口
+│   │   │   │   ├── AnswerRepository.java
+│   │   │   │   ├── ChoiceRepository.java
+│   │   │   │   └── QuestionRepository.java
+│   │   │   ├── tcm/                              # 中医测验实体的数据访问接口
+│   │   │   │   └── TcmQuestionRepository.java
 │   │   │   ├── AnnouncementRepository.java
 │   │   │   └── BaseRepository.java               # 通用存储库操作和泛型基础接口
 │   │   ├── resolver/                             # 自定义Spring MVC处理器方法参数解析器
+│   │   │   ├── CollectionArgumentResolver.java   # 将请求参数解析为Collection类型
+│   │   │   ├── DirectionArgumentResolver.java    # 解析和验证排序方向参数
 │   │   │   ├── EntityArgumentResolver.java       # 从请求参数直接解析并注入实体实例
+│   │   │   ├── IterableArgumentResolver.java     # 将请求参数解析为Iterable类型
 │   │   │   └── UUIDArgumentResolver.java         # 从请求中解析、转换和验证UUID参数
 │   │   ├── service/                              # 业务逻辑和服务层实现
 │   │   │   ├── authentication/                   # 身份验证相关的业务服务
@@ -129,33 +179,63 @@ lively/                                           # 主项目根目录
 │   │   │   │   └── MessageService.java
 │   │   │   ├── consumer/                         # 用户、角色和权限管理的业务逻辑服务
 │   │   │   │   ├── AuthorityService.java
+│   │   │   │   ├── ClientService.java            # 管理客户端设备/会话数据的服务
 │   │   │   │   ├── ConsumerService.java
 │   │   │   │   ├── InvitationService.java
-│   │   │   │   ├── MenuService.java
 │   │   │   │   ├── RoleService.java
-│   │   │   │   ├── RouteService.java
 │   │   │   │   └── TokenService.java
+│   │   │   ├── game/                             # 游戏化业务逻辑服务
+│   │   │   │   └── LevelService.java             # 管理用户等级和进度的服务
+│   │   │   ├── log/                              # 日志和审计业务逻辑服务
+│   │   │   │   ├── OperationService.java         # 查询操作日志的服务
+│   │   │   │   └── VisitService.java             # 查询访问日志的服务
+│   │   │   ├── question/                         # 题库管理的业务逻辑服务
+│   │   │   │   ├── AnswerService.java
+│   │   │   │   ├── ChoiceService.java
+│   │   │   │   └── QuestionService.java
+│   │   │   ├── tcm/                              # 中医测验系统的业务逻辑服务
+│   │   │   │   └── TcmQuestionService.java       # 管理中医题目和测验数据的服务
 │   │   │   ├── AnnouncementService.java
 │   │   │   └── BaseService.java                  # 提供通用CRUD操作的抽象基础服务
+│   │   ├── websocket/                            # WebSocket端点处理器和拦截器
+│   │   │   ├── AuthenticationWebsocket.java      # 认证事件的WebSocket处理器
+│   │   │   ├── ChatWebSocket.java                # 实时聊天的WebSocket处理器
+│   │   │   ├── MonitorWebsocket.java             # 系统监控事件的WebSocket处理器
+│   │   │   └── interceptor/                      # WebSocket通道和握手拦截器
+│   │   │       ├── AuthenticationChannelInterceptor.java   # WebSocket认证通道拦截器
+│   │   │       └── AuthenticationHandshakeInterceptor.java # WebSocket认证握手拦截器
 │   │   └── LivelyApplication.java                # Spring Boot应用程序主入口点和引导类
 │   ├── resources/
 │   │   ├── lively/                               # 集成的Vue 3单页应用（SPA）前端项目
 │   │   │   ├── public/                           # 无需Vite处理、直接提供的静态资源
 │   │   │   ├── src/
-│   │   │   │   ├── component/
+│   │   │   │   ├── component/                    # 可复用的Vue组件
 │   │   │   │   │   ├── AvatarCard.vue            # 用户头像显示和下拉菜单组件
+│   │   │   │   │   ├── ChatRoom.vue              # 实时聊天室界面组件
+│   │   │   │   │   ├── List.vue                  # 通用列表展示组件
+│   │   │   │   │   ├── Message.vue               # 聊天消息气泡组件
 │   │   │   │   │   ├── Modulize.vue              # 用于CRUD操作的抽象、可复用组件，集成搜索、表格和表单
-│   │   │   │   │   └── Toolbar.vue               # 带有常用操作的通用工具栏组件
+│   │   │   │   │   ├── Toolbar.vue               # 带有常用操作的通用工具栏组件
+│   │   │   │   │   └── tcm/                      # 中医专用可复用组件
+│   │   │   │   │       ├── QuestionCard.vue      # 中医题目展示卡片组件
+│   │   │   │   │       ├── SubjectSelector.vue   # 中医科目/类别选择器组件
+│   │   │   │   │       └── TimerDisplay.vue      # 测验倒计时显示组件
+│   │   │   │   ├── data/                         # 静态数据和常量
+│   │   │   │   │   └── tcm-questions.ts          # 中医题库数据定义
 │   │   │   │   ├── declaration/                  # TypeScript类型和接口声明
 │   │   │   │   │   ├── component.ts
 │   │   │   │   │   ├── entity.ts                 # 对应后端JPA实体的类型声明
 │   │   │   │   │   ├── modulize.ts               # 抽象CRUD组件的类型声明
 │   │   │   │   │   └── serialization.ts          # 数据序列化和反序列化的类型声明
+│   │   │   │   ├── directives/                   # 自定义Vue指令
+│   │   │   │   │   ├── authority.ts              # v-authority指令，基于权限控制元素可见性
+│   │   │   │   │   └── role.ts                   # v-role指令，基于角色控制元素可见性
 │   │   │   │   ├── hooks/                        # Vue 3组合式API自定义钩子（组合式函数）
 │   │   │   │   │   ├── datetime.ts               # 日期和时间格式化、处理工具函数
 │   │   │   │   │   ├── network.ts                # 封装GET、POST、PUT、DELETE请求的HTTP客户端函数
 │   │   │   │   │   ├── picture.ts                # 图片转换、压缩和处理工具函数
 │   │   │   │   │   ├── serialization.ts          # JSON序列化和反序列化工具函数
+│   │   │   │   │   ├── service.ts                # 通用服务层工具函数
 │   │   │   │   │   ├── url.ts                    # URL构建、解析和处理工具函数
 │   │   │   │   │   └── utility.ts                # 通用工具和辅助函数
 │   │   │   │   ├── interaction/                  # 前端数据交互和服务抽象层
@@ -167,11 +247,19 @@ lively/                                           # 主项目根目录
 │   │   │   │   │   └── index.ts                  # 路由定义、导航守卫和路由器实例
 │   │   │   │   ├── stores/                       # Pinia状态管理存储
 │   │   │   │   │   ├── authentication.ts         # 用于管理用户认证状态、令牌和操作的存储
-│   │   │   │   │   └── counter.ts                # 示例演示存储（可替换或删除）
+│   │   │   │   │   ├── counter.ts                # 示例演示存储（可替换或删除）
+│   │   │   │   │   ├── event.ts                  # 用于管理应用全局事件和通知的存储
+│   │   │   │   │   └── tcm.ts                    # 用于管理中医测验状态和用户进度的存储
 │   │   │   │   ├── views/                        # 页面级Vue组件（路由）
 │   │   │   │   │   ├── authentication/           # 用户认证和账户管理视图
 │   │   │   │   │   │   ├── Account.vue           # 用户账户管理和设置视图
 │   │   │   │   │   │   └── Profile.vue           # 用户资料查看和编辑界面
+│   │   │   │   │   ├── content/                  # 内容和游戏化视图
+│   │   │   │   │   │   ├── About.vue             # 系统介绍页面
+│   │   │   │   │   │   └── Level.vue             # 用户等级和进度展示视图
+│   │   │   │   │   ├── error/                    # 错误和异常页面
+│   │   │   │   │   │   ├── Forbidden.vue         # 403禁止访问错误页面
+│   │   │   │   │   │   └── NotFound.vue          # 404未找到错误页面
 │   │   │   │   │   ├── management/               # 管理和系统管理视图
 │   │   │   │   │   │   ├── book/                 # 中医文献管理界面
 │   │   │   │   │   │   │   ├── Book.vue
@@ -183,17 +271,35 @@ lively/                                           # 主项目根目录
 │   │   │   │   │   │   │   ├── Authority.vue
 │   │   │   │   │   │   │   ├── Consumer.vue
 │   │   │   │   │   │   │   ├── Invitation.vue
-│   │   │   │   │   │   │   ├── Menu.vue
 │   │   │   │   │   │   │   ├── Role.vue
-│   │   │   │   │   │   │   ├── Route.vue
 │   │   │   │   │   │   │   └── Token.vue
+│   │   │   │   │   │   ├── game/                 # 游戏化管理界面
+│   │   │   │   │   │   │   └── Level.vue          # 等级配置和管理视图
+│   │   │   │   │   │   ├── log/                  # 日志管理视图
+│   │   │   │   │   │   │   ├── Operation.vue     # 操作审计日志查看器
+│   │   │   │   │   │   │   └── Visit.vue         # 访问日志查看器
+│   │   │   │   │   │   ├── question/             # 题库管理界面
+│   │   │   │   │   │   │   ├── Choice.vue
+│   │   │   │   │   │   │   └── Question.vue
+│   │   │   │   │   │   ├── tcm/                  # 中医测验管理界面
+│   │   │   │   │   │   │   ├── TcmDashboard.vue  # 中医测验统计仪表板
+│   │   │   │   │   │   │   └── TcmQuestion.vue   # 中医题目管理视图
 │   │   │   │   │   │   ├── Announcement.vue      # 查看和管理系统公告的界面
-│   │   │   │   │   │   ├── Index.vue             # 管理部分的索引或主页
-│   │   │   │   │   │   ├── Online.vue            # 用于监控用户在线状态和会话日志的视图
-│   │   │   │   │   │   └── Operation.vue         # 用于检查系统操作和审计日志的视图
+│   │   │   │   │   │   └── Index.vue             # 管理部分的索引或主页
+│   │   │   │   │   ├── tcm/                      # 中医学习和测验视图
+│   │   │   │   │   │   ├── TcmFavorites.vue      # 用户收藏的中医题目集合
+│   │   │   │   │   │   ├── TcmHome.vue           # 中医测验主页，含科目选择
+│   │   │   │   │   │   ├── TcmQuiz.vue           # 中医测验考试界面
+│   │   │   │   │   │   ├── TcmResult.vue         # 中医测验结果和回顾页面
+│   │   │   │   │   │   ├── TcmStats.vue          # 中医学习统计和分析
+│   │   │   │   │   │   └── TcmWrongBook.vue      # 中医错题本，用于复习
 │   │   │   │   │   ├── Authentication.vue        # 登录和用户注册页面
+│   │   │   │   │   ├── Chat.vue                  # 实时聊天界面
+│   │   │   │   │   ├── Generation.vue            # AI内容生成界面
 │   │   │   │   │   ├── Home.vue                  # 认证后的主应用程序仪表板
-│   │   │   │   │   └── Management.vue            # 中央管理仪表板
+│   │   │   │   │   ├── Management.vue            # 中央管理仪表板
+│   │   │   │   │   ├── Splash.vue                # 应用程序启动/加载画面
+│   │   │   │   │   └── practises.vue             # 练习和习题界面
 │   │   │   │   ├── App.vue                       # 根Vue应用组件和布局包装器
 │   │   │   │   ├── main.ts                       # 前端应用程序入口点，用于挂载Vue应用
 │   │   │   │   └── style.css                     # 全局CSS样式和主题

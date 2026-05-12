@@ -81,7 +81,7 @@
                 <template #default="scope">
                   <ElSpace wrap>
                     <ElTooltip effect="light" placement="bottom" content="修改">
-                      <ElButton icon="edit" type="primary" @click="updateOperator.ready()" circle plain/>
+                      <ElButton icon="edit" type="primary" @click="updateOperator.ready(scope.row)" circle plain/>
                     </ElTooltip>
                     <ElTooltip v-if="!isLocked(scope.row)" effect="light" placement="bottom" content="锁定">
                       <ElButton v-if="!isLocked(scope.row)" icon="lock" type="warning" @click="lockOrUnlock(scope.row)" circle plain/>
@@ -273,7 +273,10 @@ const update: ModelRef<Update<E>> = defineModel("update", {
 });
 const updateForm: Ref<MaybeInvalid<FormInstance>> = ref<MaybeInvalid<FormInstance>>();
 const updateOperator: Operator<E> = {
-  ready: (): void => {
+  ready: (row?: E): void => {
+    if (row) {
+      update.value.target = { ...row };
+    }
     update.value.show = true;
   },
   dismiss: (): void => {

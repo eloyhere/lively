@@ -7,6 +7,7 @@ import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -211,7 +212,8 @@ public class BaseService <E extends BaseEntity, R extends BaseRepository<E>>{
             return Page.empty();
         }
         PageRequest pageRequest = PageRequest.of(Math.max(page, 0), Math.max(size, 1));
-        Example<E> example = Example.of(entity);
+        ExampleMatcher matcher = ExampleMatcher.matching().withIgnoreNullValues().withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
+        Example<E> example = Example.of(entity, matcher);
         return this.repository.findAll(example, pageRequest);
     }
 
@@ -222,11 +224,13 @@ public class BaseService <E extends BaseEntity, R extends BaseRepository<E>>{
         }
         if(Objects.isNull(sort)){
             PageRequest pageRequest = PageRequest.of(Math.max(page, 0), Math.max(size, 1));
-            Example<E> example = Example.of(entity);
+            ExampleMatcher matcher = ExampleMatcher.matching().withIgnoreNullValues().withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
+            Example<E> example = Example.of(entity, matcher);
             return this.repository.findAll(example, pageRequest);
         }
         PageRequest pageRequest = PageRequest.of(Math.max(page, 0), Math.max(size, 1), sort);
-        Example<E> example = Example.of(entity);
+        ExampleMatcher matcher = ExampleMatcher.matching().withIgnoreNullValues().withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
+        Example<E> example = Example.of(entity, matcher);
         return this.repository.findAll(example, pageRequest);
     }
 
@@ -237,11 +241,13 @@ public class BaseService <E extends BaseEntity, R extends BaseRepository<E>>{
         }
         if(Objects.isNull(direction) || Objects.isNull(properties) || properties.isEmpty()){
             PageRequest pageRequest = PageRequest.of(Math.max(page, 0), Math.max(size, 1));
-            Example<E> example = Example.of(entity);
+            ExampleMatcher matcher = ExampleMatcher.matching().withIgnoreNullValues().withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
+            Example<E> example = Example.of(entity, matcher);
             return this.repository.findAll(example, pageRequest);
         }
         PageRequest pageRequest = PageRequest.of(Math.max(page, 0), Math.max(size, 1), direction, properties.toArray(String[]::new));
-        Example<E> example = Example.of(entity);
+        ExampleMatcher matcher = ExampleMatcher.matching().withIgnoreNullValues().withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
+        Example<E> example = Example.of(entity, matcher);
         return this.repository.findAll(example, pageRequest);
     }
 

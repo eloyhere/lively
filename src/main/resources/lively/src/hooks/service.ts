@@ -1,4 +1,4 @@
-import type {Authority,BaseEntity,Consumer, Role, Invitation,Token, Announcement,Query,Page,Book, Chapter, Authentication, Message,Chat,Question, Choice, Answer, Visit, Operation} from "@/declaration/entity";
+import type {Authority,BaseEntity,Consumer, Role, Invitation,Token, Announcement,Query,Page,Book, Chapter, Authentication, Message,Chat,Question, Choice, Answer, Visit, Operation, TcmQuestion} from "@/declaration/entity";
 import { useDelete, useGet, usePost, usePut } from "@/hooks/network";
 import { type Serializer } from "@/declaration/serialization";
 import { type Consumer as FConsumer, isObject, isString, type MaybeInvalid, type Optional } from "semantic-typescript";
@@ -333,6 +333,13 @@ export class OperationService extends BaseService<Operation>{
 
     public constructor() {
         super("operation");
+    }
+}
+
+export class TcmQuestionService extends BaseService<TcmQuestion>{
+
+    public constructor() {
+        super("tcm/question");
     }
 }
 

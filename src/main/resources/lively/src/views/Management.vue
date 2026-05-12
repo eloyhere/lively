@@ -85,6 +85,20 @@
                 <span>关卡管理</span>
               </ElMenuItem>
             </ElMenuItemGroup>
+            <ElMenuItemGroup title="中医题库">
+              <ElMenuItem index="/management/tcm/dashboard">
+                <ElIcon>
+                  <PieChart/>
+                </ElIcon>
+                <span>题库统计</span>
+              </ElMenuItem>
+              <ElMenuItem index="/management/tcm/question">
+                <ElIcon>
+                  <Notebook/>
+                </ElIcon>
+                <span>中医题库管理</span>
+              </ElMenuItem>
+            </ElMenuItemGroup>
             <ElMenuItemGroup title="日志">
               <ElMenuItem index="/management/operation">
                 <ElIcon>
@@ -149,13 +163,11 @@ import {
   Ticket,
   User,
   UserFilled,
-  Notebook, Paperclip, Notification, QuestionFilled, SemiSelect
+  Notebook, Notification, QuestionFilled, SemiSelect
 } from "@element-plus/icons-vue";
 import type { Link } from "@/declaration/component.ts";
 import Toolbar from "@/component/Toolbar.vue";
 import type {Consumer} from "semantic-typescript";
-import { ElScrollbar } from "element-plus";
-import Question from "@/views/management/question/Question.vue";
 
 const router: Router = useRouter();
 const current: WritableComputedRef<RouteLocationNormalizedLoadedGeneric> = computed<RouteLocationNormalizedLoadedGeneric, RouteLocationNormalizedLoadedGeneric>({
@@ -205,11 +217,12 @@ onMounted(():void => {
   if(history.length === 0){
     history.push(current.value);
   }
-  watch(path, (n) => {
-    if(!history.some((route) => route.path === current.value.path)){
-      history.push(current.value);
-    }
-  })
+});
+
+watch(path, (n) => {
+  if(!history.some((route) => route.path === current.value.path)){
+    history.push(current.value);
+  }
 });
 </script>
 

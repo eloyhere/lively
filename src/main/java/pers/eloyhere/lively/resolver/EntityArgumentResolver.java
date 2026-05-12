@@ -84,12 +84,11 @@ public class EntityArgumentResolver implements HandlerMethodArgumentResolver {
 
     protected Object resolveFromPayload(@NonNull MethodParameter parameter, HttpServletRequest request) throws Exception {
         String payload = resolveJSON(request.getParameter("payload"));
-        if(payload.contentEquals("{}") || payload.isEmpty()){
-            Class<?> clazz = parameter.getParameterType();
-            return clazz.getDeclaredConstructor().newInstance();
-        }
         ObjectMapper mapper = new ObjectMapper();
         ObjectReader reader = mapper.readerFor(parameter.getParameterType());
+        if(payload.contentEquals("{}") || payload.isEmpty()){
+            return reader.readValue("{}");
+        }
         return reader.readValue(payload);
     }
 
