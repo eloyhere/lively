@@ -64,7 +64,7 @@ const scrollbarRef = ref<InstanceType<typeof ElScrollbar>>()
 const isConnected = ref(false)
 
 // 手动控制连接，关闭自动重连
-const { status, send, open, close } = useWebSocket('ws://localhost:8080/websocket/chat', {
+const { status, send, open, close } = useWebSocket(`ws://${window.location.host}/websocket/chat`, {
   immediate: false,      // 不自动连接
   autoReconnect: false,  // 禁止自动重连
   onMessage: (ws, event) => {

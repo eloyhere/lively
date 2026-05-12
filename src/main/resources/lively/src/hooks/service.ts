@@ -7,7 +7,7 @@ import { authenticationStore } from "@/stores/authentication";
 
 export class BaseService<E extends BaseEntity> {
 
-    protected readonly prefix: string = "http://localhost:8080";
+    protected readonly prefix: string = "";
 
     protected readonly module: string;
 

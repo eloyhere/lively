@@ -143,7 +143,7 @@ const sendMessage = async () => {
   abortController = new AbortController()
 
   try {
-    const response = await fetch('http://localhost:8080/chat/message', {
+    const response = await fetch('/chat/message', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',

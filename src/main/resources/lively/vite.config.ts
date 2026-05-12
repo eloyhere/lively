@@ -7,7 +7,21 @@ import vueDevTools from "vite-plugin-vue-devtools"
 export default defineConfig({
   base: "/",
   server: {
-    port: 80
+    port: 80,
+    proxy: {
+      '/tcm': {
+        target: 'http://localhost:8080',
+        changeOrigin: true
+      },
+      '/consumer': {
+        target: 'http://localhost:8080',
+        changeOrigin: true
+      },
+      '/administrator': {
+        target: 'http://localhost:8080',
+        changeOrigin: true
+      }
+    }
   },
   plugins: [
     vue(),

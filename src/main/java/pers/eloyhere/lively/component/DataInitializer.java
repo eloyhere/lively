@@ -33,6 +33,11 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String @NonNull ... args) throws Exception {
+        // 检查是否已有数据，避免重复初始化
+        if (authorityRepository.count() > 0) {
+            System.out.println("数据库已有初始化数据，跳过初始化...");
+            return;
+        }
         consumers(roles(authorities()));
     }
 

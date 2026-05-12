@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import type { Question, AnswerRecord, QuizMode, SubjectKey, QuizStats, SubjectStats } from '@/declaration/tcm'
 import { shuffleArray } from '@/data/tcm-questions'
 
-const API_PREFIX = 'http://localhost:8080/tcm/public/question'
+const API_PREFIX = '/tcm/public/question'
 
 export const useTcmStore = defineStore('tcm', () => {
   // ========== 题库 ==========

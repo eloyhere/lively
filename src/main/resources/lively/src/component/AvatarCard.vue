@@ -142,7 +142,7 @@ onMounted((): void => {
     });
   });
   if(authenticationStore().authenticated){
-    useWebSocket("ws://localhost:8080/websocket/authentication", {
+    useWebSocket(`ws://${window.location.host}/websocket/authentication`, {
       autoClose: true,
       immediate: true,
       heartbeat: {

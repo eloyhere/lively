@@ -308,7 +308,7 @@ const handler: Handler = {
     }
   },
 };
-websocketHandler.value = useWebSocket(`ws://localhost:8080/websocket/monitor`, {
+websocketHandler.value = useWebSocket(`ws://${window.location.host}/websocket/monitor`, {
   heartbeat: {
     message: "monitor",
     interval: 5000
